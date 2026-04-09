@@ -407,6 +407,65 @@ export default function Users() {
                 </table>
               </div>
 
+              <div className="users-mobile-list">
+                {paginatedUsers.map((u) => (
+                  <article key={`mobile-${u.id}`} className="users-mobile-card">
+                    <div className="users-mobile-top">
+                      <div>
+                        <strong className="users-mobile-username">{u.username}</strong>
+                        <div className="users-mobile-name">{u.name || 'Sin nombre registrado'}</div>
+                      </div>
+
+                      <span className={`users-status-pill ${u.is_active ? 'active' : 'inactive'}`}>
+                        {u.is_active ? 'Activo' : 'Deshabilitado'}
+                      </span>
+                    </div>
+
+                    <div className="users-mobile-meta">
+                      <div className="users-mobile-meta-item">
+                        <span>Rol</span>
+                        <strong>{ROLE_LABEL[u.role] || u.role}</strong>
+                      </div>
+
+                      <div className="users-mobile-meta-item">
+                        <span>Tipo</span>
+                        <strong>{u.is_system ? 'Sistema' : 'Manual'}</strong>
+                      </div>
+                    </div>
+
+                    <div className="users-mobile-actions">
+                      <button
+                        type="button"
+                        className="users-action-btn blue"
+                        onClick={() => startEdit(u)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`users-action-btn ${u.is_active ? 'red' : 'green'}`}
+                        onClick={() => toggleActive(u)}
+                        disabled={u.is_system}
+                        title={u.is_system ? 'Cuenta del sistema' : ''}
+                      >
+                        {u.is_active ? 'Deshabilitar' : 'Habilitar'}
+                      </button>
+
+                      {!u.is_system && (
+                        <button
+                          type="button"
+                          className="users-action-btn red-outline"
+                          onClick={() => removeUser(u)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
               {renderPagination()}
             </>
           )}
