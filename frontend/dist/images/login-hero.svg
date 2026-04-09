@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#084bb0"/>
+      <stop offset="100%" stop-color="#0b5ed7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <g fill="rgba(255,255,255,0.06)">
+    <circle cx="200" cy="160" r="120"/>
+    <circle cx="420" cy="80" r="80"/>
+    <rect x="700" y="120" width="380" height="200" rx="20"/>
+    <rect x="560" y="360" width="520" height="280" rx="30"/>
+  </g>
+  <g transform="translate(80,80)">
+    <text x="0" y="380" font-family="Inter, Arial, sans-serif" font-size="56" fill="rgba(255,255,255,0.95)" font-weight="700">SolarSur</text>
+    <text x="0" y="430" font-family="Inter, Arial, sans-serif" font-size="18" fill="rgba(255,255,255,0.85)">energía solar para todo uso</text>
+  </g>
+</svg>
