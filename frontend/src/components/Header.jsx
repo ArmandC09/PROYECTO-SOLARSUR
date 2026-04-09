@@ -129,50 +129,38 @@ export default function Header({ onNavigate, currentView }) {
           />
 
           <div className={`topbar-shell ${hasCrowdedNav ? 'topbar-shell-crowded' : ''} ${mobileMenuOpen ? 'open' : ''}`}>
-            <div className="topbar-mobile-panel-head">
-              <div className="topbar-mobile-panel-title">Menu</div>
-              <button
-                type="button"
-                className="topbar-mobile-close"
-                onClick={() => setMobileMenuOpen(false)}
-                aria-label="Cerrar menu"
-              >
-                ✕
+            <nav className="topbar-nav">
+              {items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`topbar-link ${currentView === item.id ? 'active' : ''}`}
+                  onClick={() => handleNavigate(item.id)}
+                >
+                  <NavIcon>{item.icon}</NavIcon>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            <div className="topbar-userbox">
+              <div className="topbar-avatar">
+                {user?.name?.[0] || 'U'}
+              </div>
+
+              <div className="topbar-usertext">
+                <strong>{user?.name}</strong>
+                <span>{user?.role}</span>
+              </div>
+
+              <button className="topbar-logout" onClick={handleLogout} title="Cerrar sesión" aria-label="Cerrar sesión">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <path d="M16 17l5-5-5-5" />
+                  <path d="M21 12H9" />
+                </svg>
               </button>
             </div>
-
-          <nav className="topbar-nav">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`topbar-link ${currentView === item.id ? 'active' : ''}`}
-                onClick={() => handleNavigate(item.id)}
-              >
-                <NavIcon>{item.icon}</NavIcon>
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          <div className="topbar-userbox">
-            <div className="topbar-avatar">
-              {user?.name?.[0] || 'U'}
-            </div>
-
-            <div className="topbar-usertext">
-              <strong>{user?.name}</strong>
-              <span>{user?.role}</span>
-            </div>
-
-            <button className="topbar-logout" onClick={handleLogout} title="Cerrar sesión" aria-label="Cerrar sesión">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <path d="M16 17l5-5-5-5" />
-                <path d="M21 12H9" />
-              </svg>
-            </button>
-          </div>
 
           </div>
         </>

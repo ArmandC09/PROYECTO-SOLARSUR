@@ -579,6 +579,7 @@ button.secondary{
 }
 
 .topbar-menu-toggle span{
+  display: block;
   width: 20px;
   height: 2px;
   border-radius: 999px;
@@ -1547,14 +1548,14 @@ main.home-main{
     top: 10px;
     right: 10px;
     left: auto;
-    width: min(360px, calc(100vw - 20px));
-    max-width: min(360px, calc(100vw - 20px));
+    width: min(320px, calc(100vw - 20px));
+    max-width: min(320px, calc(100vw - 20px));
     max-height: calc(100vh - 20px);
-    padding: 16px;
-    border-radius: 24px;
+    padding: 68px 14px 14px;
+    border-radius: 26px;
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
+    gap: 12px;
     background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,248,253,0.94));
     border: 1px solid rgba(233, 239, 248, 0.96);
     box-shadow:
@@ -1570,6 +1571,15 @@ main.home-main{
     scrollbar-width: none;
   }
 
+  .topbar-shell.topbar-shell-crowded{
+    display: flex;
+    grid-template-columns: none;
+    width: min(320px, calc(100vw - 20px));
+    max-width: min(320px, calc(100vw - 20px));
+    padding: 68px 14px 14px;
+    gap: 12px;
+  }
+
   .topbar-shell.open{
     opacity: 1;
     transform: translateX(0) scale(1);
@@ -1578,37 +1588,6 @@ main.home-main{
 
   .topbar-shell::-webkit-scrollbar{
     display: none;
-  }
-
-  .topbar-mobile-panel-head{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(225, 232, 243, 0.9);
-  }
-
-  .topbar-mobile-panel-title{
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1.8px;
-    text-transform: uppercase;
-    color: #60708d;
-  }
-
-  .topbar-mobile-close{
-    all: unset;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(240, 244, 251, 0.96);
-    color: #42577f;
-    cursor: pointer;
-    font-size: 16px;
   }
 
   .topbar-nav{
@@ -1623,7 +1602,7 @@ main.home-main{
   .topbar-link{
     width: 100%;
     justify-content: flex-start;
-    padding: 13px 14px;
+    padding: 12px 14px;
     font-size: 14px;
     border-radius: 16px;
     background: rgba(255,255,255,0.72);
@@ -1652,7 +1631,7 @@ main.home-main{
 
   .topbar-userbox{
     margin-left: 0;
-    padding: 14px 2px 2px;
+    padding: 12px 4px 2px;
     border-top: 1px solid rgba(225, 232, 243, 0.9);
     justify-content: space-between;
     width: 100%;
@@ -1704,14 +1683,20 @@ main.home-main{
   .topbar-shell{
     top: 8px;
     right: 8px;
-    width: min(330px, calc(100vw - 16px));
-    max-width: min(330px, calc(100vw - 16px));
-    padding: 14px;
+    width: min(292px, calc(100vw - 16px));
+    max-width: min(292px, calc(100vw - 16px));
+    padding: 60px 12px 12px;
     border-radius: 22px;
   }
 
+  .topbar-shell.topbar-shell-crowded{
+    width: min(292px, calc(100vw - 16px));
+    max-width: min(292px, calc(100vw - 16px));
+    padding: 60px 12px 12px;
+  }
+
   .topbar-link{
-    padding: 12px 13px;
+    padding: 11px 12px;
     font-size: 13px;
   }
 
