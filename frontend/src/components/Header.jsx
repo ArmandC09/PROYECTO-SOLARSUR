@@ -10,6 +10,7 @@ export default function Header({ onNavigate, currentView }) {
   const { logout, user } = useContext(AuthContext)
   const { company } = useContext(AppContext)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [logoError, setLogoError] = useState(false)
 
   const logo = company?.logo || ''
   const role = user?.role
@@ -60,6 +61,10 @@ export default function Header({ onNavigate, currentView }) {
   }, [currentView])
 
   useEffect(() => {
+    setLogoError(false)
+  }, [logo])
+
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 860) {
         setMobileMenuOpen(false)
@@ -94,8 +99,8 @@ export default function Header({ onNavigate, currentView }) {
   return (
     <header className={`topbar-wrap ${isHome ? 'topbar-home-only' : ''}`}>
       <div className="topbar-brand">
-        {logo ? (
-          <img src={logo} alt="logo" className="topbar-logo" />
+        {logo && !logoError ? (
+          <img src={logo} alt="logo" className="topbar-logo" onError={() => setLogoError(true)} />
         ) : (
           <div className="topbar-logo-text">SolarSur</div>
         )}

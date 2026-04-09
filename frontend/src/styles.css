@@ -525,6 +525,7 @@ button.secondary{
   flex: 0 0 auto;
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .topbar-logo{
@@ -535,6 +536,18 @@ button.secondary{
 }
 
 .topbar-logo-text{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 72px;
+  padding: 0 18px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.76);
+  border: 1px solid rgba(255,255,255,0.66);
+  box-shadow:
+    0 8px 24px rgba(55,72,112,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.54);
   font-size: 28px;
   font-weight: 800;
   color: #1e3564;
@@ -1496,6 +1509,14 @@ main.home-main{
     height: 58px;
   }
 
+  .topbar-logo-text{
+    min-width: 58px;
+    min-height: 58px;
+    padding: 0 16px;
+    border-radius: 18px;
+    font-size: 22px;
+  }
+
   .topbar-menu-toggle{
     display: inline-flex;
     margin-left: auto;
@@ -1523,11 +1544,12 @@ main.home-main{
 
   .topbar-shell{
     position: fixed;
-    top: 86px;
-    left: 10px;
+    top: 10px;
     right: 10px;
-    width: auto;
-    max-width: none;
+    left: auto;
+    width: min(360px, calc(100vw - 20px));
+    max-width: min(360px, calc(100vw - 20px));
+    max-height: calc(100vh - 20px);
     padding: 16px;
     border-radius: 24px;
     flex-direction: column;
@@ -1540,16 +1562,22 @@ main.home-main{
       0 10px 22px rgba(23, 38, 68, 0.10),
       inset 0 1px 0 rgba(255,255,255,0.74);
     opacity: 0;
-    transform: translateY(-10px) scale(0.98);
+    overflow-y: auto;
+    transform: translateX(18px) scale(0.98);
     pointer-events: none;
     transition: opacity .24s ease, transform .24s ease;
     z-index: 5201;
+    scrollbar-width: none;
   }
 
   .topbar-shell.open{
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
     pointer-events: auto;
+  }
+
+  .topbar-shell::-webkit-scrollbar{
+    display: none;
   }
 
   .topbar-mobile-panel-head{
@@ -1557,7 +1585,7 @@ main.home-main{
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgba(225, 232, 243, 0.9);
   }
 
@@ -1587,6 +1615,7 @@ main.home-main{
     display: grid;
     grid-template-columns: 1fr;
     gap: 8px;
+    width: 100%;
     overflow: visible;
     padding-bottom: 0;
   }
@@ -1626,6 +1655,7 @@ main.home-main{
     padding: 14px 2px 2px;
     border-top: 1px solid rgba(225, 232, 243, 0.9);
     justify-content: space-between;
+    width: 100%;
   }
 
   .topbar-usertext{
@@ -1657,6 +1687,14 @@ main.home-main{
     height: 52px;
   }
 
+  .topbar-logo-text{
+    min-width: 52px;
+    min-height: 52px;
+    padding: 0 14px;
+    border-radius: 16px;
+    font-size: 19px;
+  }
+
   .topbar-menu-toggle{
     width: 44px;
     height: 44px;
@@ -1664,9 +1702,10 @@ main.home-main{
   }
 
   .topbar-shell{
-    top: 78px;
-    left: 8px;
+    top: 8px;
     right: 8px;
+    width: min(330px, calc(100vw - 16px));
+    max-width: min(330px, calc(100vw - 16px));
     padding: 14px;
     border-radius: 22px;
   }
