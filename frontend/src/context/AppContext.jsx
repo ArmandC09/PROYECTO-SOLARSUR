@@ -137,14 +137,30 @@ export function AppProvider({ children }) {
     const r = await apiFetch('/sales', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sale) })
     const d = await r.json()
     if (r.ok) {
-      const updatedSales = [d, ...sales]
+      let updatedSales = [d, ...sales.filter((currentSale) => String(currentSale.id) !== String(d.id))]
       setSales(updatedSales)
+
+      if (sale.sourceQuoteId) {
+        setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
+      }
+
+      const sr = await apiFetch('/sales')
+      if (sr.ok) {
+        updatedSales = await sr.json()
+        setSales(updatedSales)
+      }
+
       const qr = await apiFetch('/quotes')
       if (qr.ok) {
         const quotesData = await qr.json()
-        setQuotes(filterConvertedQuotes(quotesData, updatedSales))
+        const visibleQuotes = filterConvertedQuotes(quotesData, updatedSales)
+        setQuotes(
+          sale.sourceQuoteId
+            ? visibleQuotes.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId))
+            : visibleQuotes
+        )
       } else if (sale.sourceQuoteId) {
-        setQuotes(prev => prev.filter((quote) => quote.id !== sale.sourceQuoteId))
+        setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
       }
 
       const ir = await apiFetch('/inventory')
