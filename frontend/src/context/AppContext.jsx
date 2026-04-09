@@ -19,7 +19,31 @@ export { apiFetch }
 
 function filterConvertedQuotes(quotesData, salesData) {
   const convertedIds = new Set((salesData || []).map((sale) => sale.source_quote_id).filter(Boolean))
+  const hiddenConvertedIds = getHiddenConvertedQuoteIds()
+  hiddenConvertedIds.forEach((id) => convertedIds.add(id))
   return (quotesData || []).filter((quote) => !convertedIds.has(quote.id))
+}
+
+function getHiddenConvertedQuoteIds() {
+  try {
+    const raw = sessionStorage.getItem('solarsur_hidden_converted_quotes')
+    if (!raw) return new Set()
+
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return new Set()
+
+    return new Set(parsed.map((id) => Number(id)).filter(Boolean))
+  } catch {
+    return new Set()
+  }
+}
+
+function rememberConvertedQuoteId(quoteId) {
+  if (!quoteId) return
+
+  const ids = getHiddenConvertedQuoteIds()
+  ids.add(Number(quoteId))
+  sessionStorage.setItem('solarsur_hidden_converted_quotes', JSON.stringify([...ids]))
 }
 
 export function AppProvider({ children }) {
@@ -141,6 +165,7 @@ export function AppProvider({ children }) {
       setSales(updatedSales)
 
       if (sale.sourceQuoteId) {
+        rememberConvertedQuoteId(sale.sourceQuoteId)
         setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
       }
 
@@ -153,12 +178,7 @@ export function AppProvider({ children }) {
       const qr = await apiFetch('/quotes')
       if (qr.ok) {
         const quotesData = await qr.json()
-        const visibleQuotes = filterConvertedQuotes(quotesData, updatedSales)
-        setQuotes(
-          sale.sourceQuoteId
-            ? visibleQuotes.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId))
-            : visibleQuotes
-        )
+        setQuotes(filterConvertedQuotes(quotesData, updatedSales))
       } else if (sale.sourceQuoteId) {
         setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
       }
