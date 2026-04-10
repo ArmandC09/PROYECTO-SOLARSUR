@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext(null)
 
-const API = 'https://proyecto-solarsur.onrender.com/api'
+const API = '/api'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)

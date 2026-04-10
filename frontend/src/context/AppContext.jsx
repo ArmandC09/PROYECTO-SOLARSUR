@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react'
 
 const AppContext = createContext(null)
-const API = 'https://proyecto-solarsur.onrender.com/api'
+const API = '/api'
 
 function getToken() {
   return sessionStorage.getItem('solarsur_token') || ''

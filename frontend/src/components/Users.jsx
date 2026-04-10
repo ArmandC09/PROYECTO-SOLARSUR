@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import StyledSelect from './StyledSelect'
 
-const API = 'https://proyecto-solarsur.onrender.com/api'
+const API = '/api'
 
 function getToken() {
   return sessionStorage.getItem('solarsur_token') || ''

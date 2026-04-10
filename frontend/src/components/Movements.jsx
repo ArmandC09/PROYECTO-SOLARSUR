@@ -3,7 +3,7 @@ import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
 import StyledSelect from './StyledSelect'
 
-const API = 'https://proyecto-solarsur.onrender.com/api'
+const API = '/api'
 
 function getToken() {
   return sessionStorage.getItem('solarsur_token') || ''
