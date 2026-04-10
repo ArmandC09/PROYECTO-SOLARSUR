@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import StyledSelect from './StyledSelect'
 
 const API = 'https://proyecto-solarsur.onrender.com/api'
 
@@ -24,6 +25,13 @@ const ROLE_LABEL = {
   SALES: 'Vendedor',
   WAREHOUSE: 'Almacén'
 }
+
+const ROLE_OPTIONS = [
+  { value: 'SALES', label: 'Vendedor' },
+  { value: 'WAREHOUSE', label: 'Almacén' },
+  { value: 'ADMIN', label: 'Administrador' },
+  { value: 'SUPERADMIN', label: 'Super Administrador' }
+]
 
 export default function Users() {
   const [users, setUsers] = useState([])
@@ -280,15 +288,11 @@ export default function Users() {
 
             <label>
               Rol
-              <select
+              <StyledSelect
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-              >
-                <option value="SALES">Vendedor</option>
-                <option value="WAREHOUSE">Almacén</option>
-                <option value="ADMIN">Administrador</option>
-                <option value="SUPERADMIN">Super Administrador</option>
-              </select>
+                onChange={(nextValue) => setForm({ ...form, role: nextValue })}
+                options={ROLE_OPTIONS}
+              />
             </label>
 
             <label>

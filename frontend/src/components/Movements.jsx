@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
+import StyledSelect from './StyledSelect'
 
 const API = 'https://proyecto-solarsur.onrender.com/api'
 
@@ -19,6 +20,20 @@ async function apiFetch(path, options = {}) {
   })
   return res
 }
+
+function getInventoryOptions(inventory) {
+  if (inventory.length === 0) return [{ value: '', label: 'No hay productos' }]
+
+  return inventory.map((item) => ({
+    value: String(item.id),
+    label: `${item.name}${item.sku ? ` (${item.sku})` : ''} - Stock actual: ${item.qty}`
+  }))
+}
+
+const MOVEMENT_TYPE_OPTIONS = [
+  { value: 'IN', label: 'Entrada' },
+  { value: 'OUT', label: 'Salida' }
+]
 
 export default function Movements() {
   const { user } = useContext(AuthContext)
@@ -43,6 +58,8 @@ export default function Movements() {
     qty: 1,
     note: ''
   })
+
+  const inventoryOptions = useMemo(() => getInventoryOptions(inventory), [inventory])
 
   const showMsg = (text) => {
     setMsg(text)
@@ -315,32 +332,22 @@ export default function Movements() {
                 <div className="ss-modal-body">
                   <div className="ss-field">
                     <label>Producto</label>
-                    <select
+                    <StyledSelect
                       value={form.inventory_id}
-                      onChange={(e) => setForm({ ...form, inventory_id: e.target.value })}
-                    >
-                      {inventory.length === 0 ? (
-                        <option value="">No hay productos</option>
-                      ) : (
-                        inventory.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name} {item.sku ? `(${item.sku})` : ''} — Stock actual: {item.qty}
-                          </option>
-                        ))
-                      )}
-                    </select>
+                      onChange={(nextValue) => setForm({ ...form, inventory_id: nextValue })}
+                      options={inventoryOptions}
+                      disabled={inventory.length === 0}
+                    />
                   </div>
 
                   <div className="ss-row-2">
                     <div className="ss-field">
                       <label>Tipo de movimiento</label>
-                      <select
+                      <StyledSelect
                         value={form.type}
-                        onChange={(e) => setForm({ ...form, type: e.target.value })}
-                      >
-                        <option value="IN">Entrada</option>
-                        <option value="OUT">Salida</option>
-                      </select>
+                        onChange={(nextValue) => setForm({ ...form, type: nextValue })}
+                        options={MOVEMENT_TYPE_OPTIONS}
+                      />
                     </div>
 
                     <div className="ss-field">

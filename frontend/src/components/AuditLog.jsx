@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { apiFetch } from '../context/AppContext'
+import StyledSelect from './StyledSelect'
 
 const ACTION_LABELS = {
   LOGIN:     { label: 'Inicio de sesión', color: '#10b981', bg:'#d1fae5', icon: '🔐' },
@@ -19,6 +20,16 @@ const ENTITY_LABELS = {
 }
 
 const PER_PAGE = 25
+
+const ACTION_OPTIONS = [
+  { value: '', label: 'Todas las acciones' },
+  ...Object.entries(ACTION_LABELS).map(([value, item]) => ({ value, label: `${item.icon} ${item.label}` }))
+]
+
+const ENTITY_OPTIONS = [
+  { value: '', label: 'Todos los módulos' },
+  ...Object.entries(ENTITY_LABELS).map(([value, label]) => ({ value, label }))
+]
 
 export default function AuditLog() {
   const [logs,         setLogs]         = useState([])
@@ -72,7 +83,7 @@ export default function AuditLog() {
   return (
     <section className="clients-page fade-in">
       <div className="clients-head">
-        <h1>🔍 Registro de Auditoría</h1>
+        <h1>Registro de Auditoría</h1>
         <p style={{color:'#6b7280',fontSize:'14px',marginTop:'4px'}}>
           Historial completo de acciones del sistema
         </p>
@@ -90,21 +101,21 @@ export default function AuditLog() {
             <input className="clients-search-input" placeholder="Buscar usuario, acción..." value={query} onChange={e=>setQuery(e.target.value)}/>
           </div>
 
-          <select value={filterAction} onChange={e=>setFilterAction(e.target.value)}
-            style={{padding:'9px 12px',borderRadius:'10px',border:'1.5px solid #e5e7eb',fontSize:'13px',background:'#fff',color:'#374151'}}>
-            <option value="">Todas las acciones</option>
-            {Object.entries(ACTION_LABELS).map(([k,v])=>(
-              <option key={k} value={k}>{v.icon} {v.label}</option>
-            ))}
-          </select>
+          <StyledSelect
+            value={filterAction}
+            onChange={setFilterAction}
+            options={ACTION_OPTIONS}
+            className="styled-select-inline"
+            triggerClassName="styled-select-toolbar-trigger"
+          />
 
-          <select value={filterEntity} onChange={e=>setFilterEntity(e.target.value)}
-            style={{padding:'9px 12px',borderRadius:'10px',border:'1.5px solid #e5e7eb',fontSize:'13px',background:'#fff',color:'#374151'}}>
-            <option value="">Todos los módulos</option>
-            {Object.entries(ENTITY_LABELS).map(([k,v])=>(
-              <option key={k} value={k}>{v}</option>
-            ))}
-          </select>
+          <StyledSelect
+            value={filterEntity}
+            onChange={setFilterEntity}
+            options={ENTITY_OPTIONS}
+            className="styled-select-inline"
+            triggerClassName="styled-select-toolbar-trigger"
+          />
 
           <button type="button" className="clients-new-btn" onClick={fetchLogs} style={{marginLeft:'auto'}}>
             🔄 Actualizar

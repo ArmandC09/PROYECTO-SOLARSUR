@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react'
 import AppContext from '../context/AppContext'
+import StyledSelect from './StyledSelect'
 
 export default function Sales() {
   const { quotes, clients, addSale } = useContext(AppContext)
@@ -162,9 +163,11 @@ export default function Sales() {
                 <div className="sales-discount-fields">
                   <div className="sales-discount-field">
                     <label>Tipo de descuento</label>
-                    <select value="general" readOnly>
-                      <option value="general">Descuento general</option>
-                    </select>
+                    <StyledSelect
+                      value="general"
+                      options={[{ value: 'general', label: 'Descuento general' }]}
+                      disabled
+                    />
                   </div>
 
                   <div className="sales-discount-arrow">→</div>

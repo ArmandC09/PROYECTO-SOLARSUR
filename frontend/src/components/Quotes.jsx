@@ -3,6 +3,7 @@ import AppContext from '../context/AppContext'
 import AuthContext from '../context/AuthContext'
 import { printQuote } from '../utils/printQuote'
 import ModalPortal from './ModalPortal'
+import StyledSelect from './StyledSelect'
 
 /* ── Qty control ── */
 function QtyCtrl({ value, onChange }) {
@@ -20,6 +21,11 @@ function QtyCtrl({ value, onChange }) {
     </div>
   )
 }
+
+const IGV_OPTIONS = [
+  { value: '0', label: 'Sin IGV (0%)' },
+  { value: '18', label: 'Con IGV (18%)' }
+]
 
 export default function Quotes() {
   const { clients, quotes, inventory, addQuote, deleteQuote, company } = useContext(AppContext)
@@ -65,6 +71,16 @@ export default function Quotes() {
       (p.name||'').toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q)
     )
   }, [inventory, prodQuery])
+
+  const clientOptions = useMemo(
+    () => [{ value: '', label: 'Seleccionar cliente...' }, ...clients.map((client) => ({ value: String(client.id), label: client.name }))],
+    [clients]
+  )
+
+  const editorClientOptions = useMemo(
+    () => [{ value: '', label: 'Seleccionar...' }, ...clients.map((client) => ({ value: String(client.id), label: client.name }))],
+    [clients]
+  )
 
   // ── New quote helpers ──
   const openNew = () => {
@@ -230,12 +246,11 @@ export default function Quotes() {
                   <div style={{fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.7px', color:'#4b5563', marginBottom:8}}>
                     CLIENTE
                   </div>
-                  <select value={newClientId} onChange={e=>setNewClientId(e.target.value)}
-                    style={{width:'100%', padding:'10px 14px', border:'1.5px solid #e5e7eb', borderRadius:10,
-                      fontSize:14, background:'#fafafa', color:'#111827'}}>
-                    <option value="">Seleccionar cliente...</option>
-                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                  <StyledSelect
+                    value={newClientId}
+                    onChange={setNewClientId}
+                    options={clientOptions}
+                  />
                   {/* Datos del cliente seleccionado */}
                   {newClientId && (() => {
                     const cl = clients.find(c => String(c.id)===String(newClientId))
@@ -371,10 +386,11 @@ export default function Quotes() {
               <div className="ss-row-3">
                 <div className="ss-field" style={{gridColumn:'span 1'}}>
                   <label>Cliente</label>
-                  <select value={edClientId} onChange={e=>setEdClientId(e.target.value)}>
-                    <option value="">Seleccionar...</option>
-                    {clients.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                  <StyledSelect
+                    value={edClientId}
+                    onChange={setEdClientId}
+                    options={editorClientOptions}
+                  />
                 </div>
                 <div className="ss-field">
                   <label>N° Cotización</label>
@@ -382,10 +398,11 @@ export default function Quotes() {
                 </div>
                 <div className="ss-field">
                   <label>IGV</label>
-                  <select value={edIgv} onChange={e=>setEdIgv(Number(e.target.value))}>
-                    <option value={0}>Sin IGV (0%)</option>
-                    <option value={18}>Con IGV (18%)</option>
-                  </select>
+                  <StyledSelect
+                    value={String(edIgv)}
+                    onChange={(nextValue) => setEdIgv(Number(nextValue))}
+                    options={IGV_OPTIONS}
+                  />
                 </div>
               </div>
 
