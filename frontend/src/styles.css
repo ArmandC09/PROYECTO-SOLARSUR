@@ -5643,6 +5643,21 @@ users-submit-btn:hover{
     font-size: 13px;
   }
 
+    /* Liberar overflow en contenedores padre para que el scroll horizontal funcione */
+  .clients-main-card,
+  .movements-main-card,
+  .inventory-main-card {
+    overflow: visible !important;
+  }
+
+  .clients-table,
+  .movements-table,
+  .audit-table,
+  .inventory-table,
+  .data-table {
+    overflow: visible !important;
+  }
+
 }
 
 @media (max-width: 640px) {
