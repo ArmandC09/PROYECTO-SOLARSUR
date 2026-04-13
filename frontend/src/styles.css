@@ -1681,13 +1681,20 @@ main.home-main{
 
 @media (max-width: 860px){
   .topbar-wrap{
-    position: static;
+    position: fixed;
     top: 10px;
     left: 10px;
     right: 10px;
     gap: 10px;
     align-items: center;
-    margin: 10px 10px 0;
+  }
+
+  .app.with-topbar .topbar-wrap{
+    justify-content: flex-end;
+  }
+
+  .app.with-topbar .topbar-brand{
+    display: none;
   }
 
   .topbar-logo{
@@ -1835,7 +1842,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 24px !important;
+    padding-top: 84px !important;
   }
 }
 
@@ -1844,7 +1851,6 @@ main.home-main{
     top: 8px;
     left: 8px;
     right: 8px;
-    margin: 8px 8px 0;
   }
 
   .topbar-logo{
@@ -1898,7 +1904,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 20px !important;
+    padding-top: 76px !important;
   }
 }
 
