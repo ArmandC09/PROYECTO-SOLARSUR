@@ -1701,11 +1701,11 @@ main.home-main{
   }
 
   .topbar-home-only{
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    transform: none;
     justify-content: center;
-    width: auto;
+    width: 100%;
   }
 
   .topbar-logo{
@@ -1855,7 +1855,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 68px !important;
+    padding-top: 78px !important;
   }
 
   main.home-main .dashboard-container{
@@ -1864,7 +1864,7 @@ main.home-main{
     width: 100%;
     min-height: 100vh;
     overflow: visible;
-    padding-top: 12px;
+    padding-top: 22px;
   }
 }
 
@@ -1929,14 +1929,14 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 60px !important;
+    padding-top: 70px !important;
   }
 }
 
 @media (max-width: 640px){
   .dashboard-container{
     justify-content:flex-start;
-    padding:24px 16px 70px;
+    padding:28px 16px 70px;
   }
 
   .dashboard-header-panel{
@@ -1944,7 +1944,7 @@ main.home-main{
   }
 
   .dashboard-header{
-    margin-top:60px;
+    margin-top:72px;
     padding:8px 10px 10px;
   }
 
