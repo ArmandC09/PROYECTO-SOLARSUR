@@ -1681,11 +1681,13 @@ main.home-main{
 
 @media (max-width: 860px){
   .topbar-wrap{
+    position: static;
     top: 10px;
     left: 10px;
     right: 10px;
     gap: 10px;
     align-items: center;
+    margin: 10px 10px 0;
   }
 
   .topbar-logo{
@@ -1833,7 +1835,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 96px !important;
+    padding-top: 24px !important;
   }
 }
 
@@ -1842,6 +1844,7 @@ main.home-main{
     top: 8px;
     left: 8px;
     right: 8px;
+    margin: 8px 8px 0;
   }
 
   .topbar-logo{
@@ -1895,7 +1898,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 88px !important;
+    padding-top: 20px !important;
   }
 }
 
