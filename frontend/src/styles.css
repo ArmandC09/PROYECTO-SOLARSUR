@@ -5618,6 +5618,17 @@ users-submit-btn:hover{
 }
 
 @media (max-width: 640px) {
+  main {
+    padding: 10px !important;
+  }
+
+  .clients-main-card,
+  .inventory-main-card,
+  .movements-main-card,
+  .sales-card-main {
+    padding: 10px 8px;
+  }
+
   .clients-table-wrap {
     overflow-x: auto;
     overflow-y: hidden;
@@ -5628,13 +5639,17 @@ users-submit-btn:hover{
   }
 
   .clients-table {
-    min-width: 640px;
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
     border-spacing: 0;
   }
 
   .clients-table td {
     padding: 10px 10px;
     font-size: 12px;
+    white-space: normal;
+    word-break: break-word;
   }
 
   .clients-table thead th {
@@ -5642,6 +5657,7 @@ users-submit-btn:hover{
     top: 0;
     z-index: 2;
     padding: 11px 10px;
+    white-space: normal;
   }
 
   .clients-table .btn-icon {
