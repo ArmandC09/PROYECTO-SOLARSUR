@@ -5619,68 +5619,34 @@ users-submit-btn:hover{
 
 @media (max-width: 640px) {
   .clients-table-wrap {
-    overflow: visible;
-    border: none;
-    background: transparent;
-    box-shadow: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 12px;
+    border: 1px solid rgba(222, 230, 242, 0.96);
+    background: linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(244, 248, 253, 0.96));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
   }
 
   .clients-table {
-    min-width: 0;
+    min-width: 640px;
     border-spacing: 0;
   }
 
-  .clients-table thead {
-    display: none;
-  }
-
-  .clients-table tbody,
-  .clients-table tr,
   .clients-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .clients-table tbody tr {
-    margin-bottom: 10px;
-    border-radius: 14px;
-    border: 1px solid rgba(216, 226, 240, 0.95);
-    background: linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(243, 247, 253, 0.98));
-    box-shadow: 0 8px 20px rgba(35, 67, 116, 0.07);
-    overflow: hidden;
-  }
-
-  .clients-table td {
-    border-bottom: 1px solid rgba(231, 237, 245, 0.9);
-    padding: 9px 12px 8px;
-    text-align: left !important;
+    padding: 10px 10px;
     font-size: 12px;
   }
 
-  .clients-table td:last-child {
-    border-bottom: none;
+  .clients-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 11px 10px;
   }
-
-  .clients-table td::before {
-    display: block;
-    margin-bottom: 3px;
-    font-size: 10px;
-    letter-spacing: 0.7px;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: #7083a3;
-  }
-
-  .clients-table td:nth-child(1)::before { content: 'Nombre'; }
-  .clients-table td:nth-child(2)::before { content: 'DNI / RUC'; }
-  .clients-table td:nth-child(3)::before { content: 'Contacto'; }
-  .clients-table td:nth-child(4)::before { content: 'Ubicacion'; }
-  .clients-table td:nth-child(5)::before { content: 'Acciones'; }
 
   .clients-table .btn-icon {
-    width: 30px;
-    height: 30px;
-    margin-right: 6px;
+    width: 28px;
+    height: 28px;
   }
 
   .clients-pagination {
