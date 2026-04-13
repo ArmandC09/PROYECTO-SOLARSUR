@@ -1687,7 +1687,7 @@ main.home-main{
     right: 10px;
     gap: 10px;
     align-items: center;
-    margin: 0 10px;
+    margin: 8px 10px 2px;
   }
 
   .app.with-topbar .topbar-wrap{
@@ -1705,7 +1705,7 @@ main.home-main{
   }
 
   .topbar-logo{
-    height: 58px;
+    height: 54px;
   }
 
   .topbar-logo-text{
@@ -1853,6 +1853,15 @@ main.home-main{
   .app.with-topbar main{
     padding-top: 0 !important;
   }
+
+  main.home-main .dashboard-container{
+    position: static;
+    inset: auto;
+    width: 100%;
+    min-height: 100vh;
+    overflow: visible;
+    padding-top: 12px;
+  }
 }
 
 @media (max-width: 520px){
@@ -1860,11 +1869,11 @@ main.home-main{
     top: 8px;
     left: 8px;
     right: 8px;
-    margin: 0 8px;
+    margin: 6px 8px 2px;
   }
 
   .topbar-logo{
-    height: 52px;
+    height: 48px;
   }
 
   .topbar-logo-text{
