@@ -5576,7 +5576,7 @@ users-submit-btn:hover{
 
   main {
     flex: 1 0 auto;
-    padding: 14px 12px;
+    padding: 12px 8px;
   }
 
   .clients-head,
@@ -5605,7 +5605,7 @@ users-submit-btn:hover{
   .inventory-main-card,
   .movements-main-card,
   .sales-card-main {
-    padding: 14px 12px;
+    padding: 12px 10px;
   }
 
   .clients-toolbar,
@@ -5658,22 +5658,25 @@ users-submit-btn:hover{
 
 @media (max-width: 640px) {
   main {
-    padding: 10px 10px !important;
+    padding: 8px 6px !important;
   }
 
   .clients-main-card,
   .inventory-main-card,
   .movements-main-card,
   .sales-card-main {
-    padding: 12px;
+    padding: 10px 8px;
   }
 
   .clients-table-wrap,
   .inventory-table-wrap,
   .users-table-wrap {
-    overflow-x: auto;
+    overflow-x: scroll !important;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    display: block;
     max-width: 100%;
     border-radius: 12px;
     border: 1px solid rgba(222, 230, 242, 0.96);
@@ -5689,7 +5692,7 @@ users-submit-btn:hover{
   .inventory-table-wrap .data-table,
   .users-table-wrap .data-table {
     width: max-content;
-    min-width: 560px;
+    min-width: 680px;
     table-layout: auto;
     border-spacing: 0;
   }
