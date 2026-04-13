@@ -124,7 +124,7 @@ export default function AuditLog() {
 
       <div className="clients-main-card" style={{marginTop:'16px'}}>
         {/* TOOLBAR */}
-        <div className="clients-toolbar" style={{flexWrap:'wrap',gap:'10px'}}>
+        <div className="clients-toolbar audit-toolbar">
           <div className="clients-search-wrap">
             <span className="clients-search-icon">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -150,7 +150,7 @@ export default function AuditLog() {
             triggerClassName="styled-select-toolbar-trigger"
           />
 
-          <button type="button" className="clients-new-btn" onClick={fetchLogs} style={{marginLeft:'auto'}}>
+          <button type="button" className="clients-new-btn" onClick={fetchLogs}>
             🔄 Actualizar
           </button>
         </div>

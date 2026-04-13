@@ -5579,6 +5579,17 @@ users-submit-btn:hover{
     padding: 12px 8px;
   }
 
+  .clients-page,
+  .providers-page,
+  .inventory-page,
+  .movements-page,
+  .quotes-page,
+  .sales-page,
+  .users-page {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .clients-head,
   .inventory-head,
   .quotes-page-head,
@@ -5609,16 +5620,27 @@ users-submit-btn:hover{
   .quotes-main-card,
   .users-table-card,
   .users-form-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 12px 10px;
   }
 
   .clients-toolbar,
-  .inventory-toolbar {
+  .inventory-toolbar,
+  .audit-toolbar {
     flex-direction: column;
     align-items: stretch;
     flex-wrap: nowrap;
     gap: 10px;
     margin-bottom: 12px;
+    width: 100%;
+  }
+
+  .clients-toolbar > *,
+  .inventory-toolbar > *,
+  .audit-toolbar > * {
+    min-width: 0;
   }
 
   .clients-new-btn,
@@ -5629,6 +5651,7 @@ users-submit-btn:hover{
     padding: 9px 14px !important;
     font-size: 13px !important;
     border-radius: 11px !important;
+    white-space: nowrap;
   }
 
   .clients-plus,
@@ -5644,7 +5667,8 @@ users-submit-btn:hover{
   }
 
   .clients-search-wrap,
-  .inventory-search-wrap {
+  .inventory-search-wrap,
+  .styled-select-inline {
     width: 100%;
     min-width: 0;
   }
@@ -5654,7 +5678,6 @@ users-submit-btn:hover{
     padding: 16px 8px;
     font-size: 13px;
   }
-
 }
 
 @media (max-width: 640px) {
