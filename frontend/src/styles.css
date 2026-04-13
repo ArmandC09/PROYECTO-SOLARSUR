@@ -1702,11 +1702,15 @@ main.home-main{
 
   .topbar-home-only{
     top: 14px;
-    left: 50%;
-    right: auto;
-    transform: translateX(calc(-50% - 8px));
+    left: 0;
+    right: 0;
+    transform: none;
     justify-content: center;
-    width: max-content;
+    width: 100%;
+  }
+
+  .topbar-home-only .topbar-brand{
+    margin: 0 auto;
   }
 
   .topbar-logo{
@@ -1935,7 +1939,6 @@ main.home-main{
 
   .topbar-home-only{
     top: 12px;
-    transform: translateX(calc(-50% - 6px));
   }
 }
 
