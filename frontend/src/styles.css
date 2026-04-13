@@ -1711,6 +1711,7 @@ main.home-main{
 
   .topbar-home-only .topbar-brand{
     margin: 0 auto;
+    transform: translateX(-6px);
   }
 
   .topbar-logo{
@@ -1939,6 +1940,10 @@ main.home-main{
 
   .topbar-home-only{
     top: 12px;
+  }
+
+  .topbar-home-only .topbar-brand{
+    transform: translateX(-4px);
   }
 }
 
