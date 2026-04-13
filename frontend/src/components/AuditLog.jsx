@@ -146,7 +146,7 @@ export default function AuditLog() {
           ) : paginated.length === 0 ? (
             <div className="clients-empty">No hay registros de auditoría.</div>
           ) : (
-            <table className="data-table">
+            <table className="data-table audit-table">
               <thead>
                 <tr>
                   <th>Fecha y hora</th>

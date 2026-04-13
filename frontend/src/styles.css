@@ -5662,15 +5662,20 @@ users-submit-btn:hover{
   }
 
   .clients-table-wrap,
+  .movements-table-wrap,
   .inventory-table-wrap,
   .users-table-wrap {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
   }
 
   .clients-table,
+  .movements-table,
+  .audit-table,
   .providers-table,
   .users-table {
     min-width: 680px;

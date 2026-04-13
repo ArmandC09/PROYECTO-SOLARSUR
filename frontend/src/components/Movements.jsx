@@ -262,8 +262,8 @@ export default function Movements() {
         ) : filtered.length === 0 ? (
           <p style={{ marginTop: 12 }}>No hay movimientos registrados.</p>
         ) : (
-          <div style={{ overflowX: 'auto', marginTop: 15 }}>
-            <table className="data-table">
+          <div className="clients-table-wrap movements-table-wrap" style={{ marginTop: 15 }}>
+            <table className="data-table movements-table">
               <thead>
                 <tr>
                   <th>Fecha</th>
