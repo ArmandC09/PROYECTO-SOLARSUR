@@ -5682,3 +5682,25 @@ users-submit-btn:hover{
   }
 }
 
+@media (max-width: 860px) {
+  .clients-table-wrap,
+  .movements-table-wrap,
+  .audit-table-wrap {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    max-width: 100%;
+    display: block;
+  }
+
+  .clients-table,
+  .movements-table,
+  .audit-table {
+    width: 920px;
+    min-width: 920px;
+    table-layout: auto;
+  }
+}
+

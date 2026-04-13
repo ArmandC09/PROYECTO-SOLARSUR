@@ -140,7 +140,7 @@ export default function AuditLog() {
         </div>
 
         {/* TABLE */}
-        <div className="clients-table-wrap">
+        <div className="clients-table-wrap audit-table-wrap">
           {loading ? (
             <div className="clients-empty">⏳ Cargando registros...</div>
           ) : paginated.length === 0 ? (
