@@ -5602,9 +5602,13 @@ users-submit-btn:hover{
   }
 
   .clients-main-card,
+  .providers-main-card,
   .inventory-main-card,
   .movements-main-card,
-  .sales-card-main {
+  .sales-card-main,
+  .quotes-main-card,
+  .users-table-card,
+  .users-form-card {
     padding: 12px 10px;
   }
 
@@ -5647,10 +5651,29 @@ users-submit-btn:hover{
   }
 
   .clients-main-card,
+  .providers-main-card,
   .inventory-main-card,
   .movements-main-card,
-  .sales-card-main {
+  .sales-card-main,
+  .quotes-main-card,
+  .users-table-card,
+  .users-form-card {
     padding: 10px 8px;
+  }
+
+  .clients-table-wrap,
+  .inventory-table-wrap,
+  .users-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .clients-table,
+  .providers-table,
+  .users-table {
+    min-width: 680px;
   }
 }
 
