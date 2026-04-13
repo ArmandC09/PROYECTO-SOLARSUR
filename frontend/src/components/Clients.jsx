@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react'
+import React, { useState, useContext, useMemo, useRef } from 'react'
 import AppContext from '../context/AppContext'
 import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
@@ -19,6 +19,8 @@ export default function Clients() {
   const [showOptionalFields, setShowOptionalFields] = useState(false)
   const [page, setPage] = useState(1)
   const [saving, setSaving] = useState(false)
+  const tableScrollRef = useRef(null)
+  const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
 
   const hasOptionalData = (clientForm) => Boolean(
     clientForm.dni || clientForm.ruc || clientForm.email || clientForm.district || clientForm.city
@@ -77,6 +79,37 @@ export default function Clients() {
 
   React.useEffect(() => { setPage(1) }, [query])
 
+  const handleTableTouchStart = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+
+    const touch = event.touches[0]
+    tableTouchRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft,
+      dragging: false
+    }
+  }
+
+  const handleTableTouchMove = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+
+    const touch = event.touches[0]
+    const dx = touch.clientX - tableTouchRef.current.startX
+    const dy = touch.clientY - tableTouchRef.current.startY
+
+    if (!tableTouchRef.current.dragging) {
+      if (Math.abs(dx) < 6) return
+      if (Math.abs(dx) <= Math.abs(dy)) return
+      tableTouchRef.current.dragging = true
+    }
+
+    event.preventDefault()
+    wrapper.scrollLeft = tableTouchRef.current.scrollLeft - dx
+  }
+
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
   return (
@@ -100,7 +133,12 @@ export default function Clients() {
           </div>
         </div>
 
-        <div className="clients-table-wrap">
+        <div
+          className="clients-table-wrap"
+          ref={tableScrollRef}
+          onTouchStart={handleTableTouchStart}
+          onTouchMove={handleTableTouchMove}
+        >
           {paginatedClients.length === 0 ? (
             <div className="clients-empty">No hay clientes registrados.</div>
           ) : (

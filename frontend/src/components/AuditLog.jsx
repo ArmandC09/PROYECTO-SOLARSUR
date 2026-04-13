@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { apiFetch } from '../context/AppContext'
 import StyledSelect from './StyledSelect'
 
@@ -38,6 +38,8 @@ export default function AuditLog() {
   const [filterAction, setFilterAction] = useState('')
   const [filterEntity, setFilterEntity] = useState('')
   const [page,         setPage]         = useState(1)
+  const tableScrollRef = useRef(null)
+  const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
 
   useEffect(() => { fetchLogs() }, [])
 
@@ -78,6 +80,37 @@ export default function AuditLog() {
     const d = new Date(dt)
     return d.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' +
            d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+  }
+
+  const handleTableTouchStart = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+
+    const touch = event.touches[0]
+    tableTouchRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft,
+      dragging: false
+    }
+  }
+
+  const handleTableTouchMove = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+
+    const touch = event.touches[0]
+    const dx = touch.clientX - tableTouchRef.current.startX
+    const dy = touch.clientY - tableTouchRef.current.startY
+
+    if (!tableTouchRef.current.dragging) {
+      if (Math.abs(dx) < 6) return
+      if (Math.abs(dx) <= Math.abs(dy)) return
+      tableTouchRef.current.dragging = true
+    }
+
+    event.preventDefault()
+    wrapper.scrollLeft = tableTouchRef.current.scrollLeft - dx
   }
 
   return (
@@ -140,7 +173,12 @@ export default function AuditLog() {
         </div>
 
         {/* TABLE */}
-        <div className="clients-table-wrap audit-table-wrap">
+        <div
+          className="clients-table-wrap audit-table-wrap"
+          ref={tableScrollRef}
+          onTouchStart={handleTableTouchStart}
+          onTouchMove={handleTableTouchMove}
+        >
           {loading ? (
             <div className="clients-empty">⏳ Cargando registros...</div>
           ) : paginated.length === 0 ? (
