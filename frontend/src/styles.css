@@ -5663,14 +5663,14 @@ users-submit-btn:hover{
 
   .clients-table-wrap,
   .movements-table-wrap,
+  .audit-table-wrap,
   .inventory-table-wrap,
   .users-table-wrap {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: auto !important;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
-    overscroll-behavior-x: contain;
+    touch-action: auto;
   }
 
   .clients-table,
@@ -5678,7 +5678,8 @@ users-submit-btn:hover{
   .audit-table,
   .providers-table,
   .users-table {
-    min-width: 680px;
+    width: max-content;
+    min-width: 100%;
   }
 }
 
@@ -5689,8 +5690,7 @@ users-submit-btn:hover{
     overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
-    overscroll-behavior-x: contain;
+    touch-action: auto;
     max-width: 100%;
     display: block;
   }
@@ -5698,9 +5698,18 @@ users-submit-btn:hover{
   .clients-table,
   .movements-table,
   .audit-table {
-    width: 920px;
-    min-width: 920px;
+    width: max-content;
+    min-width: 100%;
     table-layout: auto;
+  }
+
+  .clients-table th,
+  .clients-table td,
+  .movements-table th,
+  .movements-table td,
+  .audit-table th,
+  .audit-table td {
+    white-space: nowrap;
   }
 }
 
