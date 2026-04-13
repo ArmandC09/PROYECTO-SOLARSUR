@@ -1289,6 +1289,7 @@ main.home-main{
    ========================= */
 
 .app{
+  position:relative;
   min-height:100vh;
   background-image:url('/images/fondo_dashboard.jpg');
   background-size:cover;
@@ -1681,13 +1682,14 @@ main.home-main{
 
 @media (max-width: 860px){
   .topbar-wrap{
-    position: static;
+    position: absolute;
     top: 10px;
     left: 10px;
     right: 10px;
     gap: 10px;
     align-items: center;
-    margin: 8px 10px 2px;
+    margin: 0;
+    z-index: 260;
   }
 
   .app.with-topbar .topbar-wrap{
@@ -1699,9 +1701,11 @@ main.home-main{
   }
 
   .topbar-home-only{
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     justify-content: center;
-    position: relative;
-    z-index: 260;
+    width: auto;
   }
 
   .topbar-logo{
@@ -1851,7 +1855,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 0 !important;
+    padding-top: 68px !important;
   }
 
   main.home-main .dashboard-container{
@@ -1869,7 +1873,7 @@ main.home-main{
     top: 8px;
     left: 8px;
     right: 8px;
-    margin: 6px 8px 2px;
+    margin: 0;
   }
 
   .topbar-logo{
@@ -1925,7 +1929,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 0 !important;
+    padding-top: 60px !important;
   }
 }
 
