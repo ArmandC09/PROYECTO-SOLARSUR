@@ -1687,7 +1687,7 @@ main.home-main{
     right: 10px;
     gap: 10px;
     align-items: center;
-    margin: 10px 10px 0;
+    margin: 0 10px;
   }
 
   .app.with-topbar .topbar-wrap{
@@ -1700,6 +1700,8 @@ main.home-main{
 
   .topbar-home-only{
     justify-content: center;
+    position: relative;
+    z-index: 260;
   }
 
   .topbar-logo{
@@ -1849,7 +1851,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 24px !important;
+    padding-top: 0 !important;
   }
 }
 
@@ -1858,7 +1860,7 @@ main.home-main{
     top: 8px;
     left: 8px;
     right: 8px;
-    margin: 8px 8px 0;
+    margin: 0 8px;
   }
 
   .topbar-logo{
@@ -1914,7 +1916,7 @@ main.home-main{
   }
 
   .app.with-topbar main{
-    padding-top: 20px !important;
+    padding-top: 0 !important;
   }
 }
 
