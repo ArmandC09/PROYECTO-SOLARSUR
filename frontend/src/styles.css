@@ -5571,7 +5571,7 @@ users-submit-btn:hover{
 
   main {
     flex: 1 0 auto;
-    padding: 14px 8px;
+    padding: 14px 10px;
   }
 
   .clients-head,
@@ -5596,25 +5596,11 @@ users-submit-btn:hover{
     padding: 10px 14px 14px;
   }
 
-  .data-table {
-    font-size: 12px;
-  }
-
-  .data-table thead th {
-    padding: 11px 10px;
-    font-size: 10px;
-    letter-spacing: 0.6px;
-  }
-
-  .data-table td {
-    padding: 10px 10px;
-  }
-
   .clients-main-card,
   .inventory-main-card,
   .movements-main-card,
   .sales-card-main {
-    padding: 12px 10px;
+    padding: 14px 12px;
   }
 
   .clients-toolbar,
@@ -5667,19 +5653,20 @@ users-submit-btn:hover{
 
 @media (max-width: 640px) {
   main {
-    padding: 8px 6px !important;
+    padding: 10px 8px !important;
   }
 
   .clients-main-card,
   .inventory-main-card,
   .movements-main-card,
   .sales-card-main {
-    padding: 9px 6px;
+    padding: 12px 10px;
   }
 
   .clients-table-wrap {
     overflow-x: auto;
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     border-radius: 12px;
     border: 1px solid rgba(222, 230, 242, 0.96);
     background: linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(244, 248, 253, 0.96));
@@ -5694,8 +5681,6 @@ users-submit-btn:hover{
   }
 
   .clients-table td {
-    padding: 8px 8px;
-    font-size: 11px;
     white-space: nowrap;
     word-break: normal;
   }
@@ -5704,10 +5689,7 @@ users-submit-btn:hover{
     position: sticky;
     top: 0;
     z-index: 2;
-    padding: 9px 8px;
     white-space: nowrap;
-    font-size: 9px;
-    letter-spacing: 0.45px;
   }
 
   .clients-table .btn-icon {
