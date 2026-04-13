@@ -5564,14 +5564,14 @@ users-submit-btn:hover{
 
 @media (max-width: 860px) {
   body {
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   .app {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   main {
@@ -5643,21 +5643,6 @@ users-submit-btn:hover{
     font-size: 13px;
   }
 
-    /* Liberar overflow en contenedores padre para que el scroll horizontal funcione */
-  .clients-main-card,
-  .movements-main-card,
-  .inventory-main-card {
-    overflow: visible !important;
-  }
-
-  .clients-table,
-  .movements-table,
-  .audit-table,
-  .inventory-table,
-  .data-table {
-    overflow: visible !important;
-  }
-
 }
 
 @media (max-width: 640px) {
@@ -5685,7 +5670,8 @@ users-submit-btn:hover{
     overflow-x: auto !important;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    touch-action: auto;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
   }
 
   .clients-table,
@@ -5693,37 +5679,9 @@ users-submit-btn:hover{
   .audit-table,
   .providers-table,
   .users-table {
-    width: max-content;
-    min-width: 100%;
-  }
-}
-
-@media (max-width: 860px) {
-  .clients-table-wrap,
-  .movements-table-wrap,
-  .audit-table-wrap {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    touch-action: auto;
-    max-width: 100%;
-    display: block;
-  }
-
-  .clients-table,
-  .movements-table,
-  .audit-table {
-    width: max-content;
-    min-width: 100%;
+    width: max-content !important;
+    min-width: 680px;
     table-layout: auto;
-  }
-
-  .clients-table th,
-  .clients-table td,
-  .movements-table th,
-  .movements-table td,
-  .audit-table th,
-  .audit-table td {
     white-space: nowrap;
   }
 }
