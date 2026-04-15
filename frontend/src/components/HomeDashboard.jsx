@@ -40,7 +40,7 @@ export default function HomeDashboard({ onNavigate }) {
 
   const configCards = [
     { key: 'users', label: 'Usuarios', desc: 'Cuentas y permisos', img: '/images/icon_users.png', letter: 'U', color: '#2563eb', action: () => onNavigate('users'), show: isSuperAdmin },
-    { key: 'audit', label: 'Auditoría', desc: 'Registro de actividad', img: '/images/icon_history.png', letter: 'A', color: '#7c3aed', action: () => onNavigate('audit'), show: isSuperAdmin },
+    { key: 'audit', label: 'Auditoría', desc: 'Registro de actividad', img: '/images/icon_audit.png', letter: 'A', color: '#7c3aed', action: () => onNavigate('audit'), show: isSuperAdmin },
     { key: 'profile', label: 'Perfil', desc: 'Datos de empresa', img: '/images/icon_profile.png', letter: 'P', color: '#3b82f6', action: () => onNavigate('profile'), show: isAdmin },
     { key: 'logout', label: 'Salir', desc: user?.name || user?.username, img: '/images/icon_logout.png', letter: 'S', color: '#ef4444', action: logout, show: true }
   ].filter((item) => item.show)

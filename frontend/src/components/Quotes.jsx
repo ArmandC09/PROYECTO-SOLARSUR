@@ -259,9 +259,9 @@ export default function Quotes() {
                       <div style={{marginTop:8, padding:'10px 12px', background:'#f6faff', borderRadius:10, fontSize:12, color:'#374151', lineHeight:1.8}}>
                         {cl.dni && <div>DNI: <strong>{cl.dni}</strong></div>}
                         {cl.ruc && <div>RUC: <strong>{cl.ruc}</strong></div>}
-                        {cl.email && <div>✉ {cl.email}</div>}
-                        {cl.phone && <div>☎ {cl.phone}</div>}
-                        {cl.address && <div>📍 {[cl.address,cl.district,cl.city].filter(Boolean).join(', ')}</div>}
+                        {cl.email && <div>Correo: {cl.email}</div>}
+                        {cl.phone && <div>Teléfono: {cl.phone}</div>}
+                        {cl.address && <div>Dirección: {[cl.address,cl.district,cl.city].filter(Boolean).join(', ')}</div>}
                       </div>
                     )
                   })()}
@@ -358,7 +358,7 @@ export default function Quotes() {
             <div className="ss-modal-foot">
               <button type="button" className="ss-btn-cancel" onClick={() => setNewOpen(false)}>Cancelar</button>
               <button type="button" className="ss-btn-primary" onClick={saveNewQuote} disabled={saving}>
-                {saving ? 'Guardando...' : '💾 Guardar cotización'}
+                {saving ? 'Guardando...' : 'Guardar cotización'}
               </button>
             </div>
             </div>
@@ -375,7 +375,7 @@ export default function Quotes() {
             <div className="ss-modal ss-modal-xl" style={{maxHeight:'92vh'}}>
             <div className="ss-modal-head">
               <div>
-                <h3>✏️ Editor de Cotización</h3>
+                <h3>Editor de Cotización</h3>
                 <p>{edQuote?.id} · Edita antes de exportar PDF</p>
               </div>
               <button className="ss-modal-close" onClick={() => setEdOpen(false)}>✕</button>
@@ -498,7 +498,7 @@ export default function Quotes() {
             <div className="ss-modal-foot">
               <button type="button" className="ss-btn-cancel" onClick={()=>setEdOpen(false)}>Cerrar</button>
               <button type="button" className="ss-btn-primary" onClick={exportPdf}>
-                📄 Exportar PDF
+                Exportar PDF
               </button>
             </div>
             </div>

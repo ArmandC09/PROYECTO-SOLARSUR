@@ -151,7 +151,7 @@ export default function AuditLog() {
           />
 
           <button type="button" className="clients-new-btn" onClick={fetchLogs}>
-            🔄 Actualizar
+            Actualizar
           </button>
         </div>
 

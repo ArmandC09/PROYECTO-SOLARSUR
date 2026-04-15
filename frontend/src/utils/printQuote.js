@@ -143,24 +143,24 @@ export function printQuote(quote, client, company = {}) {
     <!-- META -->
     <div class="meta">
       <div class="mbox">
-        <div class="mbox-title">📋 Cliente</div>
+        <div class="mbox-title">Cliente</div>
         <table>
           <tr><td colspan="2" class="name">${esc(client?.name||'—')}</td></tr>
           ${clientInfo || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">Sin datos adicionales</td></tr>'}
         </table>
       </div>
       <div class="mbox">
-        <div class="mbox-title">🏢 Empresa emisora</div>
+        <div class="mbox-title">Empresa emisora</div>
         <table>
           <tr><td colspan="2" class="name">${esc(company?.name||'SolarSur')}</td></tr>
           ${companyInfo || ''}
         </table>
-        <div class="date-badge">📅 ${date}</div>
+        <div class="date-badge">${date}</div>
       </div>
     </div>
 
     <!-- ITEMS -->
-    <div class="sect-title">📦 Detalle de productos y servicios</div>
+    <div class="sect-title">Detalle de productos y servicios</div>
     <table class="items">
       <thead>
         <tr>

@@ -236,7 +236,7 @@ export default function Sales() {
                 className="sales-convert-btn"
                 onClick={convertQuoteToSale}
               >
-                🛒 Convertir cotización en venta
+                Convertir cotización en venta
               </button>
             </div>
 

@@ -165,7 +165,7 @@ export default function Clients() {
                       {!c.dni && !c.ruc && <span style={{color:'#d1d5db'}}>—</span>}
                     </td>
                     <td>
-                      {c.phone && <div style={{fontSize:'13px'}}>📞 {c.phone}</div>}
+                      {c.phone && <div style={{fontSize:'13px'}}>{c.phone}</div>}
                       {!c.phone && <span style={{color:'#d1d5db'}}>—</span>}
                     </td>
                     <td style={{fontSize:'13px',color:'#374151'}}>
