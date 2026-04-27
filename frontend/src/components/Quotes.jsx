@@ -180,7 +180,7 @@ export default function Quotes() {
           </button>
           <button type="button" className="clients-new-btn" onClick={() => setPickOpen(true)}
             style={{background:'linear-gradient(135deg,#0d9488,#14b8a6)', boxShadow:'0 4px 14px rgba(13,148,136,0.35)'}}>
-            <span style={{fontSize:16, lineHeight:1}}>📋</span> Usar existente
+            <span style={{fontSize:16, lineHeight:1}}></span>Usar existente
           </button>
           <div className="clients-search-wrap">
             <span className="clients-search-icon">
