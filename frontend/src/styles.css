@@ -6799,23 +6799,24 @@ users-submit-btn:hover{
     font-size: 12px;
   }
 
-  /* Modales */
+  /* Modales — centrados en mobile */
   .ss-modal {
-    max-width: 100%;
-    max-height: 100vh;
-    border-radius: 16px 16px 0 0;
-    bottom: 0;
-    position: fixed;
+    max-width: calc(100% - 16px);
+    max-height: 88vh;
+    border-radius: 18px;
+    position: relative;
+    bottom: unset;
   }
 
   .ss-overlay {
-    padding: 0;
-    align-items: flex-end;
+    padding: 8px;
+    align-items: center;
+    justify-content: center;
   }
 
   .ss-modal-head {
     padding: 12px 14px;
-    border-radius: 16px 16px 0 0;
+    border-radius: 18px 18px 0 0;
   }
 
   .ss-modal-head h3 {
