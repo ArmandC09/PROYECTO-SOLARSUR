@@ -3,12 +3,12 @@ export function printQuote(quote, client, company = {}) {
     day: '2-digit', month: 'long', year: 'numeric'
   })
 
-  const items = quote.items || []
+  const items    = quote.items || []
   const subtotal = items.reduce((s, i) => s + (Number(i.qty) * Number(i.price)), 0)
-  const igvPct  = Number(quote.igv || 0)
-  const igvAmt  = Number(quote.igvAmt ?? (subtotal * igvPct / 100))
-  const total   = Number(quote.total) || (subtotal + igvAmt)
-  const note    = quote.note ||
+  const igvPct   = Number(quote.igv || 0)
+  const igvAmt   = Number(quote.igvAmt ?? (subtotal * igvPct / 100))
+  const total    = Number(quote.total) || (subtotal + igvAmt)
+  const note     = quote.note ||
     `Esta cotización es válida por 15 días a partir de la fecha de emisión. Precios expresados en Soles (PEN).`
 
   const itemsHtml = items.map((it, idx) => `
@@ -19,17 +19,18 @@ export function printQuote(quote, client, company = {}) {
       <td class="tr tb">S/ ${(Number(it.qty) * Number(it.price)).toFixed(2)}</td>
     </tr>`).join('')
 
+  // Logo: sobre fondo azul oscuro → letras blancas o imagen directa
   const logoBlock = company.logo
     ? `<img src="${esc(company.logo)}" class="logo-img" alt="Logo" />`
-    : `<div class="logo-text">${esc(company.name || 'SolarSur')}</div>`
+    : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
-    client?.dni      ? `<tr><td class="il">DNI</td><td>${esc(client.dni)}</td></tr>` : '',
-    client?.ruc      ? `<tr><td class="il">RUC</td><td>${esc(client.ruc)}</td></tr>` : '',
-    client?.email    ? `<tr><td class="il">Email</td><td>${esc(client.email)}</td></tr>` : '',
-    client?.phone    ? `<tr><td class="il">Teléfono</td><td>${esc(client.phone)}</td></tr>` : '',
+    client?.dni   ? `<tr><td class="il">DNI</td><td>${esc(client.dni)}</td></tr>` : '',
+    client?.ruc   ? `<tr><td class="il">RUC</td><td>${esc(client.ruc)}</td></tr>` : '',
+    client?.email ? `<tr><td class="il">Email</td><td>${esc(client.email)}</td></tr>` : '',
+    client?.phone ? `<tr><td class="il">Teléfono</td><td>${esc(client.phone)}</td></tr>` : '',
     (client?.address || client?.district || client?.city)
-      ? `<tr><td class="il">Dirección</td><td>${esc([client?.address,client?.district,client?.city].filter(Boolean).join(', '))}</td></tr>`
+      ? `<tr><td class="il">Dirección</td><td>${esc([client?.address, client?.district, client?.city].filter(Boolean).join(', '))}</td></tr>`
       : ''
   ].join('')
 
@@ -48,33 +49,49 @@ export function printQuote(quote, client, company = {}) {
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
-  <title>Cotización ${esc(String(quote.id||''))} · ${esc(client?.name||'')}</title>
+  <title>Cotización ${esc(String(quote.id || ''))} · ${esc(client?.name || '')}</title>
   <style>
-    @page { size: A4; margin: 14mm 16mm 18mm; }
-    *  { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; }
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; }
 
-    /* TOP BAR */
-    .topbar { height: 7px; background: linear-gradient(90deg,#0b4ea6,#1a7fd4,#0b4ea6); }
-
-    /* HEADER */
-    .hdr { display: flex; justify-content: space-between; align-items: center; padding: 22px 0 18px; border-bottom: 2px solid #e2eaf8; gap: 24px; }
-    .logo-img  { max-height: 72px; max-width: 200px; object-fit: contain; display: block; }
-    .logo-text { font-size: 26px; font-weight: 900; color: #0b4ea6; letter-spacing: -0.5px; }
-
-    .hdr-right { text-align: right; }
-    .doc-type  { font-size: 30px; font-weight: 900; color: #0b4ea6; letter-spacing: 3px; text-transform: uppercase; }
-    .doc-sub   { font-size: 11px; color: #8898b4; margin-top: 3px; letter-spacing: 0.5px; }
-    .doc-num   {
-      display: inline-block; margin-top: 8px;
-      background: #eef4ff; color: #0b4ea6; border: 1.5px solid #c0d4f7;
-      font-weight: 700; font-size: 13px; padding: 5px 16px; border-radius: 99px;
+    /* ── HEADER BLOQUE AZUL ── */
+    .page-header {
+      background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%);
+      padding: 28px 36px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
     }
 
-    /* META BOXES */
-    .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 18px; }
+    .logo-img  { max-height: 70px; max-width: 200px; object-fit: contain; display: block; }
+    .logo-text { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+
+    .hdr-right { text-align: right; }
+    .doc-type  { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+    .doc-sub   { font-size: 11px; color: rgba(255,255,255,0.70); margin-top: 4px; letter-spacing: 0.5px; }
+    .doc-num   {
+      display: inline-block; margin-top: 10px;
+      background: rgba(255,255,255,0.18); color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.45);
+      font-weight: 700; font-size: 13px; padding: 5px 18px; border-radius: 99px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Acento bajo el header */
+    .header-accent {
+      height: 5px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+    }
+
+    /* ── BODY ── */
+    .body-wrap { padding: 24px 36px 28px; }
+
+    /* ── META BOXES ── */
+    .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 22px; }
     .mbox {
-      background: #f6faff; border: 1px solid #dde8f8; border-radius: 12px;
+      background: #f7faff; border: 1px solid #dde8f8; border-radius: 12px;
       padding: 14px 16px;
     }
     .mbox-title {
@@ -86,80 +103,104 @@ export function printQuote(quote, client, company = {}) {
     .il { color: #8898b4; font-size: 11px; font-weight: 600; padding-right: 10px; white-space: nowrap; }
     .mbox .name { font-size: 15px; font-weight: 800; color: #0b1220; padding-bottom: 6px; }
 
-    /* DATE BADGE */
     .date-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #eef4ff; color: #0b4ea6; border: 1px solid #c0d4f7;
-      font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 99px;
-      margin-top: 10px;
+      display: inline-flex; align-items: center;
+      background: linear-gradient(135deg,#0b4ea6,#1a7fd4); color: #fff;
+      font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 99px;
+      margin-top: 10px; letter-spacing: 0.3px;
     }
 
-    /* ITEMS TABLE */
-    .sect-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 8px; }
-    table.items { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; font-size: 13px; }
-    table.items thead tr { background: linear-gradient(135deg,#0b4ea6,#1a7fd4); }
-    table.items thead th { color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 14px; }
+    /* ── ITEMS TABLE ── */
+    .sect-title {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sect-title::after { content:''; flex:1; height:1.5px; background:linear-gradient(90deg,#c0d4f7,transparent); }
+
+    table.items { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; font-size: 13px; box-shadow: 0 2px 12px rgba(11,78,166,0.08); }
+    table.items thead tr { background: linear-gradient(135deg,#0a3d8f,#1a7fd4); }
+    table.items thead th { color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 13px 14px; }
     .tl { text-align: left; padding: 11px 14px; }
     .tc { text-align: center; padding: 11px 14px; color: #374151; }
     .tr { text-align: right; padding: 11px 14px; color: #374151; }
     .tb { font-weight: 700; color: #0b4ea6 !important; }
     .re { background: #fff; }
-    .ro { background: #f6faff; }
+    .ro { background: #f5f9ff; }
+    table.items tbody tr { border-bottom: 1px solid #eef2fb; }
 
-    /* TOTALS */
-    .tot-wrap { display: flex; justify-content: flex-end; margin: 14px 0 20px; }
-    .tot-box  { width: 260px; border: 1.5px solid #dde8f8; border-radius: 12px; overflow: hidden; }
+    /* ── TOTALS ── */
+    .tot-wrap { display: flex; justify-content: flex-end; margin: 16px 0 22px; }
+    .tot-box  {
+      width: 270px; border: 1.5px solid #dde8f8; border-radius: 12px;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(11,78,166,0.08);
+    }
     .tot-box table { width: 100%; font-size: 13px; }
     .tot-box td { padding: 10px 16px; border-bottom: 1px solid #e8eef8; }
     .tot-box tr:last-child td { border-bottom: none; }
     .tot-box .muted td { color: #9ca3af; }
-    .tot-final td { background: linear-gradient(135deg,#0b4ea6,#1a7fd4); color: #fff !important; font-weight: 800; font-size: 15px; padding: 14px 16px; }
+    .tot-final td {
+      background: linear-gradient(135deg,#0a3d8f,#1a7fd4);
+      color: #fff !important; font-weight: 800; font-size: 15px; padding: 14px 16px;
+    }
 
-    /* FOOTER */
-    .note { background: #f6faff; border: 1px solid #dde8f8; border-radius: 10px; padding: 13px 16px; font-size: 11.5px; color: #5a6e8e; margin-bottom: 18px; }
-    .note strong { color: #0b4ea6; }
-    .byline { text-align: center; font-size: 10.5px; color: #aab4c8; margin-bottom: 14px; }
-    .botbar { height: 5px; background: linear-gradient(90deg,#0b4ea6,#1a7fd4,#0b4ea6); border-radius: 3px; }
-
-    .sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 18px 0 0; }
+    /* ── FIRMAS ── */
+    .sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 4px 0 20px; }
     .sig-box { text-align: center; }
-    .sig-line { border-top: 1.5px solid #c0cfe0; padding-top: 6px; font-size: 11px; color: #8898b4; margin-top: 40px; }
+    .sig-line { border-top: 1.5px solid #c0cfe0; padding-top: 6px; font-size: 11px; color: #8898b4; margin-top: 44px; }
+    .sig-line strong { color: #374151; }
+
+    /* ── NOTA / CONDICIONES ── */
+    .note {
+      background: #f7faff; border-left: 4px solid #0b5ed7;
+      border-radius: 0 10px 10px 0; padding: 12px 16px;
+      font-size: 11.5px; color: #5a6e8e; margin-bottom: 18px;
+    }
+    .note strong { color: #0b4ea6; }
+
+    /* ── FOOTER ── */
+    .byline { text-align: center; font-size: 10px; color: #aab4c8; margin-bottom: 10px; }
+    .page-footer {
+      height: 8px;
+      background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f);
+    }
   </style>
 </head>
 <body>
-  <div class="topbar"></div>
-  <div style="padding:0 2px">
 
-    <!-- HEADER -->
-    <div class="hdr">
-      <div>${logoBlock}</div>
-      <div class="hdr-right">
-        <div class="doc-type">Cotización</div>
-        <div class="doc-sub">Documento proforma · presupuesto</div>
-        <div class="doc-num">${esc(String(quote.id||''))}</div>
-      </div>
+  <!-- HEADER AZUL CON LOGO -->
+  <div class="page-header">
+    <div>${logoBlock}</div>
+    <div class="hdr-right">
+      <div class="doc-type">Cotización</div>
+      <div class="doc-sub">Documento proforma · presupuesto</div>
+      <div class="doc-num">${esc(String(quote.id || ''))}</div>
     </div>
+  </div>
+  <div class="header-accent"></div>
 
-    <!-- META -->
+  <div class="body-wrap">
+
+    <!-- META: CLIENTE + EMPRESA -->
     <div class="meta">
       <div class="mbox">
         <div class="mbox-title">Cliente</div>
         <table>
-          <tr><td colspan="2" class="name">${esc(client?.name||'—')}</td></tr>
+          <tr><td colspan="2" class="name">${esc(client?.name || '—')}</td></tr>
           ${clientInfo || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">Sin datos adicionales</td></tr>'}
         </table>
       </div>
       <div class="mbox">
         <div class="mbox-title">Empresa emisora</div>
         <table>
-          <tr><td colspan="2" class="name">${esc(company?.name||'SolarSur')}</td></tr>
+          <tr><td colspan="2" class="name">${esc(company?.name || 'SolarSur')}</td></tr>
           ${companyInfo || ''}
         </table>
         <div class="date-badge">${date}</div>
       </div>
     </div>
 
-    <!-- ITEMS -->
+    <!-- PRODUCTOS -->
     <div class="sect-title">Detalle de productos y servicios</div>
     <table class="items">
       <thead>
@@ -171,11 +212,11 @@ export function printQuote(quote, client, company = {}) {
         </tr>
       </thead>
       <tbody>
-        ${itemsHtml||'<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Sin productos</td></tr>'}
+        ${itemsHtml || '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Sin productos</td></tr>'}
       </tbody>
     </table>
 
-    <!-- TOTALS -->
+    <!-- TOTALES -->
     <div class="tot-wrap">
       <div class="tot-box">
         <table>
@@ -189,26 +230,30 @@ export function printQuote(quote, client, company = {}) {
     <!-- FIRMAS -->
     <div class="sig-row">
       <div class="sig-box">
-        <div class="sig-line">Firma del cliente<br/><strong>${esc(client?.name||'')}</strong></div>
+        <div class="sig-line">Firma del cliente<br/><strong>${esc(client?.name || '')}</strong></div>
       </div>
       <div class="sig-box">
-        <div class="sig-line">Firma y sello<br/><strong>${esc(company?.name||'SolarSur')}</strong></div>
+        <div class="sig-line">Firma y sello<br/><strong>${esc(company?.name || 'SolarSur')}</strong></div>
       </div>
     </div>
 
-    <!-- NOTE -->
-    <div class="note" style="margin-top:18px">
+    <!-- CONDICIONES -->
+    <div class="note">
       <strong>Condiciones:</strong> ${esc(note)}
     </div>
 
-    <div class="byline">Documento generado electrónicamente · ${esc(company?.name||'SolarSur')} · ${date}</div>
-    <div class="botbar"></div>
+    <div class="byline">Documento generado electrónicamente · ${esc(company?.name || 'SolarSur')} · ${date}</div>
+
   </div>
+
+  <!-- FOOTER DECORATIVO -->
+  <div class="page-footer"></div>
+
   <script>window.onload=function(){setTimeout(function(){window.print()},350)}</script>
 </body>
 </html>`
 
-  const w = window.open('','_blank','width=920,height=720')
+  const w = window.open('', '_blank', 'width=920,height=720')
   if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
   w.document.open(); w.document.write(html); w.document.close()
 }
