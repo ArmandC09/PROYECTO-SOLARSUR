@@ -34,6 +34,7 @@ export default function Quotes() {
 
   const [query, setQuery]     = useState('')
   const [saving, setSaving]   = useState(false)
+  const [pickOpen, setPickOpen] = useState(false)  // modal selector de plantilla
 
   // ── Nueva cotización modal ──
   const [newOpen, setNewOpen]         = useState(false)
@@ -87,6 +88,22 @@ export default function Quotes() {
     setNewClientId(clients.length > 0 ? String(clients[0].id) : '')
     setNewItems([])
     setProdQuery('')
+    setNewOpen(true)
+  }
+
+  // ── Cargar items desde una cotización existente ──
+  const loadFromTemplate = (qt) => {
+    setNewClientId(String(qt.client_id || qt.clientId || (clients[0]?.id ?? '')))
+    setNewItems((qt.items || []).map(it => ({
+      id: Date.now() + Math.random(),
+      inventory_id: it.inventory_id || null,
+      description: it.description || '',
+      sku: it.sku || '',
+      qty: Number(it.qty || 1),
+      price: Number(it.price || 0)
+    })))
+    setProdQuery('')
+    setPickOpen(false)
     setNewOpen(true)
   }
 
@@ -160,6 +177,10 @@ export default function Quotes() {
         <div className="clients-toolbar">
           <button type="button" className="clients-new-btn" onClick={openNew}>
             <span style={{fontSize:18, lineHeight:1}}>＋</span> Nueva Cotización
+          </button>
+          <button type="button" className="clients-new-btn" onClick={() => setPickOpen(true)}
+            style={{background:'linear-gradient(135deg,#0d9488,#14b8a6)', boxShadow:'0 4px 14px rgba(13,148,136,0.35)'}}>
+            <span style={{fontSize:16, lineHeight:1}}>📋</span> Usar existente
           </button>
           <div className="clients-search-wrap">
             <span className="clients-search-icon">
@@ -501,6 +522,61 @@ export default function Quotes() {
                 Exportar PDF
               </button>
             </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+      {/* ══════════════════════════════════════════════════
+          MODAL SELECTOR DE PLANTILLA
+      ══════════════════════════════════════════════════ */}
+      {pickOpen && (
+        <ModalPortal>
+          <div className="ss-overlay" onClick={e => { if(e.target===e.currentTarget) setPickOpen(false) }}>
+            <div className="ss-modal" style={{maxHeight:'85vh'}}>
+              <div className="ss-modal-head">
+                <div>
+                  <h3>📋 Usar cotización existente</h3>
+                  <p>Elige una base — se cargará en la nueva cotización</p>
+                </div>
+                <button className="ss-modal-close" onClick={() => setPickOpen(false)}>✕</button>
+              </div>
+              <div className="ss-modal-body" style={{overflowY:'auto', gap:8}}>
+                {quotes && quotes.length > 0 ? quotes.map(qt => {
+                  const cl = clients.find(c => String(c.id) === String(qt.client_id || qt.clientId))
+                  const code = `COT-${String(qt.id).padStart(5,'0')}`
+                  const firstItem = qt.items?.[0]?.description || '—'
+                  const itemCount = qt.items?.length || 0
+                  const total = Number(qt.total || 0)
+                  return (
+                    <button key={qt.id} type="button" onClick={() => loadFromTemplate(qt)}
+                      style={{
+                        width:'100%', textAlign:'left', padding:'12px 16px',
+                        background:'#f8faff', border:'1.5px solid #e3ebf8',
+                        borderRadius:12, cursor:'pointer', display:'flex',
+                        flexDirection:'column', gap:4, transition:'all 0.15s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background='#eef4ff'; e.currentTarget.style.borderColor='#0b5ed7' }}
+                      onMouseLeave={e => { e.currentTarget.style.background='#f8faff'; e.currentTarget.style.borderColor='#e3ebf8' }}
+                    >
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                        <span style={{fontWeight:700, color:'#0b5ed7', fontSize:13}}>{code}</span>
+                        <span style={{fontWeight:700, color:'#374151', fontSize:13}}>S/ {total.toFixed(2)}</span>
+                      </div>
+                      <div style={{fontSize:13, color:'#374151', fontWeight:600}}>{cl?.name || '—'}</div>
+                      <div style={{fontSize:12, color:'#6b7280'}}>
+                        {firstItem}{itemCount > 1 ? ` +${itemCount-1} producto${itemCount-1!==1?'s':''}` : ''}
+                      </div>
+                    </button>
+                  )
+                }) : (
+                  <div style={{textAlign:'center', padding:'40px 0', color:'#9ca3af', fontSize:13}}>
+                    No hay cotizaciones guardadas aún
+                  </div>
+                )}
+              </div>
+              <div className="ss-modal-foot">
+                <button type="button" className="ss-btn-cancel" onClick={() => setPickOpen(false)}>Cancelar</button>
+              </div>
             </div>
           </div>
         </ModalPortal>
