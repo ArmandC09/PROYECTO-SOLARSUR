@@ -535,7 +535,7 @@ export default function Quotes() {
             <div className="ss-modal" style={{maxHeight:'85vh'}}>
               <div className="ss-modal-head">
                 <div>
-                  <h3>📋 Usar cotización existente</h3>
+                  <h3>Usar cotización existente</h3>
                   <p>Elige una base — se cargará en la nueva cotización</p>
                 </div>
                 <button className="ss-modal-close" onClick={() => setPickOpen(false)}>✕</button>
