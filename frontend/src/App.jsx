@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import Header from './components/Header'
 import HomeDashboard from './components/HomeDashboard'
 import CompanyProfile from './components/CompanyProfile'
@@ -14,10 +14,17 @@ import AuditLog from './components/AuditLog'
 import Footer from './components/Footer'
 import Login from './components/Login'
 import AuthContext from './context/AuthContext'
+import AppContext from './context/AppContext'
 
 export default function App() {
   const [section, setSection] = useState('home')
   const { user } = useContext(AuthContext)
+  const { loadAll } = useContext(AppContext)
+
+  // Cargar datos cuando el usuario ya está autenticado (token ya en sessionStorage)
+  useEffect(() => {
+    if (user) loadAll()
+  }, [user])
 
   if (!user) return <Login />
 
