@@ -25,7 +25,9 @@ exports.updateCompany = async (req, res) => {
       )
     }
 
-    res.json({ ok: true })
+    // Devolver el registro actualizado para que el frontend actualice el estado sin recargar
+    const [updated] = await pool.query('SELECT * FROM company LIMIT 1')
+    res.json(updated[0] || { name, address, phone, email, ruc, logo })
 
   } catch (error) {
     console.error("ERROR EN updateCompany:", error)
