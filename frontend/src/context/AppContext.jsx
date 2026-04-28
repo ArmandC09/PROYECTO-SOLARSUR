@@ -56,7 +56,8 @@ export function AppProvider({ children }) {
   const [users,     setUsers]     = useState([])
   const [movements, setMovements] = useState([])
 
-  useEffect(() => { loadAll() }, [])
+  // loadAll se llama desde App.jsx cuando el usuario ya está autenticado
+  // Esto evita requests sin token al montar la app
 
   const loadAll = async () => {
     try {
