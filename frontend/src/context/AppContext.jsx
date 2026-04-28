@@ -56,6 +56,15 @@ export function AppProvider({ children }) {
   const [users,     setUsers]     = useState([])
   const [movements, setMovements] = useState([])
 
+  // Cargar datos públicos de la empresa al arrancar (sin token),
+  // para que el logo aparezca en el Login desde el primer momento.
+  useEffect(() => {
+    fetch(`${API}/company`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data && data.name) setCompany(data) })
+      .catch(() => {})
+  }, [])
+
   // loadAll se llama desde App.jsx cuando el usuario ya está autenticado
   // Esto evita requests sin token al montar la app
 
@@ -201,7 +210,12 @@ export function AppProvider({ children }) {
     try {
       const r = await apiFetch('/company', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) })
       if (!r.ok) return { ok:false }
-      const updated = await r.json(); setCompany(updated); return { ok:true, stored:updated }
+      const updated = await r.json()
+      // El backend ahora devuelve el registro completo; si por alguna razon
+      // solo devolviera {ok:true}, usamos los datos enviados como fallback.
+      const stored = (updated && updated.name !== undefined) ? updated : d
+      setCompany(stored)
+      return { ok:true, stored }
     } catch(e) { return { ok:false } }
   }
 
