@@ -1,6 +1,7 @@
 // controllers/users.controller.js
 const pool = require('../db')
 const bcrypt = require('bcrypt')
+const { log } = require('./auditController')
 
 const SYSTEM_USERS = new Set(['superadmin', 'admin', 'ventas1', 'almacen1'])
 
@@ -61,6 +62,7 @@ exports.create = async (req, res) => {
     )
 
     const created = rows[0]
+    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'users', entity_id: created.id, after_json: { username: created.username, name: created.name, role: created.role } })
     return res.status(201).json({
       ...created,
       is_system: SYSTEM_USERS.has(String(created.username).toLowerCase())
@@ -141,6 +143,7 @@ exports.update = async (req, res) => {
 
     const updated = updatedRows[0]
 
+    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'users', entity_id: id, after_json: { username: updated.username, name: updated.name, role: updated.role } })
     return res.json({
       ...updated,
       is_system: SYSTEM_USERS.has(String(updated.username).toLowerCase())
@@ -230,6 +233,7 @@ exports.remove = async (req, res) => {
     }
 
     await pool.query('DELETE FROM users WHERE id = ?', [id])
+    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'users', entity_id: id })
     return res.json({ ok: true })
   } catch (err) {
     console.error('users.remove error:', err)
