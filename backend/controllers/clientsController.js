@@ -1,4 +1,5 @@
 const pool = require('../db')
+const { log } = require('./auditController')
 
 exports.getClients = async (req, res) => {
   try {
@@ -17,6 +18,7 @@ exports.createClient = async (req, res) => {
       'INSERT INTO clients (name, phone, address, dni, ruc, email, district, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [name, phone||null, address||null, dni||null, ruc||null, email||null, district||null, city||null]
     )
+    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'clients', entity_id: result.insertId, after_json: { name, phone, address, dni, ruc, email, district, city } })
     res.json({ id: result.insertId, name, phone, address, dni, ruc, email, district, city })
   } catch (error) {
     console.error(error)
@@ -32,6 +34,7 @@ exports.updateClient = async (req, res) => {
       'UPDATE clients SET name=?, phone=?, address=?, dni=?, ruc=?, email=?, district=?, city=? WHERE id=?',
       [name, phone||null, address||null, dni||null, ruc||null, email||null, district||null, city||null, id]
     )
+    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'clients', entity_id: id, after_json: { name, phone, address, dni, ruc, email, district, city } })
     res.json({ message: 'Cliente actualizado' })
   } catch (error) {
     console.error(error)
@@ -43,6 +46,7 @@ exports.deleteClient = async (req, res) => {
   const { id } = req.params
   try {
     await pool.query('DELETE FROM clients WHERE id=?', [id])
+    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'clients', entity_id: id })
     res.json({ message: 'Cliente eliminado' })
   } catch (error) {
     console.error(error)
