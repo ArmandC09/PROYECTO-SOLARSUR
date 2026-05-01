@@ -1,4 +1,5 @@
 const pool = require('../db')
+const { log } = require('./auditController')
 
 exports.getCompany = async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM company LIMIT 1')
@@ -27,6 +28,7 @@ exports.updateCompany = async (req, res) => {
 
     // Devolver el registro actualizado para que el frontend actualice el estado sin recargar
     const [updated] = await pool.query('SELECT * FROM company LIMIT 1')
+    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'company', entity_id: rows[0]?.id || null, after_json: { name, address, phone, email, ruc } })
     res.json(updated[0] || { name, address, phone, email, ruc, logo })
 
   } catch (error) {
