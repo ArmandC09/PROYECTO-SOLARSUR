@@ -134,11 +134,21 @@ export function AppProvider({ children }) {
   // INVENTORY
   const addInventoryItem = async (item) => {
     const r = await apiFetch('/inventory', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(item) })
-    const d = await r.json(); setInventory(p => [d,...p])
+    const d = await r.json()
+    // Si el backend ya devuelve provider_name lo usa; si no, lo busca localmente
+    if (d.provider_id && !d.provider_name) {
+      const found = (providers || []).find(p => p.id === d.provider_id)
+      if (found) d.provider_name = found.name
+    }
+    setInventory(p => [d,...p])
   }
   const updateInventoryItem = async (id, d) => {
     await apiFetch(`/inventory/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) })
-    setInventory(p => p.map(i => i.id===id ? {...i,...d} : i))
+    // Buscar provider_name localmente para actualizar el estado sin recargar
+    const provider_name = d.provider_id
+      ? ((providers || []).find(p => p.id === d.provider_id)?.name || null)
+      : null
+    setInventory(p => p.map(i => i.id===id ? {...i,...d, provider_name} : i))
   }
   const deleteInventoryItem = async (id) => {
     await apiFetch(`/inventory/${id}`, { method:'DELETE' }); setInventory(p => p.filter(i => i.id!==id))
