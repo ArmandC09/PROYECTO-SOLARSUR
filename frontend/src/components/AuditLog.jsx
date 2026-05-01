@@ -192,7 +192,6 @@ export default function AuditLog() {
                   <th>Acción</th>
                   <th>Módulo</th>
                   <th>ID</th>
-                  <th>IP</th>
                 </tr>
               </thead>
               <tbody>
@@ -216,7 +215,6 @@ export default function AuditLog() {
                       </td>
                       <td style={{fontSize:'13px'}}>{ENTITY_LABELS[log.entity]||log.entity||'—'}</td>
                       <td style={{fontSize:'12px',color:'#9ca3af'}}>{log.entity_id?`#${log.entity_id}`:'—'}</td>
-                      <td style={{fontSize:'11px',color:'#9ca3af'}}>{log.ip||'—'}</td>
                     </tr>
                   )
                 })}
