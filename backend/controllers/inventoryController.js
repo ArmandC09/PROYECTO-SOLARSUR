@@ -1,4 +1,5 @@
 const pool = require('../db')
+const { log } = require('./auditController')
 
 exports.getInventory = async (req, res) => {
   try {
@@ -30,7 +31,15 @@ exports.createInventory = async (req, res) => {
       [name, sku, qty, price, provider_id || null]
     )
 
-    res.json({ id: result.insertId, name, sku, qty, price, provider_id: provider_id || null })
+    // Fetch provider_name so the frontend shows it immediately without refresh
+    let provider_name = null
+    if (provider_id) {
+      const [pRows] = await pool.query('SELECT name FROM providers WHERE id = ?', [provider_id])
+      provider_name = pRows[0]?.name || null
+    }
+
+    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'inventory', entity_id: result.insertId, after_json: { name, sku, qty, price, provider_id } })
+    res.json({ id: result.insertId, name, sku, qty, price, provider_id: provider_id || null, provider_name })
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Error al crear producto' })
@@ -47,6 +56,7 @@ exports.updateInventory = async (req, res) => {
       [name, sku, qty, price, provider_id || null, id]
     )
 
+    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'inventory', entity_id: id, after_json: { name, sku, qty, price, provider_id } })
     res.json({ message: 'Producto actualizado' })
   } catch (error) {
     console.error(error)
@@ -59,6 +69,7 @@ exports.deleteInventory = async (req, res) => {
 
   try {
     await pool.query('DELETE FROM inventory WHERE id=?', [id])
+    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'inventory', entity_id: id })
     res.json({ message: 'Producto eliminado' })
   } catch (error) {
     console.error(error)
