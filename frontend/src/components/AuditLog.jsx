@@ -10,7 +10,6 @@ const ACTION_LABELS = {
   DELETE:    { label: 'Eliminación',      color: '#ef4444', bg:'#fee2e2', icon: '🗑️' },
   STOCK_IN:  { label: 'Entrada almacén', color: '#10b981', bg:'#d1fae5', icon: '📦' },
   STOCK_OUT: { label: 'Salida almacén',  color: '#f59e0b', bg:'#fef3c7', icon: '📤' },
-  RESTORE:   { label: 'Restauración',    color: '#8b5cf6', bg:'#ede9fe', icon: '↩️' },
 }
 
 const ENTITY_LABELS = {
