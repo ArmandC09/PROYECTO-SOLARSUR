@@ -1,4 +1,5 @@
 const pool = require('../db')
+const { log } = require('./auditController')
 
 // GET /api/movements
 exports.getMovements = async (req, res) => {
@@ -83,6 +84,16 @@ exports.createMovement = async (req, res) => {
     )
 
     await conn.commit()
+
+    await log({
+      user_id,
+      action: type === 'IN' ? 'MOVEMENT_IN' : 'MOVEMENT_OUT',
+      entity: 'inventory_movement',
+      entity_id: result.insertId,
+      after_json: { inventory_id, type, qty: q, reason: note || '' },
+      ip: req.ip,
+      user_agent: req.headers['user-agent']
+    })
 
     res.json({
       id: result.insertId,
