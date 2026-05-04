@@ -87,8 +87,8 @@ exports.createMovement = async (req, res) => {
 
     await log({
       user_id,
-      action: type === 'IN' ? 'MOVEMENT_IN' : 'MOVEMENT_OUT',
-      entity: 'inventory_movement',
+      action: type === 'IN' ? 'STOCK_IN' : 'STOCK_OUT',
+      entity: 'movements',
       entity_id: result.insertId,
       after_json: { inventory_id, type, qty: q, reason: note || '' },
       ip: req.ip,
