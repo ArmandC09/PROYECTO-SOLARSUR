@@ -19,9 +19,9 @@ export function printQuote(quote, client, company = {}) {
       <td class="tr tb">S/ ${(Number(it.qty) * Number(it.price)).toFixed(2)}</td>
     </tr>`).join('')
 
-  // Logo: sobre fondo azul oscuro → letras blancas o imagen directa
+  // Logo: imagen si existe, sino texto con nombre de empresa
   const logoBlock = company.logo
-    ? `<img src="${esc(company.logo)}" class="logo-img" alt="Logo" />`
+    ? `<div class="logo-wrap"><img src="${esc(company.logo)}" class="logo-img" alt="Logo" onload="this.style.opacity=1" onerror="this.style.display='none';this.nextSibling.style.display='block'" /><span class="logo-text" style="display:none">${esc(company.name || 'SolarSur')}</span></div>`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
@@ -53,7 +53,14 @@ export function printQuote(quote, client, company = {}) {
   <style>
     @page { size: A4; margin: 0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* ── FORZAR colores e imágenes en impresión ── */
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .logo-img { display: block !important; max-height: 70px !important; max-width: 200px !important; }
+    }
 
     /* ── HEADER BLOQUE AZUL ── */
     .page-header {
@@ -249,7 +256,17 @@ export function printQuote(quote, client, company = {}) {
   <!-- FOOTER DECORATIVO -->
   <div class="page-footer"></div>
 
-  <script>window.onload=function(){setTimeout(function(){window.print()},350)}</script>
+  <script>
+    window.onload = function() {
+      var img = document.querySelector('.logo-img');
+      if (img && !img.complete) {
+        img.onload = function() { setTimeout(function(){ window.print(); }, 200); };
+        img.onerror = function() { setTimeout(function(){ window.print(); }, 200); };
+      } else {
+        setTimeout(function(){ window.print(); }, 350);
+      }
+    }
+  </script>
 </body>
 </html>`
 
