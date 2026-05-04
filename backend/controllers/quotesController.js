@@ -1,4 +1,5 @@
 const pool = require('../db')
+const { log } = require('./auditController')
 
 async function ensureQuoteItemsInventoryIdColumn(conn = pool) {
   await conn.query(`
@@ -65,6 +66,17 @@ exports.createQuote = async (req, res) => {
     }
 
     await conn.commit()
+
+    await log({
+      user_id: req.user?.id || null,
+      action: 'CREATE',
+      entity: 'quote',
+      entity_id: quoteId,
+      after_json: { id: quoteId, client_id, total, items },
+      ip: req.ip,
+      user_agent: req.headers['user-agent']
+    })
+
     res.json({
       id: quoteId,
       client_id,
@@ -88,6 +100,15 @@ exports.createQuote = async (req, res) => {
 
 exports.deleteQuote = async (req, res) => {
   const { id } = req.params
+  const user_id = req.user?.id || null
   await pool.query('DELETE FROM quotes WHERE id=?', [id])
+  await log({
+    user_id,
+    action: 'DELETE',
+    entity: 'quote',
+    entity_id: Number(id),
+    ip: req.ip,
+    user_agent: req.headers['user-agent']
+  })
   res.json({ message: 'Cotización eliminada' })
 }
