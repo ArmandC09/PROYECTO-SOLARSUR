@@ -69,9 +69,9 @@ export default function Movements() {
   }
 
   const loadInventory = async () => {
-    const res = await fetch(`${API}/inventory`)
+    const res = await apiFetch('/inventory')
+    const data = await res.json().catch(() => [])
     if (!res.ok) throw new Error('No se pudo cargar inventario')
-    const data = await res.json()
     setInventory(Array.isArray(data) ? data : [])
     return data
   }
