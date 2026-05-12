@@ -5095,6 +5095,30 @@ users-submit-btn:hover{
   color: #0b4ea6;
 }
 
+.sales-history-revert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  padding: 4px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sales-history-revert-btn:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+  transform: scale(1.03);
+}
+
 .sales-history-items-detail {
   padding: 0 18px 16px;
   background: #f9fafb;
