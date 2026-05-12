@@ -107,6 +107,74 @@ exports.createSale = async (req, res) => {
   }
 }
 
+exports.revertSale = async (req, res) => {
+  const { id } = req.params
+  const conn = await pool.getConnection()
+  await conn.beginTransaction()
+
+  try {
+    await ensureSalesSchema(conn)
+
+    // Obtener la venta
+    const [saleRows] = await conn.query('SELECT * FROM sales WHERE id=?', [id])
+    if (!saleRows.length) {
+      conn.release()
+      return res.status(404).json({ message: 'Venta no encontrada' })
+    }
+    const sale = saleRows[0]
+
+    // Obtener los ítems de la venta
+    const [items] = await conn.query('SELECT * FROM sale_items WHERE sale_id=?', [id])
+
+    // Restaurar inventario para cada ítem que tenía inventory_id
+    for (let item of items) {
+      if (item.inventory_id) {
+        await conn.query(
+          'UPDATE inventory SET qty = qty + ? WHERE id=?',
+          [item.qty, item.inventory_id]
+        )
+
+        await conn.query(
+          `INSERT INTO inventory_movements (inventory_id, user_id, type, qty, reason, ref_entity, ref_id)
+           VALUES (?, ?, 'IN', ?, ?, 'sale_revert', ?)`,
+          [
+            item.inventory_id,
+            req.user?.id || null,
+            item.qty,
+            `Reingreso por reversión de venta #${id}`,
+            id
+          ]
+        )
+      }
+    }
+
+    // Registrar auditoría ANTES de eliminar
+    await log({
+      user_id: req.user?.id,
+      action: 'REVERT',
+      entity: 'sales',
+      entity_id: Number(id),
+      before_json: { ...sale, items },
+      ip: req.ip,
+      user_agent: req.get('user-agent')
+    })
+
+    // Eliminar ítems y venta
+    await conn.query('DELETE FROM sale_items WHERE sale_id=?', [id])
+    await conn.query('DELETE FROM sales WHERE id=?', [id])
+
+    await conn.commit()
+    res.json({ message: `Venta #${id} revertida exitosamente. Stock restaurado.` })
+
+  } catch (error) {
+    await conn.rollback()
+    console.error('revertSale error:', error)
+    res.status(500).json({ message: 'Error al revertir la venta' })
+  } finally {
+    conn.release()
+  }
+}
+
 exports.deleteSale = async (req, res) => {
   const { id } = req.params
   await pool.query('DELETE FROM sales WHERE id=?', [id])
