@@ -211,8 +211,24 @@ export function AppProvider({ children }) {
     }
     return d
   }
+
   const deleteSale = async (id) => {
     await apiFetch(`/sales/${id}`, { method:'DELETE' }); setSales(p => p.filter(s => s.id!==id))
+  }
+
+  const revertSale = async (id) => {
+    const r = await apiFetch(`/sales/${id}/revert`, { method: 'POST' })
+    if (r.ok) {
+      // Eliminar la venta del estado local
+      setSales(p => p.filter(s => String(s.id) !== String(id)))
+      // Recargar inventario porque las cantidades cambiaron
+      const ir = await apiFetch('/inventory')
+      if (ir.ok) setInventory(await ir.json())
+      // Recargar movimientos para reflejar el reingreso
+      const mr = await apiFetch('/movements')
+      if (mr.ok) setMovements(await mr.json())
+    }
+    return r.ok
   }
 
   // COMPANY
@@ -237,7 +253,7 @@ export function AppProvider({ children }) {
       addClient, updateClient, deleteClient,
       addInventoryItem, updateInventoryItem, deleteInventoryItem,
       addProvider, updateProvider, deleteProvider,
-      addQuote, deleteQuote, addSale, deleteSale,
+      addQuote, deleteQuote, addSale, deleteSale, revertSale,
       updateCompany, loadAll
     }}>
       {children}
