@@ -9,7 +9,9 @@ export default function Clients() {
   const { clients, addClient, updateClient, deleteClient } = useContext(AppContext)
   const { user } = useContext(AuthContext)
 
-  const canEdit = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
+  // ADMIN, SUPERADMIN y SALES pueden crear/editar/eliminar clientes
+  // El vendedor necesita registrar clientes para hacer cotizaciones y ventas
+  const canEdit = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN' || user?.role === 'SALES'
 
   const emptyForm = { name: '', phone: '', address: '', dni: '', ruc: '', email: '', district: '', city: '' }
   const [query, setQuery] = useState('')
@@ -82,30 +84,24 @@ export default function Clients() {
   const handleTableTouchStart = (event) => {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
-
     const touch = event.touches[0]
     tableTouchRef.current = {
-      startX: touch.clientX,
-      startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft,
-      dragging: false
+      startX: touch.clientX, startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft, dragging: false
     }
   }
 
   const handleTableTouchMove = (event) => {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
-
     const touch = event.touches[0]
     const dx = touch.clientX - tableTouchRef.current.startX
     const dy = touch.clientY - tableTouchRef.current.startY
-
     if (!tableTouchRef.current.dragging) {
       if (Math.abs(dx) < 6) return
       if (Math.abs(dx) <= Math.abs(dy)) return
       tableTouchRef.current.dragging = true
     }
-
     event.preventDefault()
     wrapper.scrollLeft = tableTouchRef.current.scrollLeft - dx
   }
