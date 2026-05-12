@@ -1,11 +1,19 @@
 import React, { useContext, useState, useMemo } from 'react'
 import AppContext from '../context/AppContext'
+import AuthContext from '../context/AuthContext'
 import { downloadCSV } from '../utils/export'
+import ModalPortal from './ModalPortal'
 
 export default function SalesHistory() {
-  const { sales, clients } = useContext(AppContext)
+  const { sales, clients, revertSale } = useContext(AppContext)
+  const { user } = useContext(AuthContext)
   const [query, setQuery] = useState('')
   const [expandedId, setExpandedId] = useState(null)
+  const [revertModal, setRevertModal] = useState(null) // { id, clientName, total }
+  const [reverting, setReverting] = useState(false)
+  const [toast, setToast] = useState(null) // { msg, type }
+
+  const canRevert = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
 
   const getClientName = (sale) =>
     clients.find(c => String(c.id) === String(sale.client_id || sale.clientId))?.name || '—'
@@ -34,8 +42,40 @@ export default function SalesHistory() {
   const totalSales = sales.reduce((acc, s) =>
     acc + (Number(s.total) || (s.items || []).reduce((a, b) => a + (Number(b.qty) * Number(b.price)), 0)), 0)
 
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  const handleRevertConfirm = async () => {
+    if (!revertModal) return
+    setReverting(true)
+    const ok = await revertSale(revertModal.id)
+    setReverting(false)
+    setRevertModal(null)
+    if (ok) {
+      showToast(`Venta #${revertModal.id} revertida. Stock restaurado al inventario.`, 'success')
+    } else {
+      showToast('Error al revertir la venta. Intenta nuevamente.', 'error')
+    }
+  }
+
   return (
     <section className="sales-history-page fade-in">
+
+      {/* ── TOAST ── */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: '20px', right: '20px', zIndex: 9999,
+          background: toast.type === 'success' ? '#10b981' : '#ef4444',
+          color: '#fff', padding: '12px 20px', borderRadius: '10px',
+          fontWeight: 600, fontSize: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+          display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '380px'
+        }}>
+          {toast.type === 'success' ? '✅' : '❌'} {toast.msg}
+        </div>
+      )}
+
       <div className="sales-history-header">
         <div>
           <h1>Historial de Ventas</h1>
@@ -95,6 +135,19 @@ export default function SalesHistory() {
                     <div className="sales-history-item-right">
                       <span className="sales-history-total">S/ {saleTotal.toFixed(2)}</span>
                       <span className="sales-history-items-count">{(s.items || []).length} ítem{(s.items || []).length !== 1 ? 's' : ''}</span>
+                      {canRevert && (
+                        <button
+                          type="button"
+                          className="sales-history-revert-btn"
+                          title="Revertir venta y restaurar stock"
+                          onClick={e => {
+                            e.stopPropagation()
+                            setRevertModal({ id: s.id, clientName: getClientName(s), total: saleTotal })
+                          }}
+                        >
+                          ↩ Revertir
+                        </button>
+                      )}
                       <span className={`sales-history-chevron ${isExpanded ? 'open' : ''}`}>›</span>
                     </div>
                   </div>
@@ -135,6 +188,71 @@ export default function SalesHistory() {
           </div>
         )}
       </div>
+
+      {/* ── MODAL CONFIRMACIÓN REVERTIR ── */}
+      {revertModal && (
+        <ModalPortal>
+          <div className="ss-overlay" onClick={e => { if (e.target === e.currentTarget && !reverting) setRevertModal(null) }}>
+            <div className="ss-modal" style={{ maxWidth: '440px' }}>
+              <div className="ss-modal-head">
+                <h3 style={{ color: '#dc2626' }}>↩ Revertir Venta #{revertModal.id}</h3>
+                <button className="ss-modal-close" onClick={() => setRevertModal(null)} disabled={reverting}>✕</button>
+              </div>
+
+              <div className="ss-modal-body" style={{ padding: '20px 24px' }}>
+                <div style={{
+                  background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px',
+                  padding: '14px 16px', marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'flex-start'
+                }}>
+                  <span style={{ fontSize: '20px', flexShrink: 0 }}>⚠️</span>
+                  <div>
+                    <p style={{ fontWeight: 700, color: '#dc2626', margin: '0 0 4px' }}>Esta acción no se puede deshacer</p>
+                    <p style={{ color: '#7f1d1d', fontSize: '13px', margin: 0 }}>
+                      La venta será eliminada y todo el stock asociado volverá al inventario automáticamente.
+                      La reversión quedará registrada en el monitoreo de auditoría.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '12px 16px', fontSize: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ color: '#6b7280' }}>Cliente:</span>
+                    <strong>{revertModal.clientName}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#6b7280' }}>Total de la venta:</span>
+                    <strong style={{ color: '#dc2626' }}>S/ {revertModal.total.toFixed(2)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ss-modal-foot">
+                <button
+                  type="button"
+                  className="ss-btn-cancel"
+                  onClick={() => setRevertModal(null)}
+                  disabled={reverting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRevertConfirm}
+                  disabled={reverting}
+                  style={{
+                    background: reverting ? '#9ca3af' : '#dc2626',
+                    color: '#fff', border: 'none', borderRadius: '8px',
+                    padding: '10px 20px', fontWeight: 700, cursor: reverting ? 'not-allowed' : 'pointer',
+                    fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px'
+                  }}
+                >
+                  {reverting ? '⏳ Revirtiendo...' : '↩ Confirmar Reversión'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
     </section>
   )
 }
