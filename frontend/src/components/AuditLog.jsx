@@ -3,13 +3,14 @@ import { apiFetch } from '../context/AppContext'
 import StyledSelect from './StyledSelect'
 
 const ACTION_LABELS = {
-  LOGIN:     { label: 'Inicio de sesión', color: '#10b981', bg:'#d1fae5', icon: '🔐' },
-  LOGOUT:    { label: 'Cierre de sesión', color: '#6b7280', bg:'#f3f4f6', icon: '🚪' },
-  CREATE:    { label: 'Creación',         color: '#3b82f6', bg:'#dbeafe', icon: '✅' },
-  UPDATE:    { label: 'Edición',          color: '#f59e0b', bg:'#fef3c7', icon: '✏️' },
-  DELETE:    { label: 'Eliminación',      color: '#ef4444', bg:'#fee2e2', icon: '🗑️' },
-  STOCK_IN:  { label: 'Entrada almacén', color: '#10b981', bg:'#d1fae5', icon: '📦' },
-  STOCK_OUT: { label: 'Salida almacén',  color: '#f59e0b', bg:'#fef3c7', icon: '📤' },
+  LOGIN:     { label: 'Inicio de sesión',  color: '#10b981', bg:'#d1fae5', icon: '🔐' },
+  LOGOUT:    { label: 'Cierre de sesión',  color: '#6b7280', bg:'#f3f4f6', icon: '🚪' },
+  CREATE:    { label: 'Creación',          color: '#3b82f6', bg:'#dbeafe', icon: '✅' },
+  UPDATE:    { label: 'Edición',           color: '#f59e0b', bg:'#fef3c7', icon: '✏️' },
+  DELETE:    { label: 'Eliminación',       color: '#ef4444', bg:'#fee2e2', icon: '🗑️' },
+  REVERT:    { label: 'Reversión de venta',color: '#8b5cf6', bg:'#ede9fe', icon: '↩️' },
+  STOCK_IN:  { label: 'Entrada almacén',  color: '#10b981', bg:'#d1fae5', icon: '📦' },
+  STOCK_OUT: { label: 'Salida almacén',   color: '#f59e0b', bg:'#fef3c7', icon: '📤' },
 }
 
 const ENTITY_LABELS = {
@@ -84,30 +85,24 @@ export default function AuditLog() {
   const handleTableTouchStart = (event) => {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
-
     const touch = event.touches[0]
     tableTouchRef.current = {
-      startX: touch.clientX,
-      startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft,
-      dragging: false
+      startX: touch.clientX, startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft, dragging: false
     }
   }
 
   const handleTableTouchMove = (event) => {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
-
     const touch = event.touches[0]
     const dx = touch.clientX - tableTouchRef.current.startX
     const dy = touch.clientY - tableTouchRef.current.startY
-
     if (!tableTouchRef.current.dragging) {
       if (Math.abs(dx) < 6) return
       if (Math.abs(dx) <= Math.abs(dy)) return
       tableTouchRef.current.dragging = true
     }
-
     event.preventDefault()
     wrapper.scrollLeft = tableTouchRef.current.scrollLeft - dx
   }
