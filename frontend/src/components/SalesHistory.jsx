@@ -43,8 +43,8 @@ export default function SalesHistory() {
     acc + (Number(s.total) || (s.items || []).reduce((a, b) => a + (Number(b.qty) * Number(b.price)), 0)), 0)
 
   const showToast = (msg, type = 'success') => {
-    setToast({ msg, type })
-    setTimeout(() => setToast(null), 3500)
+    setToast({ msg, type, key: Date.now() })
+    setTimeout(() => setToast(null), 4000)
   }
 
   const handleRevertConfirm = async () => {
@@ -65,14 +65,15 @@ export default function SalesHistory() {
 
       {/* ── TOAST ── */}
       {toast && (
-        <div style={{
-          position: 'fixed', top: '20px', right: '20px', zIndex: 9999,
+        <div key={toast.key} style={{
+          position: 'fixed', bottom: '28px', right: '28px', zIndex: 9999,
           background: toast.type === 'success' ? '#10b981' : '#ef4444',
-          color: '#fff', padding: '12px 20px', borderRadius: '10px',
-          fontWeight: 600, fontSize: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-          display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '380px'
+          color: '#fff', padding: '13px 22px', borderRadius: '10px',
+          fontWeight: 600, fontSize: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.22)',
+          maxWidth: '380px',
+          animation: 'toastSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards'
         }}>
-          {toast.type === 'success' ? '✅' : '❌'} {toast.msg}
+          {toast.msg}
         </div>
       )}
 
@@ -195,7 +196,7 @@ export default function SalesHistory() {
           <div className="ss-overlay" onClick={e => { if (e.target === e.currentTarget && !reverting) setRevertModal(null) }}>
             <div className="ss-modal" style={{ maxWidth: '440px' }}>
               <div className="ss-modal-head">
-                <h3 style={{ color: '#dc2626' }}>↩ Revertir Venta #{revertModal.id}</h3>
+                <h3 style={{ color: '#fff' }}>↩ Revertir Venta #{revertModal.id}</h3>
                 <button className="ss-modal-close" onClick={() => setRevertModal(null)} disabled={reverting}>✕</button>
               </div>
 
