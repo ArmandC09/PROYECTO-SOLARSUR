@@ -20,18 +20,16 @@ exports.createInventory = async (req, res) => {
   const { name, sku, qty, price, provider_id } = req.body
 
   try {
-    // Ensure provider_id column exists
     await pool.query(`
       ALTER TABLE inventory 
       ADD COLUMN IF NOT EXISTS provider_id INT NULL DEFAULT NULL
-    `).catch(() => {}) // ignore if already exists
+    `).catch(() => {})
 
     const [result] = await pool.query(
       'INSERT INTO inventory (name, sku, qty, price, provider_id) VALUES (?, ?, ?, ?, ?)',
       [name, sku, qty, price, provider_id || null]
     )
 
-    // Fetch provider_name so the frontend shows it immediately without refresh
     let provider_name = null
     if (provider_id) {
       const [pRows] = await pool.query('SELECT name FROM providers WHERE id = ?', [provider_id])
@@ -66,17 +64,45 @@ exports.updateInventory = async (req, res) => {
 
 exports.deleteInventory = async (req, res) => {
   const { id } = req.params
+  const conn = await pool.getConnection()
+  await conn.beginTransaction()
 
   try {
-    // Guardar datos actuales antes de eliminar (para auditoría)
-    const [rows] = await pool.query('SELECT * FROM inventory WHERE id=?', [id])
+    // 1. Obtener datos del producto antes de eliminar (para auditoría)
+    const [rows] = await conn.query('SELECT * FROM inventory WHERE id=?', [id])
     if (rows.length === 0) {
+      await conn.rollback()
+      conn.release()
       return res.status(404).json({ message: 'Producto no encontrado' })
     }
     const before = rows[0]
 
-    await pool.query('DELETE FROM inventory WHERE id=?', [id])
+    // 2. Verificar si hay ventas activas con este producto
+    //    (sale_items sin revertir) — esas NO se pueden perder
+    const [activeSaleItems] = await conn.query(
+      `SELECT COUNT(*) AS total 
+       FROM sale_items si
+       JOIN sales s ON s.id = si.sale_id
+       WHERE si.inventory_id = ?`,
+      [id]
+    )
+    if (activeSaleItems[0].total > 0) {
+      await conn.rollback()
+      conn.release()
+      return res.status(409).json({
+        message: `No se puede eliminar: el producto tiene ${activeSaleItems[0].total} venta(s) registrada(s). Reviértelas primero desde Historial.`
+      })
+    }
 
+    // 3. Eliminar movimientos de inventario asociados
+    await conn.query('DELETE FROM inventory_movements WHERE inventory_id=?', [id])
+
+    // 4. Eliminar el producto físicamente
+    await conn.query('DELETE FROM inventory WHERE id=?', [id])
+
+    await conn.commit()
+
+    // 5. Registrar en auditoría con todos los datos del producto eliminado
     await log({
       user_id: req.user?.id,
       action: 'DELETE',
@@ -85,13 +111,12 @@ exports.deleteInventory = async (req, res) => {
       before_json: before
     })
 
-    res.json({ message: 'Producto eliminado' })
+    res.json({ message: 'Producto eliminado correctamente' })
   } catch (error) {
+    await conn.rollback()
     console.error(error)
-    // Si hay error de clave foránea (el producto tiene ventas o movimientos)
-    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.errno === 1451) {
-      return res.status(409).json({ message: 'No se puede eliminar: el producto tiene ventas o movimientos asociados.' })
-    }
     res.status(500).json({ message: 'Error al eliminar producto' })
+  } finally {
+    conn.release()
   }
 }
