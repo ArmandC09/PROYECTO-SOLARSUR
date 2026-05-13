@@ -502,6 +502,11 @@ button.secondary{
   to{opacity:1;transform:none}
 }
 
+@keyframes toastSlideIn{
+  from{opacity:0;transform:translateX(110%)}
+  to{opacity:1;transform:translateX(0)}
+}
+
 /* =========================
    LOGIN
    ========================= */
@@ -4303,7 +4308,7 @@ users-submit-btn:hover{
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:48px;
+  padding-top:27px; /* compensa label (font 13px + margin-bottom 8px ≈ 27px) */
   font-size:28px;
   color:#536a95;
   font-weight:700;
@@ -7144,4 +7149,3 @@ users-submit-btn:hover{
     margin: 8px auto !important;
   }
 }
-
