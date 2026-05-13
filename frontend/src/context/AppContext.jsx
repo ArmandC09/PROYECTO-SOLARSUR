@@ -151,7 +151,13 @@ export function AppProvider({ children }) {
     setInventory(p => p.map(i => i.id===id ? {...i,...d, provider_name} : i))
   }
   const deleteInventoryItem = async (id) => {
-    await apiFetch(`/inventory/${id}`, { method:'DELETE' }); setInventory(p => p.filter(i => i.id!==id))
+    const r = await apiFetch(`/inventory/${id}`, { method: 'DELETE' })
+    if (r.ok) {
+      setInventory(p => p.filter(i => i.id !== id))
+    } else {
+      const data = await r.json().catch(() => ({}))
+      alert(data.message || 'No se pudo eliminar el producto.')
+    }
   }
 
   // PROVIDERS
