@@ -68,11 +68,30 @@ exports.deleteInventory = async (req, res) => {
   const { id } = req.params
 
   try {
+    // Guardar datos actuales antes de eliminar (para auditoría)
+    const [rows] = await pool.query('SELECT * FROM inventory WHERE id=?', [id])
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Producto no encontrado' })
+    }
+    const before = rows[0]
+
     await pool.query('DELETE FROM inventory WHERE id=?', [id])
-    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'inventory', entity_id: id })
+
+    await log({
+      user_id: req.user?.id,
+      action: 'DELETE',
+      entity: 'inventory',
+      entity_id: id,
+      before_json: before
+    })
+
     res.json({ message: 'Producto eliminado' })
   } catch (error) {
     console.error(error)
+    // Si hay error de clave foránea (el producto tiene ventas o movimientos)
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.errno === 1451) {
+      return res.status(409).json({ message: 'No se puede eliminar: el producto tiene ventas o movimientos asociados.' })
+    }
     res.status(500).json({ message: 'Error al eliminar producto' })
   }
 }
