@@ -2,12 +2,29 @@ import React, { useContext, useMemo, useState } from 'react'
 import AppContext from '../context/AppContext'
 import StyledSelect from './StyledSelect'
 
+const DISCOUNT_TYPES = [
+  { value: 'general',    label: 'Descuento general' },
+  { value: 'promocion',  label: 'Promoción' },
+  { value: 'acuerdo',    label: 'Acuerdo comercial' },
+  { value: 'fidelidad',  label: 'Fidelidad de cliente' },
+  { value: 'otro',       label: 'Otro' },
+]
+
 export default function Sales() {
   const { quotes, clients, addSale } = useContext(AppContext)
 
   const [selectedQuote, setSelectedQuote] = useState(null)
   const [discountMode, setDiscountMode] = useState('amount')
   const [discountValue, setDiscountValue] = useState('0')
+  const [discountType, setDiscountType] = useState('general')
+  const [discountReason, setDiscountReason] = useState('')
+  const [toast, setToast] = useState(null)
+
+  const showToast = (msg, type = 'success') => {
+    const key = Date.now()
+    setToast({ msg, type, key })
+    setTimeout(() => setToast(null), 3500)
+  }
 
   const getClientName = (quote) => {
     return (
@@ -40,12 +57,16 @@ export default function Sales() {
     setSelectedQuote(quote)
     setDiscountMode('amount')
     setDiscountValue('0')
+    setDiscountType('general')
+    setDiscountReason('')
   }
 
   const cancelConversion = () => {
     setSelectedQuote(null)
     setDiscountMode('amount')
     setDiscountValue('0')
+    setDiscountType('general')
+    setDiscountReason('')
   }
 
   const convertQuoteToSale = async () => {
@@ -59,12 +80,14 @@ export default function Sales() {
       discount: discountAmount,
       discountType: discountMode,
       discountValue: numericDiscount,
+      discountCategory: discountType,
+      discountReason: discountReason.trim(),
       sourceQuoteId: selectedQuote.id
     }
 
     await addSale(sale)
-    alert('✅ Cotización convertida a venta exitosamente')
     cancelConversion()
+    showToast('✅ Cotización convertida a venta exitosamente')
   }
 
   return (
@@ -164,9 +187,9 @@ export default function Sales() {
                   <div className="sales-discount-field">
                     <label>Tipo de descuento</label>
                     <StyledSelect
-                      value="general"
-                      options={[{ value: 'general', label: 'Descuento general' }]}
-                      disabled
+                      value={discountType}
+                      options={DISCOUNT_TYPES}
+                      onChange={(val) => setDiscountType(val)}
                     />
                   </div>
 
@@ -194,6 +217,33 @@ export default function Sales() {
                       Equivale a un {discountPercent.toFixed(2)}% de descuento
                     </div>
                   </div>
+                </div>
+
+                {/* Campo de motivo */}
+                <div className="sales-discount-reason-row">
+                  <label className="sales-discount-reason-label">
+                    Motivo del descuento <span className="sales-discount-reason-opt">(opcional)</span>
+                  </label>
+                  <div className="sales-discount-reason-options">
+                    {['Acuerdo previo', 'Volumen de compra', 'Temporada', 'Cliente frecuente'].map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`sales-reason-chip${discountReason === opt ? ' active' : ''}`}
+                        onClick={() => setDiscountReason(discountReason === opt ? '' : opt)}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    className="sales-discount-reason-input"
+                    placeholder="O escribe un motivo personalizado..."
+                    value={discountReason}
+                    onChange={(e) => setDiscountReason(e.target.value)}
+                    maxLength={120}
+                  />
                 </div>
 
                 <div className="sales-summary-grid">
@@ -243,12 +293,28 @@ export default function Sales() {
             <div className="sales-bottom-note">
               <span className="sales-info-icon">i</span>
               <span>
-                Después de convertirla, la cotización se marcará como <strong>“Convertida en venta”</strong> y pasará al módulo de Ventas.
+                Después de convertirla, la cotización se marcará como <strong>"Convertida en venta"</strong> y pasará al módulo de Ventas.
               </span>
             </div>
           </>
         )}
       </div>
+
+      {/* Toast global fixed bottom-right */}
+      {toast && (
+        <div
+          key={toast.key}
+          style={{
+            position: 'fixed', bottom: '28px', right: '28px', zIndex: 9999,
+            background: toast.type === 'success' ? '#10b981' : '#ef4444',
+            color: '#fff', padding: '13px 22px', borderRadius: '10px',
+            fontWeight: 600, fontSize: '0.97rem', boxShadow: '0 4px 24px rgba(0,0,0,0.13)',
+            animation: 'toastSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards'
+          }}
+        >
+          {toast.msg}
+        </div>
+      )}
     </section>
   )
 }
