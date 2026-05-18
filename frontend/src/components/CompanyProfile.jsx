@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import AppContext from '../context/AppContext'
 import { resizeFileToDataURL } from '../utils/image'
 import ModalPortal from './ModalPortal'
+import PhoneInput from './PhoneInput'
 
 export default function CompanyProfile() {
   const { company, updateCompany } = useContext(AppContext)
@@ -196,19 +197,12 @@ export default function CompanyProfile() {
                   <div className="ss-row-2">
                     <div className="ss-field">
                       <label>Teléfono</label>
-                      <input
-                        value={form.phone || ''}
-                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      />
+                      <PhoneInput value={form.phone || ''} onChange={v => setForm({ ...form, phone: v })} />
                     </div>
 
                     <div className="ss-field">
                       <label>Teléfono 2 <span style={{fontWeight:400, color:'#9ca3af', fontSize:12}}>(opcional)</span></label>
-                      <input
-                        value={form.phone2 || ''}
-                        placeholder="Ej: +51 987 654 321"
-                        onChange={(e) => setForm({ ...form, phone2: e.target.value })}
-                      />
+                      <PhoneInput value={form.phone2 || ''} onChange={v => setForm({ ...form, phone2: v })} />
                     </div>
                   </div>
 
