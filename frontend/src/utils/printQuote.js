@@ -37,7 +37,8 @@ export function printQuote(quote, client, company = {}) {
   const companyInfo = [
     company?.ruc     ? `<tr><td class="il">RUC</td><td>${esc(company.ruc)}</td></tr>` : '',
     company?.email   ? `<tr><td class="il">Email</td><td>${esc(company.email)}</td></tr>` : '',
-    company?.phone   ? `<tr><td class="il">Teléfono</td><td>${esc(company.phone)}</td></tr>` : '',
+    company?.phone   ? `<tr><td class="il">Teléfono</td><td>${esc(company.phone)}${company.phone2 ? ` / ${esc(company.phone2)}` : ''}</td></tr>` : '',
+    (!company?.phone && company?.phone2) ? `<tr><td class="il">Teléfono</td><td>${esc(company.phone2)}</td></tr>` : '',
     company?.address ? `<tr><td class="il">Dirección</td><td>${esc(company.address)}</td></tr>` : '',
   ].join('')
 
