@@ -19,15 +19,10 @@ export function printQuote(quote, client, company = {}) {
       <td class="tr tb">S/ ${(Number(it.qty) * Number(it.price)).toFixed(2)}</td>
     </tr>`).join('')
 
-  // Logo: imagen si existe, sino texto con nombre de empresa
-  // Si es ruta relativa, convertir a URL absoluta para que funcione en la ventana del PDF
-  const logoSrc = company.logo
-    ? (company.logo.startsWith('http') || company.logo.startsWith('data:')
-        ? company.logo
-        : `${window.location.origin}${company.logo.startsWith('/') ? '' : '/'}${company.logo}`)
-    : null
-  const logoBlock = logoSrc
-    ? `<div class="logo-wrap"><img src="${logoSrc}" class="logo-img" alt="Logo" crossorigin="anonymous" /></div>`
+  // Logo: se inyecta DESPUÉS via postMessage para evitar truncamiento de base64 en document.write
+  const hasLogo = !!(company.logo)
+  const logoBlock = hasLogo
+    ? `<div class="logo-wrap"><img id="company-logo" class="logo-img" alt="Logo" /></div>`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
@@ -62,14 +57,11 @@ export function printQuote(quote, client, company = {}) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-    /* ── FORZAR colores e imágenes en impresión ── */
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .page-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .logo-img { display: block !important; max-height: 70px !important; max-width: 200px !important; }
     }
 
-    /* ── HEADER BLOQUE AZUL ── */
     .page-header {
       background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%);
       padding: 28px 36px 24px;
@@ -93,16 +85,13 @@ export function printQuote(quote, client, company = {}) {
       letter-spacing: 0.5px;
     }
 
-    /* Acento bajo el header */
     .header-accent {
       height: 5px;
       background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
     }
 
-    /* ── BODY ── */
     .body-wrap { padding: 24px 36px 28px; }
 
-    /* ── META BOXES ── */
     .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 22px; }
     .mbox {
       background: #f7faff; border: 1px solid #dde8f8; border-radius: 12px;
@@ -124,7 +113,6 @@ export function printQuote(quote, client, company = {}) {
       margin-top: 10px; letter-spacing: 0.3px;
     }
 
-    /* ── ITEMS TABLE ── */
     .sect-title {
       font-size: 10px; font-weight: 800; text-transform: uppercase;
       letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 8px;
@@ -143,7 +131,6 @@ export function printQuote(quote, client, company = {}) {
     .ro { background: #f5f9ff; }
     table.items tbody tr { border-bottom: 1px solid #eef2fb; }
 
-    /* ── TOTALS ── */
     .tot-wrap { display: flex; justify-content: flex-end; margin: 16px 0 22px; }
     .tot-box  {
       width: 270px; border: 1.5px solid #dde8f8; border-radius: 12px;
@@ -158,13 +145,11 @@ export function printQuote(quote, client, company = {}) {
       color: #fff !important; font-weight: 800; font-size: 15px; padding: 14px 16px;
     }
 
-    /* ── FIRMAS ── */
     .sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 4px 0 20px; }
     .sig-box { text-align: center; }
     .sig-line { border-top: 1.5px solid #c0cfe0; padding-top: 6px; font-size: 11px; color: #8898b4; margin-top: 44px; }
     .sig-line strong { color: #374151; }
 
-    /* ── NOTA / CONDICIONES ── */
     .note {
       background: #f7faff; border-left: 4px solid #0b5ed7;
       border-radius: 0 10px 10px 0; padding: 12px 16px;
@@ -172,7 +157,6 @@ export function printQuote(quote, client, company = {}) {
     }
     .note strong { color: #0b4ea6; }
 
-    /* ── FOOTER ── */
     .byline { text-align: center; font-size: 10px; color: #aab4c8; margin-bottom: 10px; }
     .page-footer {
       height: 8px;
@@ -182,7 +166,6 @@ export function printQuote(quote, client, company = {}) {
 </head>
 <body>
 
-  <!-- HEADER AZUL CON LOGO -->
   <div class="page-header">
     <div>${logoBlock}</div>
     <div class="hdr-right">
@@ -195,7 +178,6 @@ export function printQuote(quote, client, company = {}) {
 
   <div class="body-wrap">
 
-    <!-- META: CLIENTE + EMPRESA -->
     <div class="meta">
       <div class="mbox">
         <div class="mbox-title">Cliente</div>
@@ -214,7 +196,6 @@ export function printQuote(quote, client, company = {}) {
       </div>
     </div>
 
-    <!-- PRODUCTOS -->
     <div class="sect-title">Detalle de productos y servicios</div>
     <table class="items">
       <thead>
@@ -230,7 +211,6 @@ export function printQuote(quote, client, company = {}) {
       </tbody>
     </table>
 
-    <!-- TOTALES -->
     <div class="tot-wrap">
       <div class="tot-box">
         <table>
@@ -241,7 +221,6 @@ export function printQuote(quote, client, company = {}) {
       </div>
     </div>
 
-    <!-- FIRMAS -->
     <div class="sig-row">
       <div class="sig-box">
         <div class="sig-line">Firma del cliente<br/><strong>${esc(client?.name || '')}</strong></div>
@@ -251,7 +230,6 @@ export function printQuote(quote, client, company = {}) {
       </div>
     </div>
 
-    <!-- CONDICIONES -->
     <div class="note">
       <strong>Condiciones:</strong> ${esc(note)}
     </div>
@@ -260,30 +238,40 @@ export function printQuote(quote, client, company = {}) {
 
   </div>
 
-  <!-- FOOTER DECORATIVO -->
   <div class="page-footer"></div>
 
   <script>
-      window.onload = function() {
-        var img = document.querySelector('.logo-img');
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'SET_LOGO') {
+        var img = document.getElementById('company-logo');
         if (img) {
-          if (img.complete) {
-            setTimeout(function(){ window.print(); }, 300);
-          } else {
-            img.onload  = function() { setTimeout(function(){ window.print(); }, 300); };
-            img.onerror = function() { setTimeout(function(){ window.print(); }, 300); };
-          }
-        } else {
-          setTimeout(function(){ window.print(); }, 300);
+          img.onload  = function() { setTimeout(function(){ window.print(); }, 300); };
+          img.onerror = function() { setTimeout(function(){ window.print(); }, 300); };
+          img.src = e.data.src;
         }
       }
-    </script>
+      if (e.data && e.data.type === 'NO_LOGO') {
+        setTimeout(function(){ window.print(); }, 300);
+      }
+    });
+  </script>
 </body>
 </html>`
 
   const w = window.open('', '_blank', 'width=920,height=720')
   if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
-  w.document.open(); w.document.write(html); w.document.close()
+  w.document.open()
+  w.document.write(html)
+  w.document.close()
+
+  // Esperar a que la ventana cargue y luego enviar el logo por postMessage
+  setTimeout(function() {
+    if (hasLogo) {
+      w.postMessage({ type: 'SET_LOGO', src: company.logo }, '*')
+    } else {
+      w.postMessage({ type: 'NO_LOGO' }, '*')
+    }
+  }, 400)
 }
 
 function esc(s) {
