@@ -10,6 +10,7 @@ export default function CompanyProfile() {
     name: 'SolarSur',
     address: '',
     phone: '',
+    phone2: '',
     ruc: '',
     logo: '',
     email: ''
@@ -108,6 +109,12 @@ export default function CompanyProfile() {
               <span>Teléfono</span>
               <strong>{form.phone || 'Sin registrar'}</strong>
             </div>
+            {form.phone2 && (
+              <div className="company-summary-item">
+                <span>Teléfono 2</span>
+                <strong>{form.phone2}</strong>
+              </div>
+            )}
             <div className="company-summary-item">
               <span>Email</span>
               <strong>{form.email || 'Sin registrar'}</strong>
@@ -136,7 +143,7 @@ export default function CompanyProfile() {
             <ul className="company-preview-list">
               <li><span>◎</span> <strong>{form.name || 'SolarSur'}</strong></li>
               <li><span>⌖</span> {form.address || 'Sin dirección registrada'}</li>
-              <li><span>✆</span> {form.phone || 'Sin teléfono registrado'}</li>
+              <li><span>✆</span> {form.phone || 'Sin teléfono registrado'}{form.phone2 ? ` / ${form.phone2}` : ''}</li>
               <li><span>▣</span> {form.ruc || 'Sin RUC registrado'}</li>
               <li><span>✉</span> {form.email || 'Sin correo registrado'}</li>
             </ul>
@@ -195,6 +202,17 @@ export default function CompanyProfile() {
                       />
                     </div>
 
+                    <div className="ss-field">
+                      <label>Teléfono 2 <span style={{fontWeight:400, color:'#9ca3af', fontSize:12}}>(opcional)</span></label>
+                      <input
+                        value={form.phone2 || ''}
+                        placeholder="Ej: +51 987 654 321"
+                        onChange={(e) => setForm({ ...form, phone2: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="ss-row-2">
                     <div className="ss-field">
                       <label>Email</label>
                       <input
