@@ -2,6 +2,7 @@ import React, { useState, useContext, useMemo, useRef } from 'react'
 import AppContext from '../context/AppContext'
 import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
+import PhoneInput from './PhoneInput'
 
 const ITEMS_PER_PAGE = 10
 
@@ -213,7 +214,7 @@ export default function Clients() {
 
                   <div className="ss-field">
                     <label>Teléfono</label>
-                    <input value={form.phone} onChange={e=>f('phone',e.target.value)} placeholder="+51 999 888 777" />
+                    <PhoneInput value={form.phone} onChange={v => f('phone', v)} />
                   </div>
 
                   <div className="ss-field">
