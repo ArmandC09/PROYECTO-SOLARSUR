@@ -20,8 +20,9 @@ export function printQuote(quote, client, company = {}) {
     </tr>`).join('')
 
   // Logo: imagen si existe, sino texto con nombre de empresa
+  // IMPORTANTE: no usar esc() en el logo porque rompe el data URL base64
   const logoBlock = company.logo
-    ? `<div class="logo-wrap"><img src="${esc(company.logo)}" class="logo-img" alt="Logo" onload="this.style.opacity=1" onerror="this.style.display='none';this.nextSibling.style.display='block'" /><span class="logo-text" style="display:none">${esc(company.name || 'SolarSur')}</span></div>`
+    ? `<div class="logo-wrap"><img src="${company.logo}" class="logo-img" alt="Logo" /></div>`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
@@ -259,13 +260,7 @@ export function printQuote(quote, client, company = {}) {
 
   <script>
     window.onload = function() {
-      var img = document.querySelector('.logo-img');
-      if (img && !img.complete) {
-        img.onload = function() { setTimeout(function(){ window.print(); }, 200); };
-        img.onerror = function() { setTimeout(function(){ window.print(); }, 200); };
-      } else {
-        setTimeout(function(){ window.print(); }, 350);
-      }
+      setTimeout(function(){ window.print(); }, 350);
     }
   </script>
 </body>
