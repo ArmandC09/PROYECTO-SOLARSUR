@@ -19,10 +19,8 @@ export function printQuote(quote, client, company = {}) {
       <td class="tr tb">S/ ${(Number(it.qty) * Number(it.price)).toFixed(2)}</td>
     </tr>`).join('')
 
-  // Logo: se inyecta DESPUÉS via postMessage para evitar truncamiento de base64 en document.write
-  const hasLogo = !!(company.logo)
-  const logoBlock = hasLogo
-    ? `<div class="logo-wrap"><img id="company-logo" class="logo-img" alt="Logo" /></div>`
+  const logoBlock = company.logo
+    ? `<div class="logo-wrap"><img src="${company.logo}" class="logo-img" alt="Logo" /></div>`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
@@ -47,79 +45,33 @@ export function printQuote(quote, client, company = {}) {
     ? `<tr><td>IGV (${igvPct}%)</td><td class="tr">S/ ${igvAmt.toFixed(2)}</td></tr>`
     : `<tr class="muted"><td>IGV (0%)</td><td class="tr">S/ 0.00</td></tr>`
 
-  const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8"/>
-  <title>Cotización ${esc(String(quote.id || ''))} · ${esc(client?.name || '')}</title>
-  <style>
+  const css = `
     @page { size: A4; margin: 0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .logo-img { display: block !important; max-height: 70px !important; max-width: 200px !important; }
     }
-
-    .page-header {
-      background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%);
-      padding: 28px 36px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-    }
-
+    .page-header { background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%); padding: 28px 36px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
     .logo-img  { max-height: 70px; max-width: 200px; object-fit: contain; display: block; }
     .logo-text { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
-
     .hdr-right { text-align: right; }
     .doc-type  { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
     .doc-sub   { font-size: 11px; color: rgba(255,255,255,0.70); margin-top: 4px; letter-spacing: 0.5px; }
-    .doc-num   {
-      display: inline-block; margin-top: 10px;
-      background: rgba(255,255,255,0.18); color: #fff;
-      border: 1.5px solid rgba(255,255,255,0.45);
-      font-weight: 700; font-size: 13px; padding: 5px 18px; border-radius: 99px;
-      letter-spacing: 0.5px;
-    }
-
-    .header-accent {
-      height: 5px;
-      background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
-    }
-
+    .doc-num   { display: inline-block; margin-top: 10px; background: rgba(255,255,255,0.18); color: #fff; border: 1.5px solid rgba(255,255,255,0.45); font-weight: 700; font-size: 13px; padding: 5px 18px; border-radius: 99px; letter-spacing: 0.5px; }
+    .header-accent { height: 5px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); }
     .body-wrap { padding: 24px 36px 28px; }
-
     .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 22px; }
-    .mbox {
-      background: #f7faff; border: 1px solid #dde8f8; border-radius: 12px;
-      padding: 14px 16px;
-    }
-    .mbox-title {
-      font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
-      color: #0b4ea6; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #dde8f8;
-    }
+    .mbox { background: #f7faff; border: 1px solid #dde8f8; border-radius: 12px; padding: 14px 16px; }
+    .mbox-title { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #dde8f8; }
     .mbox table { width: 100%; font-size: 12.5px; }
     .mbox td { padding: 3px 0; vertical-align: top; }
     .il { color: #8898b4; font-size: 11px; font-weight: 600; padding-right: 10px; white-space: nowrap; }
     .mbox .name { font-size: 15px; font-weight: 800; color: #0b1220; padding-bottom: 6px; }
-
-    .date-badge {
-      display: inline-flex; align-items: center;
-      background: linear-gradient(135deg,#0b4ea6,#1a7fd4); color: #fff;
-      font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 99px;
-      margin-top: 10px; letter-spacing: 0.3px;
-    }
-
-    .sect-title {
-      font-size: 10px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 8px;
-    }
+    .date-badge { display: inline-flex; align-items: center; background: linear-gradient(135deg,#0b4ea6,#1a7fd4); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 99px; margin-top: 10px; letter-spacing: 0.3px; }
+    .sect-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
     .sect-title::after { content:''; flex:1; height:1.5px; background:linear-gradient(90deg,#c0d4f7,transparent); }
-
     table.items { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; font-size: 13px; box-shadow: 0 2px 12px rgba(11,78,166,0.08); }
     table.items thead tr { background: linear-gradient(135deg,#0a3d8f,#1a7fd4); }
     table.items thead th { color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 13px 14px; }
@@ -130,42 +82,24 @@ export function printQuote(quote, client, company = {}) {
     .re { background: #fff; }
     .ro { background: #f5f9ff; }
     table.items tbody tr { border-bottom: 1px solid #eef2fb; }
-
     .tot-wrap { display: flex; justify-content: flex-end; margin: 16px 0 22px; }
-    .tot-box  {
-      width: 270px; border: 1.5px solid #dde8f8; border-radius: 12px;
-      overflow: hidden; box-shadow: 0 4px 16px rgba(11,78,166,0.08);
-    }
+    .tot-box  { width: 270px; border: 1.5px solid #dde8f8; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(11,78,166,0.08); }
     .tot-box table { width: 100%; font-size: 13px; }
     .tot-box td { padding: 10px 16px; border-bottom: 1px solid #e8eef8; }
     .tot-box tr:last-child td { border-bottom: none; }
     .tot-box .muted td { color: #9ca3af; }
-    .tot-final td {
-      background: linear-gradient(135deg,#0a3d8f,#1a7fd4);
-      color: #fff !important; font-weight: 800; font-size: 15px; padding: 14px 16px;
-    }
-
+    .tot-final td { background: linear-gradient(135deg,#0a3d8f,#1a7fd4); color: #fff !important; font-weight: 800; font-size: 15px; padding: 14px 16px; }
     .sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 4px 0 20px; }
     .sig-box { text-align: center; }
     .sig-line { border-top: 1.5px solid #c0cfe0; padding-top: 6px; font-size: 11px; color: #8898b4; margin-top: 44px; }
     .sig-line strong { color: #374151; }
-
-    .note {
-      background: #f7faff; border-left: 4px solid #0b5ed7;
-      border-radius: 0 10px 10px 0; padding: 12px 16px;
-      font-size: 11.5px; color: #5a6e8e; margin-bottom: 18px;
-    }
+    .note { background: #f7faff; border-left: 4px solid #0b5ed7; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 11.5px; color: #5a6e8e; margin-bottom: 18px; }
     .note strong { color: #0b4ea6; }
-
     .byline { text-align: center; font-size: 10px; color: #aab4c8; margin-bottom: 10px; }
-    .page-footer {
-      height: 8px;
-      background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f);
-    }
-  </style>
-</head>
-<body>
+    .page-footer { height: 8px; background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f); }
+  `
 
+  const body = `
   <div class="page-header">
     <div>${logoBlock}</div>
     <div class="hdr-right">
@@ -175,9 +109,7 @@ export function printQuote(quote, client, company = {}) {
     </div>
   </div>
   <div class="header-accent"></div>
-
   <div class="body-wrap">
-
     <div class="meta">
       <div class="mbox">
         <div class="mbox-title">Cliente</div>
@@ -195,7 +127,6 @@ export function printQuote(quote, client, company = {}) {
         <div class="date-badge">${date}</div>
       </div>
     </div>
-
     <div class="sect-title">Detalle de productos y servicios</div>
     <table class="items">
       <thead>
@@ -210,7 +141,6 @@ export function printQuote(quote, client, company = {}) {
         ${itemsHtml || '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Sin productos</td></tr>'}
       </tbody>
     </table>
-
     <div class="tot-wrap">
       <div class="tot-box">
         <table>
@@ -220,7 +150,6 @@ export function printQuote(quote, client, company = {}) {
         </table>
       </div>
     </div>
-
     <div class="sig-row">
       <div class="sig-box">
         <div class="sig-line">Firma del cliente<br/><strong>${esc(client?.name || '')}</strong></div>
@@ -229,49 +158,38 @@ export function printQuote(quote, client, company = {}) {
         <div class="sig-line">Firma y sello<br/><strong>${esc(company?.name || 'SolarSur')}</strong></div>
       </div>
     </div>
-
     <div class="note">
       <strong>Condiciones:</strong> ${esc(note)}
     </div>
-
     <div class="byline">Documento generado electrónicamente · ${esc(company?.name || 'SolarSur')} · ${date}</div>
-
   </div>
-
   <div class="page-footer"></div>
-
-  <script>
-    window.addEventListener('message', function(e) {
-      if (e.data && e.data.type === 'SET_LOGO') {
-        var img = document.getElementById('company-logo');
-        if (img) {
-          img.onload  = function() { setTimeout(function(){ window.print(); }, 300); };
-          img.onerror = function() { setTimeout(function(){ window.print(); }, 300); };
-          img.src = e.data.src;
-        }
-      }
-      if (e.data && e.data.type === 'NO_LOGO') {
-        setTimeout(function(){ window.print(); }, 300);
-      }
-    });
-  </script>
-</body>
-</html>`
+  `
 
   const w = window.open('', '_blank', 'width=920,height=720')
   if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
+
   w.document.open()
-  w.document.write(html)
+  w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>
+    <title>Cotización ${esc(String(quote.id || ''))} · ${esc(client?.name || '')}</title>
+    <style>${css}</style></head><body></body></html>`)
   w.document.close()
 
-  // Esperar a que la ventana cargue y luego enviar el logo por postMessage
-  setTimeout(function() {
-    if (hasLogo) {
-      w.postMessage({ type: 'SET_LOGO', src: company.logo }, '*')
+  // Inyectar el body via innerHTML para evitar truncamiento del base64 en document.write
+  w.document.body.innerHTML = body
+
+  // Esperar a que el logo cargue antes de imprimir
+  const img = w.document.querySelector('.logo-img')
+  if (img) {
+    if (img.complete && img.naturalWidth > 0) {
+      setTimeout(() => w.print(), 300)
     } else {
-      w.postMessage({ type: 'NO_LOGO' }, '*')
+      img.onload  = () => setTimeout(() => w.print(), 300)
+      img.onerror = () => setTimeout(() => w.print(), 300)
     }
-  }, 400)
+  } else {
+    setTimeout(() => w.print(), 300)
+  }
 }
 
 function esc(s) {
