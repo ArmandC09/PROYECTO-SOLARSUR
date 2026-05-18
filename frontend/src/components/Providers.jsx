@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useContext } from 'react'
 import AppContext from '../context/AppContext'
 import ModalPortal from './ModalPortal'
+import PhoneInput from './PhoneInput'
 
 export default function Providers() {
   const { providers, addProvider, updateProvider, deleteProvider } =
@@ -155,11 +156,7 @@ export default function Providers() {
 
                   <div className="ss-field">
                     <label>Teléfono</label>
-                    <input
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="999 888 777"
-                    />
+                    <PhoneInput value={form.phone} onChange={v => setForm({ ...form, phone: v })} />
                   </div>
                 </div>
 
