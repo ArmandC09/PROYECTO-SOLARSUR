@@ -264,10 +264,20 @@ export function printQuote(quote, client, company = {}) {
   <div class="page-footer"></div>
 
   <script>
-    window.onload = function() {
-      setTimeout(function(){ window.print(); }, 350);
-    }
-  </script>
+      window.onload = function() {
+        var img = document.querySelector('.logo-img');
+        if (img) {
+          if (img.complete) {
+            setTimeout(function(){ window.print(); }, 300);
+          } else {
+            img.onload  = function() { setTimeout(function(){ window.print(); }, 300); };
+            img.onerror = function() { setTimeout(function(){ window.print(); }, 300); };
+          }
+        } else {
+          setTimeout(function(){ window.print(); }, 300);
+        }
+      }
+    </script>
 </body>
 </html>`
 
