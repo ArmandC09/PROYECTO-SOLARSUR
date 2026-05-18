@@ -159,34 +159,24 @@ export default function Quotes() {
 
   const sendWhatsApp = () => {
     if (!edClient?.phone) {
-      alert('El cliente no tiene número de teléfono registrado.')
+      alert('El cliente no tiene telefono registrado.')
       return
     }
-    // Limpiar el número: quitar espacios, guiones, paréntesis
-    const rawPhone = edClient.phone.replace(/[\s\-().]/g, '')
-    // Si no empieza con +, agregar código de Perú por defecto
-    const phone = rawPhone.startsWith('+') ? rawPhone.replace('+', '') : `51${rawPhone}`
-
-    const clientName = edClient?.name || 'cliente'
-    const quoteId = edQuote?.id || ''
-    const totalStr = `S/ ${edTotal.toFixed(2)}`
+    const rawPhone = String(edClient.phone).replace(/[\s\-().+]/g, '')
+    const phone = `51${rawPhone.slice(-9)}`
     const companyName = company?.name || 'SolarSur'
-
+    const quoteId = edQuote?.id || ''
+    const clientName = edClient?.name || 'cliente'
     const mensaje =
-      `Estimado/a ${clientName}, 👋\n\n` +
-      `Le hacemos llegar la cotización *${quoteId}* de *${companyName}*.\n\n` +
-      `📋 *Detalle:*\n` +
-      edItems.map(it => `  • ${it.description} (x${it.qty}) — S/ ${(it.qty * it.price).toFixed(2)}`).join('\n') +
-      `\n\n💰 *Total: ${totalStr}*\n\n` +
-      `Esta cotización es válida por 15 días. Ante cualquier consulta, estamos a su disposición.\n\n` +
-      `Gracias por su preferencia. 🙏\n` +
-      `— ${companyName}`
-
+      `Estimado/a ${clientName},\n\n` +
+      `Le hacemos llegar adjunta la cotizacion ${quoteId} de ${companyName}.\n\n` +
+      `Quedo a su disposicion para cualquier consulta o coordinacion.\n\n` +
+      `Saludos,\n${companyName}`
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`
     window.open(url, '_blank')
   }
 
-  const exportPdf = () => {
+    const exportPdf = () => {
     printQuote(
       { id: edQuote?.id, date: edQuote?.date, total: edTotal, igv: edIgv, igvAmt: edIgvAmt, note: edNote,
         items: edItems.map(it => ({ description: it.description, qty: it.qty, price: it.price })) },
