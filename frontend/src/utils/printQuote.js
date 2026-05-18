@@ -20,9 +20,14 @@ export function printQuote(quote, client, company = {}) {
     </tr>`).join('')
 
   // Logo: imagen si existe, sino texto con nombre de empresa
-  // IMPORTANTE: no usar esc() en el logo porque rompe el data URL base64
-  const logoBlock = company.logo
-    ? `<div class="logo-wrap"><img src="${company.logo}" class="logo-img" alt="Logo" /></div>`
+  // Si es ruta relativa, convertir a URL absoluta para que funcione en la ventana del PDF
+  const logoSrc = company.logo
+    ? (company.logo.startsWith('http') || company.logo.startsWith('data:')
+        ? company.logo
+        : `${window.location.origin}${company.logo.startsWith('/') ? '' : '/'}${company.logo}`)
+    : null
+  const logoBlock = logoSrc
+    ? `<div class="logo-wrap"><img src="${logoSrc}" class="logo-img" alt="Logo" crossorigin="anonymous" /></div>`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
