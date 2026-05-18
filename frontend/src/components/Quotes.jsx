@@ -185,6 +185,8 @@ export default function Quotes() {
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`
     window.open(url, '_blank')
   }
+
+  const exportPdf = () => {
     printQuote(
       { id: edQuote?.id, date: edQuote?.date, total: edTotal, igv: edIgv, igvAmt: edIgvAmt, note: edNote,
         items: edItems.map(it => ({ description: it.description, qty: it.qty, price: it.price })) },
