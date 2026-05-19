@@ -96,10 +96,12 @@ export function printQuote(quote, client, company = {}) {
   `
 
   // Construir el HTML completo incluyendo el logo como data URL directo en el src
-  // Esto es seguro porque NO pasa por esc() — se embebe en un blob URL
-  const logoSrc = typeof company.logo === 'string'
-    ? company.logo.trim()
-    : ''
+  // Esto es seguro porque NO pasa por esc() — se embebe en un blob URL.
+  // `printQuote` no lee ningún archivo SQL; usa el objeto `company` que ya cargó la app.
+  const logoRaw = typeof company.logo === 'string' ? company.logo.trim() : ''
+  const logoSrc = logoRaw.startsWith('data:')
+    ? logoRaw.replace(/\s+/g, '')
+    : logoRaw
   const logoHtml = logoSrc
     ? `<img class="logo-img" alt="Logo" src="${logoSrc.replace(/\"/g, '&quot;')}" onerror="this.outerHTML='<span class=\'logo-text\'>${esc(company.name || 'SolarSur')}<\/span>'" />`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
