@@ -41,13 +41,23 @@ export function printQuote(quote, client, company = {}) {
     ? `<tr><td>IGV (${igvPct}%)</td><td class="tr">S/ ${igvAmt.toFixed(2)}</td></tr>`
     : `<tr class="muted"><td>IGV (0%)</td><td class="tr">S/ 0.00</td></tr>`
 
+  // ── Guardar logo en sessionStorage para que la ventana hija lo lea ──
+  const logoKey = '__solarsur_print_logo__'
+  const nameKey = '__solarsur_print_name__'
+  try {
+    if (company.logo) sessionStorage.setItem(logoKey, company.logo)
+    else sessionStorage.removeItem(logoKey)
+    sessionStorage.setItem(nameKey, company.name || 'SolarSur')
+  } catch {}
+
   const css = `
     @page { size: A4; margin: 0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     .page-header { background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%); padding: 28px 36px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-    .logo-wrap svg, .logo-wrap img { max-height:70px; max-width:200px; display:block; }
+    #logo-slot svg { max-height:70px; max-width:200px; display:block; }
+    #logo-slot img { max-height:70px; max-width:200px; display:block; object-fit:contain; }
     .logo-text  { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
     .hdr-right  { text-align: right; }
     .doc-type   { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
@@ -92,16 +102,13 @@ export function printQuote(quote, client, company = {}) {
     .page-footer { height: 8px; background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f); }
   `
 
-  // La ventana hija escucha un mensaje con el logo y luego imprime
-  const htmlSkeleton = `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
 <style>${css}</style>
 </head><body>
 <div class="page-header">
-  <div class="logo-wrap" id="logo-slot">
-    <span class="logo-text">${esc(company.name || 'SolarSur')}</span>
-  </div>
+  <div id="logo-slot"><span class="logo-text">${esc(company.name || 'SolarSur')}</span></div>
   <div class="hdr-right">
     <div class="doc-type">Cotización</div>
     <div class="doc-sub">Documento proforma · presupuesto</div>
@@ -151,65 +158,51 @@ export function printQuote(quote, client, company = {}) {
 </div>
 <div class="page-footer"></div>
 <script>
-  // Escuchar el logo enviado desde la ventana padre via postMessage
-  window.addEventListener('message', function(e) {
-    var slot = document.getElementById('logo-slot')
-    if (!slot) return
-    if (e.data && e.data.type === 'SET_LOGO') {
-      var logo = e.data.logo
-      if (!logo) { window.print(); return }
-      if (logo.indexOf('data:image/svg') === 0) {
-        // SVG: decodificar base64 e insertar inline
-        try {
-          var b64 = logo.split(',')[1]
-          var svgText = decodeURIComponent(escape(atob(b64)))
-          slot.innerHTML = svgText
-          var svgEl = slot.querySelector('svg')
-          if (svgEl) {
-            svgEl.style.maxHeight = '70px'
-            svgEl.style.maxWidth  = '200px'
-            svgEl.style.display   = 'block'
-            svgEl.removeAttribute('width')
-            svgEl.removeAttribute('height')
-          }
-        } catch(err) {
-          slot.innerHTML = '<span class="logo-text">' + e.data.name + '</span>'
+window.onload = function() {
+  var slot = document.getElementById('logo-slot')
+  var logo = ''
+  var name = 'SolarSur'
+  try {
+    logo = sessionStorage.getItem('__solarsur_print_logo__') || ''
+    name = sessionStorage.getItem('__solarsur_print_name__') || 'SolarSur'
+  } catch(e) {}
+
+  function doLogo() {
+    if (!logo) { window.print(); return }
+    if (logo.indexOf('data:image/svg') === 0) {
+      try {
+        var b64 = logo.split(',')[1]
+        var svgText = decodeURIComponent(escape(atob(b64)))
+        var tmp = document.createElement('div')
+        tmp.innerHTML = svgText
+        var svgEl = tmp.querySelector('svg')
+        if (svgEl) {
+          svgEl.removeAttribute('width')
+          svgEl.removeAttribute('height')
+          svgEl.style.cssText = 'max-height:70px;max-width:200px;display:block;'
+          slot.innerHTML = ''
+          slot.appendChild(svgEl)
         }
-      } else {
-        // PNG/JPG: img normal
-        slot.innerHTML = '<img src="' + logo + '" style="max-height:70px;max-width:200px;display:block;" />'
-      }
-      setTimeout(function(){ window.print() }, 300)
+      } catch(e) {}
+    } else {
+      var img = document.createElement('img')
+      img.style.cssText = 'max-height:70px;max-width:200px;display:block;object-fit:contain;'
+      img.src = logo
+      slot.innerHTML = ''
+      slot.appendChild(img)
     }
-  })
-  // Avisar al padre que estamos listos
-  window.onload = function() {
-    window.opener && window.opener.postMessage({ type: 'PRINT_READY' }, '*')
+    setTimeout(function(){ window.print() }, 300)
   }
+  doLogo()
+}
 <\/script>
 </body></html>`
 
   const w = window.open('', '_blank', 'width=920,height=720')
   if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
-
   w.document.open()
-  w.document.write(htmlSkeleton)
+  w.document.write(html)
   w.document.close()
-
-  // Escuchar cuando la ventana hija esté lista y enviarle el logo
-  const handler = (e) => {
-    if (e.source === w && e.data && e.data.type === 'PRINT_READY') {
-      window.removeEventListener('message', handler)
-      w.postMessage({ type: 'SET_LOGO', logo: company.logo || '', name: company.name || 'SolarSur' }, '*')
-    }
-  }
-  window.addEventListener('message', handler)
-
-  // Fallback: si en 3s no llega el PRINT_READY, enviar igual
-  setTimeout(() => {
-    window.removeEventListener('message', handler)
-    try { w.postMessage({ type: 'SET_LOGO', logo: company.logo || '', name: company.name || 'SolarSur' }, '*') } catch {}
-  }, 3000)
 }
 
 function esc(s) {
