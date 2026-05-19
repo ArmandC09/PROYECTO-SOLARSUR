@@ -95,28 +95,22 @@ export function printQuote(quote, client, company = {}) {
     .page-footer { height: 8px; background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f); }
   `
 
-  const w = window.open('', '_blank', 'width=920,height=720')
-  if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
+  // Construir el HTML completo incluyendo el logo como data URL directo en el src
+  // Esto es seguro porque NO pasa por esc() — se embebe en un blob URL
+  const logoHtml = company.logo
+    ? `<img class="logo-img" alt="Logo" src="${company.logo}" />`
+    : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
-  // Construir el documento completo sin document.write ni document.close
-  // que destruyen el DOM antes de poder manipularlo
-  const doc = w.document
-
-  const styleEl = doc.createElement('style')
-  styleEl.textContent = css
-  doc.head.appendChild(styleEl)
-
-  doc.title = `Cotizacion ${quote.id || ''} - ${client?.name || ''}`
-
-  // Inyectar el HTML del body
-  doc.body.innerHTML = `
+  const fullHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
+  <style>${css}</style>
+</head>
+<body>
   <div class="page-header">
-    <div id="logo-container">
-      ${company.logo
-        ? `<img id="company-logo" class="logo-img" alt="Logo" />`
-        : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
-      }
-    </div>
+    <div>${logoHtml}</div>
     <div class="hdr-right">
       <div class="doc-type">Cotización</div>
       <div class="doc-sub">Documento proforma · presupuesto</div>
@@ -178,20 +172,24 @@ export function printQuote(quote, client, company = {}) {
     </div>
     <div class="byline">Documento generado electrónicamente · ${esc(company?.name || 'SolarSur')} · ${date}</div>
   </div>
-  <div class="page-footer"></div>`
+  <div class="page-footer"></div>
+</body>
+</html>`
 
-  // Asignar logo via JS directo — sin pasar por HTML parser, sin esc(), sin truncamiento
-  if (company.logo) {
-    const imgEl = doc.getElementById('company-logo')
-    if (imgEl) {
-      imgEl.onload  = () => setTimeout(() => w.print(), 300)
-      imgEl.onerror = () => setTimeout(() => w.print(), 300)
-      imgEl.src = company.logo
-      return
-    }
+  // Usar Blob + URL.createObjectURL — evita TODOS los problemas de document.write,
+  // truncamiento de base64, y restricciones de ventanas emergentes con datos largos
+  const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' })
+  const blobUrl = URL.createObjectURL(blob)
+
+  const w = window.open(blobUrl, '_blank', 'width=920,height=720')
+  if (!w) {
+    alert('Permite los pop-ups en tu navegador para exportar el PDF.')
+    URL.revokeObjectURL(blobUrl)
+    return
   }
 
-  setTimeout(() => w.print(), 400)
+  // Limpiar el blob URL después de que la ventana cargue
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
 }
 
 function esc(s) {
