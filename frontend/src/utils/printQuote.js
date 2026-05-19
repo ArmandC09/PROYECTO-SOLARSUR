@@ -47,10 +47,10 @@ export function printQuote(quote, client, company = {}) {
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .logo-img { display: block !important; max-height: 70px !important; max-width: 200px !important; }
+      .logo-img { display: block !important; max-height: 70px !important; max-width: 240px !important; }
     }
     .page-header { background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%); padding: 28px 36px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-    .logo-img  { max-height: 70px; max-width: 200px; object-fit: contain; display: block; }
+    .logo-img  { max-height: 70px; max-width: 240px; object-fit: contain; display: block; }
     .logo-text { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
     .hdr-right { text-align: right; }
     .doc-type  { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
@@ -99,9 +99,12 @@ export function printQuote(quote, client, company = {}) {
   // Esto es seguro porque NO pasa por esc() — se embebe en un blob URL.
   // `printQuote` no lee ningún archivo SQL; usa el objeto `company` que ya cargó la app.
   const logoRaw = typeof company.logo === 'string' ? company.logo.trim() : ''
-  const logoSrc = logoRaw.startsWith('data:')
-    ? logoRaw.replace(/\s+/g, '')
-    : logoRaw
+  const logoClean = logoRaw.replace(/\s+/g, '')
+  const logoSrc = logoClean.startsWith('data:')
+    ? logoClean
+    : /^[A-Za-z0-9+/=]+$/.test(logoClean) && logoClean.length > 50
+      ? `data:image/png;base64,${logoClean}`
+      : logoRaw
   const logoHtml = logoSrc
     ? `<img class="logo-img" alt="Logo" src="${logoSrc.replace(/\"/g, '&quot;')}" onerror="this.outerHTML='<span class=\'logo-text\'>${esc(company.name || 'SolarSur')}<\/span>'" />`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
@@ -191,6 +194,21 @@ export function printQuote(quote, client, company = {}) {
     alert('Permite los pop-ups en tu navegador para exportar el PDF.')
     URL.revokeObjectURL(blobUrl)
     return
+  }
+
+  const tryPrint = () => {
+    try {
+      w.focus()
+      w.print()
+    } catch (err) {
+      console.warn('No se pudo lanzar impresión automática:', err)
+    }
+  }
+
+  if (w.document.readyState === 'complete') {
+    tryPrint()
+  } else {
+    w.addEventListener('load', tryPrint)
   }
 
   // Limpiar el blob URL después de que la ventana cargue
