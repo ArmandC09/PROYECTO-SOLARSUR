@@ -19,13 +19,6 @@ export function printQuote(quote, client, company = {}) {
       <td class="tr tb">S/ ${(Number(it.qty) * Number(it.price)).toFixed(2)}</td>
     </tr>`).join('')
 
-  // Logo: NO pasar por esc() — el base64 tiene comillas que se romperían
-  // Se inyecta el src directamente via JS después de abrir la ventana
-  const hasLogo = !!(company.logo)
-  const logoPlaceholder = hasLogo
-    ? `<div class="logo-wrap"><img id="company-logo" class="logo-img" alt="Logo" /></div>`
-    : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
-
   const clientInfo = [
     client?.dni   ? `<tr><td class="il">DNI</td><td>${esc(client.dni)}</td></tr>` : '',
     client?.ruc   ? `<tr><td class="il">RUC</td><td>${esc(client.ruc)}</td></tr>` : '',
@@ -102,9 +95,28 @@ export function printQuote(quote, client, company = {}) {
     .page-footer { height: 8px; background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f); }
   `
 
-  const body = `
+  const w = window.open('', '_blank', 'width=920,height=720')
+  if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
+
+  // Construir el documento completo sin document.write ni document.close
+  // que destruyen el DOM antes de poder manipularlo
+  const doc = w.document
+
+  const styleEl = doc.createElement('style')
+  styleEl.textContent = css
+  doc.head.appendChild(styleEl)
+
+  doc.title = `Cotizacion ${quote.id || ''} - ${client?.name || ''}`
+
+  // Inyectar el HTML del body
+  doc.body.innerHTML = `
   <div class="page-header">
-    <div>${logoPlaceholder}</div>
+    <div id="logo-container">
+      ${company.logo
+        ? `<img id="company-logo" class="logo-img" alt="Logo" />`
+        : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
+      }
+    </div>
     <div class="hdr-right">
       <div class="doc-type">Cotización</div>
       <div class="doc-sub">Documento proforma · presupuesto</div>
@@ -166,34 +178,20 @@ export function printQuote(quote, client, company = {}) {
     </div>
     <div class="byline">Documento generado electrónicamente · ${esc(company?.name || 'SolarSur')} · ${date}</div>
   </div>
-  <div class="page-footer"></div>
-  `
+  <div class="page-footer"></div>`
 
-  const w = window.open('', '_blank', 'width=920,height=720')
-  if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
-
-  // 1. Escribir solo el esqueleto HTML con el CSS (sin el logo base64)
-  w.document.open()
-  w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>
-    <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
-    <style>${css}</style></head><body></body></html>`)
-  w.document.close()
-
-  // 2. Inyectar el body HTML via innerHTML (evita truncamiento del document.write con base64)
-  w.document.body.innerHTML = body
-
-  // 3. Asignar el src del logo directamente via JS (nunca pasa por el parser HTML)
-  if (hasLogo) {
-    const imgEl = w.document.getElementById('company-logo')
+  // Asignar logo via JS directo — sin pasar por HTML parser, sin esc(), sin truncamiento
+  if (company.logo) {
+    const imgEl = doc.getElementById('company-logo')
     if (imgEl) {
-      imgEl.onload  = () => setTimeout(() => w.print(), 200)
-      imgEl.onerror = () => setTimeout(() => w.print(), 200)
-      imgEl.src = company.logo  // <-- asignación directa, sin esc(), sin truncamiento
-      return // el print lo dispara el onload
+      imgEl.onload  = () => setTimeout(() => w.print(), 300)
+      imgEl.onerror = () => setTimeout(() => w.print(), 300)
+      imgEl.src = company.logo
+      return
     }
   }
 
-  setTimeout(() => w.print(), 350)
+  setTimeout(() => w.print(), 400)
 }
 
 function esc(s) {
