@@ -19,8 +19,11 @@ export function printQuote(quote, client, company = {}) {
       <td class="tr tb">S/ ${(Number(it.qty) * Number(it.price)).toFixed(2)}</td>
     </tr>`).join('')
 
-  const logoBlock = company.logo
-    ? `<div class="logo-wrap"><img src="${company.logo}" class="logo-img" alt="Logo" /></div>`
+  // Logo: NO pasar por esc() — el base64 tiene comillas que se romperían
+  // Se inyecta el src directamente via JS después de abrir la ventana
+  const hasLogo = !!(company.logo)
+  const logoPlaceholder = hasLogo
+    ? `<div class="logo-wrap"><img id="company-logo" class="logo-img" alt="Logo" /></div>`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const clientInfo = [
@@ -101,7 +104,7 @@ export function printQuote(quote, client, company = {}) {
 
   const body = `
   <div class="page-header">
-    <div>${logoBlock}</div>
+    <div>${logoPlaceholder}</div>
     <div class="hdr-right">
       <div class="doc-type">Cotización</div>
       <div class="doc-sub">Documento proforma · presupuesto</div>
@@ -169,27 +172,28 @@ export function printQuote(quote, client, company = {}) {
   const w = window.open('', '_blank', 'width=920,height=720')
   if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
 
+  // 1. Escribir solo el esqueleto HTML con el CSS (sin el logo base64)
   w.document.open()
   w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>
-    <title>Cotización ${esc(String(quote.id || ''))} · ${esc(client?.name || '')}</title>
+    <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
     <style>${css}</style></head><body></body></html>`)
   w.document.close()
 
-  // Inyectar el body via innerHTML para evitar truncamiento del base64 en document.write
+  // 2. Inyectar el body HTML via innerHTML (evita truncamiento del document.write con base64)
   w.document.body.innerHTML = body
 
-  // Esperar a que el logo cargue antes de imprimir
-  const img = w.document.querySelector('.logo-img')
-  if (img) {
-    if (img.complete && img.naturalWidth > 0) {
-      setTimeout(() => w.print(), 300)
-    } else {
-      img.onload  = () => setTimeout(() => w.print(), 300)
-      img.onerror = () => setTimeout(() => w.print(), 300)
+  // 3. Asignar el src del logo directamente via JS (nunca pasa por el parser HTML)
+  if (hasLogo) {
+    const imgEl = w.document.getElementById('company-logo')
+    if (imgEl) {
+      imgEl.onload  = () => setTimeout(() => w.print(), 200)
+      imgEl.onerror = () => setTimeout(() => w.print(), 200)
+      imgEl.src = company.logo  // <-- asignación directa, sin esc(), sin truncamiento
+      return // el print lo dispara el onload
     }
-  } else {
-    setTimeout(() => w.print(), 300)
   }
+
+  setTimeout(() => w.print(), 350)
 }
 
 function esc(s) {
