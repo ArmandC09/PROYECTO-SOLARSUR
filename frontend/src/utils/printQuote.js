@@ -47,15 +47,21 @@ export function printQuote(quote, client, company = {}) {
     if (company.logo.startsWith('data:image/svg')) {
       try {
         const b64 = company.logo.split(',')[1]
-        const svgText = decodeURIComponent(escape(atob(b64)))
-        const tmp = document.createElement('div')
-        tmp.innerHTML = svgText
-        const svgEl = tmp.querySelector('svg')
-        if (svgEl) {
-          svgEl.removeAttribute('width')
-          svgEl.removeAttribute('height')
-          svgEl.setAttribute('style', 'max-height:70px;max-width:200px;display:block;')
-          logoHtml = svgEl.outerHTML
+        // Decodificar base64 byte a byte para manejar caracteres especiales y encabezado XML
+        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+        const svgText = new TextDecoder('utf-8').decode(bytes)
+        // Extraer solo el tag <svg>...</svg> ignorando <?xml ...?> y <!DOCTYPE>
+        const svgMatch = svgText.match(/<svg[\s\S]*<\/svg>/)
+        if (svgMatch) {
+          const tmp = document.createElement('div')
+          tmp.innerHTML = svgMatch[0]
+          const svgEl = tmp.querySelector('svg')
+          if (svgEl) {
+            svgEl.removeAttribute('width')
+            svgEl.removeAttribute('height')
+            svgEl.setAttribute('style', 'max-height:60px;max-width:180px;display:block;')
+            logoHtml = svgEl.outerHTML
+          }
         }
       } catch (e) {
         logoHtml = `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
