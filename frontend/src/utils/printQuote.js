@@ -105,6 +105,10 @@ export function printQuote(quote, client, company = {}) {
     : /^[A-Za-z0-9+/=]+$/.test(logoClean) && logoClean.length > 50
       ? `data:image/png;base64,${logoClean}`
       : logoRaw
+
+  console.log('printQuote company.logo:', company.logo)
+  console.log('printQuote logoSrc:', logoSrc)
+
   const logoHtml = logoSrc
     ? `<img class="logo-img" alt="Logo" src="${logoSrc.replace(/\"/g, '&quot;')}" onerror="this.outerHTML='<span class=\'logo-text\'>${esc(company.name || 'SolarSur')}<\/span>'" />`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
@@ -115,6 +119,12 @@ export function printQuote(quote, client, company = {}) {
   <meta charset="utf-8"/>
   <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
   <style>${css}</style>
+  <script>
+    window.addEventListener('load', function() {
+      window.focus();
+      try { window.print(); } catch (e) { console.warn('printQuote auto-print failed', e); }
+    });
+  </script>
 </head>
 <body>
   <div class="page-header">
