@@ -98,10 +98,10 @@ export function printQuote(quote, client, company = {}) {
   // Construir el HTML completo incluyendo el logo como data URL directo en el src
   // Esto es seguro porque NO pasa por esc() — se embebe en un blob URL
   const logoSrc = typeof company.logo === 'string'
-    ? company.logo.trim().replace(/\s+/g, '')
+    ? company.logo.trim()
     : ''
   const logoHtml = logoSrc
-    ? `<img class="logo-img" alt="Logo" src="${logoSrc}" />`
+    ? `<img class="logo-img" alt="Logo" src="${logoSrc.replace(/\"/g, '&quot;')}" onerror="this.outerHTML='<span class=\'logo-text\'>${esc(company.name || 'SolarSur')}<\/span>'" />`
     : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const fullHtml = `<!DOCTYPE html>
