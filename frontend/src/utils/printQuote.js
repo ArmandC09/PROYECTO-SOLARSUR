@@ -57,9 +57,14 @@ export function printQuote(quote, client, company = {}) {
           tmp.innerHTML = svgMatch[0]
           const svgEl = tmp.querySelector('svg')
           if (svgEl) {
-            svgEl.removeAttribute('width')
-            svgEl.removeAttribute('height')
-            svgEl.setAttribute('style', 'max-height:60px;max-width:180px;display:block;')
+            // Forzar dimensiones explícitas — sin esto el SVG inline tiene tamaño 0
+            svgEl.setAttribute('width', '180')
+            svgEl.setAttribute('height', '68')
+            svgEl.setAttribute('style', 'display:block;')
+            // Asegurar que el viewBox esté presente para que escale bien
+            if (!svgEl.getAttribute('viewBox')) {
+              svgEl.setAttribute('viewBox', '0 0 815 309')
+            }
             logoHtml = svgEl.outerHTML
           }
         }
