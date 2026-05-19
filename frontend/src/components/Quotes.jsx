@@ -176,7 +176,7 @@ export default function Quotes() {
     window.open(url, '_blank')
   }
 
-    const exportPdf = () => {
+  const exportPdf = () => {
     printQuote(
       { id: edQuote?.id, date: edQuote?.date, total: edTotal, igv: edIgv, igvAmt: edIgvAmt, note: edNote,
         items: edItems.map(it => ({ description: it.description, qty: it.qty, price: it.price })) },
