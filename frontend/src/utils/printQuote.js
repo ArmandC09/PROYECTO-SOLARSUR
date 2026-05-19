@@ -41,43 +41,13 @@ export function printQuote(quote, client, company = {}) {
     ? `<tr><td>IGV (${igvPct}%)</td><td class="tr">S/ ${igvAmt.toFixed(2)}</td></tr>`
     : `<tr class="muted"><td>IGV (0%)</td><td class="tr">S/ 0.00</td></tr>`
 
-  // ── Logo: SVG inline o <img> según tipo ──────────────────────────────────
-  // SVG base64 bloqueado en blob URLs → decodificar y poner inline
-  // PNG/JPG base64 → <img> normal funciona bien
-  let logoHtml = `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
-  if (company.logo) {
-    const logoSrc = company.logo
-    if (logoSrc.startsWith('data:image/svg')) {
-      // Extraer el SVG real del base64 y ponerlo inline en el HTML
-      try {
-        const base64Part = logoSrc.split(',')[1]
-        const svgText = decodeURIComponent(escape(atob(base64Part)))
-        // Forzar dimensiones al SVG inline
-        const svgWithSize = svgText.replace(
-          /<svg/,
-          '<svg style="max-height:70px;max-width:200px;display:block;"'
-        )
-        logoHtml = `<div class="logo-wrap">${svgWithSize}</div>`
-      } catch {
-        // Si falla el decode, usar img normal como fallback
-        logoHtml = `<img class="logo-img" alt="Logo" src="${logoSrc}" />`
-      }
-    } else {
-      // PNG, JPG, WEBP — img normal funciona bien con blob URL
-      logoHtml = `<img class="logo-img" alt="Logo" src="${logoSrc}" />`
-    }
-  }
-  // ─────────────────────────────────────────────────────────────────────────
-
   const css = `
     @page { size: A4; margin: 0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     .page-header { background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%); padding: 28px 36px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-    .logo-wrap  { display:flex; align-items:center; }
-    .logo-wrap svg { max-height:70px; max-width:200px; display:block; }
-    .logo-img   { max-height: 70px; max-width: 200px; object-fit: contain; display: block; }
+    .logo-wrap svg, .logo-wrap img { max-height:70px; max-width:200px; display:block; }
     .logo-text  { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
     .hdr-right  { text-align: right; }
     .doc-type   { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
@@ -122,90 +92,124 @@ export function printQuote(quote, client, company = {}) {
     .page-footer { height: 8px; background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f); }
   `
 
-  const fullHtml = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8"/>
-  <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
-  <style>${css}</style>
-</head>
-<body>
-  <div class="page-header">
-    <div>${logoHtml}</div>
-    <div class="hdr-right">
-      <div class="doc-type">Cotización</div>
-      <div class="doc-sub">Documento proforma · presupuesto</div>
-      <div class="doc-num">${esc(String(quote.id || ''))}</div>
+  // La ventana hija escucha un mensaje con el logo y luego imprime
+  const htmlSkeleton = `<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
+<style>${css}</style>
+</head><body>
+<div class="page-header">
+  <div class="logo-wrap" id="logo-slot">
+    <span class="logo-text">${esc(company.name || 'SolarSur')}</span>
+  </div>
+  <div class="hdr-right">
+    <div class="doc-type">Cotización</div>
+    <div class="doc-sub">Documento proforma · presupuesto</div>
+    <div class="doc-num">${esc(String(quote.id || ''))}</div>
+  </div>
+</div>
+<div class="header-accent"></div>
+<div class="body-wrap">
+  <div class="meta">
+    <div class="mbox">
+      <div class="mbox-title">Cliente</div>
+      <table>
+        <tr><td colspan="2" class="name">${esc(client?.name || '—')}</td></tr>
+        ${clientInfo || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">Sin datos adicionales</td></tr>'}
+      </table>
+    </div>
+    <div class="mbox">
+      <div class="mbox-title">Empresa emisora</div>
+      <table>
+        <tr><td colspan="2" class="name">${esc(company?.name || 'SolarSur')}</td></tr>
+        ${companyInfo || ''}
+      </table>
+      <div class="date-badge">${date}</div>
     </div>
   </div>
-  <div class="header-accent"></div>
-  <div class="body-wrap">
-    <div class="meta">
-      <div class="mbox">
-        <div class="mbox-title">Cliente</div>
-        <table>
-          <tr><td colspan="2" class="name">${esc(client?.name || '—')}</td></tr>
-          ${clientInfo || '<tr><td colspan="2" style="color:#9ca3af;font-size:12px">Sin datos adicionales</td></tr>'}
-        </table>
-      </div>
-      <div class="mbox">
-        <div class="mbox-title">Empresa emisora</div>
-        <table>
-          <tr><td colspan="2" class="name">${esc(company?.name || 'SolarSur')}</td></tr>
-          ${companyInfo || ''}
-        </table>
-        <div class="date-badge">${date}</div>
-      </div>
-    </div>
-    <div class="sect-title">Detalle de productos y servicios</div>
-    <table class="items">
-      <thead>
-        <tr>
-          <th class="tl" style="width:50%">Descripción</th>
-          <th class="tc" style="width:12%">Cant.</th>
-          <th class="tr" style="width:19%">Precio unit.</th>
-          <th class="tr" style="width:19%">Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemsHtml || '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Sin productos</td></tr>'}
-      </tbody>
-    </table>
-    <div class="tot-wrap">
-      <div class="tot-box">
-        <table>
-          <tr><td>Subtotal</td><td class="tr">S/ ${subtotal.toFixed(2)}</td></tr>
-          ${igvRow}
-          <tr class="tot-final"><td>TOTAL</td><td class="tr">S/ ${total.toFixed(2)}</td></tr>
-        </table>
-      </div>
-    </div>
-    <div class="sig-row">
-      <div class="sig-box">
-        <div class="sig-line">Firma del cliente<br/><strong>${esc(client?.name || '')}</strong></div>
-      </div>
-      <div class="sig-box">
-        <div class="sig-line">Firma y sello<br/><strong>${esc(company?.name || 'SolarSur')}</strong></div>
-      </div>
-    </div>
-    <div class="note">
-      <strong>Condiciones:</strong> ${esc(note)}
-    </div>
-    <div class="byline">Documento generado electrónicamente · ${esc(company?.name || 'SolarSur')} · ${date}</div>
+  <div class="sect-title">Detalle de productos y servicios</div>
+  <table class="items">
+    <thead><tr>
+      <th class="tl" style="width:50%">Descripción</th>
+      <th class="tc" style="width:12%">Cant.</th>
+      <th class="tr" style="width:19%">Precio unit.</th>
+      <th class="tr" style="width:19%">Subtotal</th>
+    </tr></thead>
+    <tbody>${itemsHtml || '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Sin productos</td></tr>'}</tbody>
+  </table>
+  <div class="tot-wrap"><div class="tot-box"><table>
+    <tr><td>Subtotal</td><td class="tr">S/ ${subtotal.toFixed(2)}</td></tr>
+    ${igvRow}
+    <tr class="tot-final"><td>TOTAL</td><td class="tr">S/ ${total.toFixed(2)}</td></tr>
+  </table></div></div>
+  <div class="sig-row">
+    <div class="sig-box"><div class="sig-line">Firma del cliente<br/><strong>${esc(client?.name || '')}</strong></div></div>
+    <div class="sig-box"><div class="sig-line">Firma y sello<br/><strong>${esc(company?.name || 'SolarSur')}</strong></div></div>
   </div>
-  <div class="page-footer"></div>
-</body>
-</html>`
-
-  const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' })
-  const blobUrl = URL.createObjectURL(blob)
-  const w = window.open(blobUrl, '_blank', 'width=920,height=720')
-  if (!w) {
-    alert('Permite los pop-ups en tu navegador para exportar el PDF.')
-    URL.revokeObjectURL(blobUrl)
-    return
+  <div class="note"><strong>Condiciones:</strong> ${esc(note)}</div>
+  <div class="byline">Documento generado electrónicamente · ${esc(company?.name || 'SolarSur')} · ${date}</div>
+</div>
+<div class="page-footer"></div>
+<script>
+  // Escuchar el logo enviado desde la ventana padre via postMessage
+  window.addEventListener('message', function(e) {
+    var slot = document.getElementById('logo-slot')
+    if (!slot) return
+    if (e.data && e.data.type === 'SET_LOGO') {
+      var logo = e.data.logo
+      if (!logo) { window.print(); return }
+      if (logo.indexOf('data:image/svg') === 0) {
+        // SVG: decodificar base64 e insertar inline
+        try {
+          var b64 = logo.split(',')[1]
+          var svgText = decodeURIComponent(escape(atob(b64)))
+          slot.innerHTML = svgText
+          var svgEl = slot.querySelector('svg')
+          if (svgEl) {
+            svgEl.style.maxHeight = '70px'
+            svgEl.style.maxWidth  = '200px'
+            svgEl.style.display   = 'block'
+            svgEl.removeAttribute('width')
+            svgEl.removeAttribute('height')
+          }
+        } catch(err) {
+          slot.innerHTML = '<span class="logo-text">' + e.data.name + '</span>'
+        }
+      } else {
+        // PNG/JPG: img normal
+        slot.innerHTML = '<img src="' + logo + '" style="max-height:70px;max-width:200px;display:block;" />'
+      }
+      setTimeout(function(){ window.print() }, 300)
+    }
+  })
+  // Avisar al padre que estamos listos
+  window.onload = function() {
+    window.opener && window.opener.postMessage({ type: 'PRINT_READY' }, '*')
   }
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
+<\/script>
+</body></html>`
+
+  const w = window.open('', '_blank', 'width=920,height=720')
+  if (!w) { alert('Permite los pop-ups en tu navegador para exportar el PDF.'); return }
+
+  w.document.open()
+  w.document.write(htmlSkeleton)
+  w.document.close()
+
+  // Escuchar cuando la ventana hija esté lista y enviarle el logo
+  const handler = (e) => {
+    if (e.source === w && e.data && e.data.type === 'PRINT_READY') {
+      window.removeEventListener('message', handler)
+      w.postMessage({ type: 'SET_LOGO', logo: company.logo || '', name: company.name || 'SolarSur' }, '*')
+    }
+  }
+  window.addEventListener('message', handler)
+
+  // Fallback: si en 3s no llega el PRINT_READY, enviar igual
+  setTimeout(() => {
+    window.removeEventListener('message', handler)
+    try { w.postMessage({ type: 'SET_LOGO', logo: company.logo || '', name: company.name || 'SolarSur' }, '*') } catch {}
+  }, 3000)
 }
 
 function esc(s) {
