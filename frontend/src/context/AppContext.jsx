@@ -61,7 +61,7 @@ export function AppProvider({ children }) {
   useEffect(() => {
     fetch(`${API}/company`)
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data && data.name) setCompany(data) })
+      .then(data => { if (data && Object.keys(data).length > 0) setCompany(data) })
       .catch(() => {})
   }, [])
 
