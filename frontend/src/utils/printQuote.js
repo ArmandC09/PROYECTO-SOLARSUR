@@ -41,29 +41,56 @@ export function printQuote(quote, client, company = {}) {
     ? `<tr><td>IGV (${igvPct}%)</td><td class="tr">S/ ${igvAmt.toFixed(2)}</td></tr>`
     : `<tr class="muted"><td>IGV (0%)</td><td class="tr">S/ 0.00</td></tr>`
 
+  // ── Logo: SVG inline o <img> según tipo ──────────────────────────────────
+  // SVG base64 bloqueado en blob URLs → decodificar y poner inline
+  // PNG/JPG base64 → <img> normal funciona bien
+  let logoHtml = `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
+  if (company.logo) {
+    const logoSrc = company.logo
+    if (logoSrc.startsWith('data:image/svg')) {
+      // Extraer el SVG real del base64 y ponerlo inline en el HTML
+      try {
+        const base64Part = logoSrc.split(',')[1]
+        const svgText = decodeURIComponent(escape(atob(base64Part)))
+        // Forzar dimensiones al SVG inline
+        const svgWithSize = svgText.replace(
+          /<svg/,
+          '<svg style="max-height:70px;max-width:200px;display:block;"'
+        )
+        logoHtml = `<div class="logo-wrap">${svgWithSize}</div>`
+      } catch {
+        // Si falla el decode, usar img normal como fallback
+        logoHtml = `<img class="logo-img" alt="Logo" src="${logoSrc}" />`
+      }
+    } else {
+      // PNG, JPG, WEBP — img normal funciona bien con blob URL
+      logoHtml = `<img class="logo-img" alt="Logo" src="${logoSrc}" />`
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const css = `
     @page { size: A4; margin: 0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .logo-img { display: block !important; max-height: 70px !important; max-width: 240px !important; }
-    }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     .page-header { background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%); padding: 28px 36px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-    .logo-img  { max-height: 70px; max-width: 240px; object-fit: contain; display: block; }
-    .logo-text { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
-    .hdr-right { text-align: right; }
-    .doc-type  { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
-    .doc-sub   { font-size: 11px; color: rgba(255,255,255,0.70); margin-top: 4px; letter-spacing: 0.5px; }
-    .doc-num   { display: inline-block; margin-top: 10px; background: rgba(255,255,255,0.18); color: #fff; border: 1.5px solid rgba(255,255,255,0.45); font-weight: 700; font-size: 13px; padding: 5px 18px; border-radius: 99px; letter-spacing: 0.5px; }
+    .logo-wrap  { display:flex; align-items:center; }
+    .logo-wrap svg { max-height:70px; max-width:200px; display:block; }
+    .logo-img   { max-height: 70px; max-width: 200px; object-fit: contain; display: block; }
+    .logo-text  { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+    .hdr-right  { text-align: right; }
+    .doc-type   { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+    .doc-sub    { font-size: 11px; color: rgba(255,255,255,0.70); margin-top: 4px; letter-spacing: 0.5px; }
+    .doc-num    { display: inline-block; margin-top: 10px; background: rgba(255,255,255,0.18); color: #fff; border: 1.5px solid rgba(255,255,255,0.45); font-weight: 700; font-size: 13px; padding: 5px 18px; border-radius: 99px; letter-spacing: 0.5px; }
     .header-accent { height: 5px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); }
-    .body-wrap { padding: 24px 36px 28px; }
-    .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 22px; }
-    .mbox { background: #f7faff; border: 1px solid #dde8f8; border-radius: 12px; padding: 14px 16px; }
+    .body-wrap  { padding: 24px 36px 28px; }
+    .meta       { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 22px; }
+    .mbox       { background: #f7faff; border: 1px solid #dde8f8; border-radius: 12px; padding: 14px 16px; }
     .mbox-title { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #dde8f8; }
     .mbox table { width: 100%; font-size: 12.5px; }
-    .mbox td { padding: 3px 0; vertical-align: top; }
-    .il { color: #8898b4; font-size: 11px; font-weight: 600; padding-right: 10px; white-space: nowrap; }
+    .mbox td    { padding: 3px 0; vertical-align: top; }
+    .il         { color: #8898b4; font-size: 11px; font-weight: 600; padding-right: 10px; white-space: nowrap; }
     .mbox .name { font-size: 15px; font-weight: 800; color: #0b1220; padding-bottom: 6px; }
     .date-badge { display: inline-flex; align-items: center; background: linear-gradient(135deg,#0b4ea6,#1a7fd4); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 99px; margin-top: 10px; letter-spacing: 0.3px; }
     .sect-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #0b4ea6; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
@@ -78,40 +105,22 @@ export function printQuote(quote, client, company = {}) {
     .re { background: #fff; }
     .ro { background: #f5f9ff; }
     table.items tbody tr { border-bottom: 1px solid #eef2fb; }
-    .tot-wrap { display: flex; justify-content: flex-end; margin: 16px 0 22px; }
-    .tot-box  { width: 270px; border: 1.5px solid #dde8f8; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(11,78,166,0.08); }
+    .tot-wrap   { display: flex; justify-content: flex-end; margin: 16px 0 22px; }
+    .tot-box    { width: 270px; border: 1.5px solid #dde8f8; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(11,78,166,0.08); }
     .tot-box table { width: 100%; font-size: 13px; }
     .tot-box td { padding: 10px 16px; border-bottom: 1px solid #e8eef8; }
     .tot-box tr:last-child td { border-bottom: none; }
     .tot-box .muted td { color: #9ca3af; }
     .tot-final td { background: linear-gradient(135deg,#0a3d8f,#1a7fd4); color: #fff !important; font-weight: 800; font-size: 15px; padding: 14px 16px; }
-    .sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 4px 0 20px; }
-    .sig-box { text-align: center; }
-    .sig-line { border-top: 1.5px solid #c0cfe0; padding-top: 6px; font-size: 11px; color: #8898b4; margin-top: 44px; }
+    .sig-row    { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 4px 0 20px; }
+    .sig-box    { text-align: center; }
+    .sig-line   { border-top: 1.5px solid #c0cfe0; padding-top: 6px; font-size: 11px; color: #8898b4; margin-top: 44px; }
     .sig-line strong { color: #374151; }
-    .note { background: #f7faff; border-left: 4px solid #0b5ed7; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 11.5px; color: #5a6e8e; margin-bottom: 18px; }
+    .note       { background: #f7faff; border-left: 4px solid #0b5ed7; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 11.5px; color: #5a6e8e; margin-bottom: 18px; }
     .note strong { color: #0b4ea6; }
-    .byline { text-align: center; font-size: 10px; color: #aab4c8; margin-bottom: 10px; }
+    .byline     { text-align: center; font-size: 10px; color: #aab4c8; margin-bottom: 10px; }
     .page-footer { height: 8px; background: linear-gradient(90deg, #0a3d8f, #0b5ed7, #f59e0b, #0b5ed7, #0a3d8f); }
   `
-
-  // Construir el HTML completo incluyendo el logo como data URL directo en el src
-  // Esto es seguro porque NO pasa por esc() — se embebe en un blob URL.
-  // `printQuote` no lee ningún archivo SQL; usa el objeto `company` que ya cargó la app.
-  const logoRaw = typeof company.logo === 'string' ? company.logo.trim() : ''
-  const logoClean = logoRaw.replace(/\s+/g, '')
-  const logoSrc = logoClean.startsWith('data:')
-    ? logoClean
-    : /^[A-Za-z0-9+/=]+$/.test(logoClean) && logoClean.length > 50
-      ? `data:image/png;base64,${logoClean}`
-      : logoRaw
-
-  console.log('printQuote company.logo:', company.logo)
-  console.log('printQuote logoSrc:', logoSrc)
-
-  const logoHtml = logoSrc
-    ? `<img class="logo-img" alt="Logo" src="${logoSrc.replace(/\"/g, '&quot;')}" onerror="this.outerHTML='<span class=\'logo-text\'>${esc(company.name || 'SolarSur')}<\/span>'" />`
-    : `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
 
   const fullHtml = `<!DOCTYPE html>
 <html lang="es">
@@ -119,12 +128,6 @@ export function printQuote(quote, client, company = {}) {
   <meta charset="utf-8"/>
   <title>Cotizacion ${esc(String(quote.id || ''))} - ${esc(client?.name || '')}</title>
   <style>${css}</style>
-  <script>
-    window.addEventListener('load', function() {
-      window.focus();
-      try { window.print(); } catch (e) { console.warn('printQuote auto-print failed', e); }
-    });
-  </script>
 </head>
 <body>
   <div class="page-header">
@@ -194,34 +197,14 @@ export function printQuote(quote, client, company = {}) {
 </body>
 </html>`
 
-  // Usar Blob + URL.createObjectURL — evita TODOS los problemas de document.write,
-  // truncamiento de base64, y restricciones de ventanas emergentes con datos largos
   const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' })
   const blobUrl = URL.createObjectURL(blob)
-
   const w = window.open(blobUrl, '_blank', 'width=920,height=720')
   if (!w) {
     alert('Permite los pop-ups en tu navegador para exportar el PDF.')
     URL.revokeObjectURL(blobUrl)
     return
   }
-
-  const tryPrint = () => {
-    try {
-      w.focus()
-      w.print()
-    } catch (err) {
-      console.warn('No se pudo lanzar impresión automática:', err)
-    }
-  }
-
-  if (w.document.readyState === 'complete') {
-    tryPrint()
-  } else {
-    w.addEventListener('load', tryPrint)
-  }
-
-  // Limpiar el blob URL después de que la ventana cargue
   setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
 }
 
