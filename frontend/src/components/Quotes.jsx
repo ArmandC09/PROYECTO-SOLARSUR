@@ -177,6 +177,8 @@ export default function Quotes() {
   }
 
   const exportPdf = () => {
+    console.log('Quotes exportPdf company.logo:', company?.logo)
+    console.log('Quotes exportPdf company object:', company)
     printQuote(
       { id: edQuote?.id, date: edQuote?.date, total: edTotal, igv: edIgv, igvAmt: edIgvAmt, note: edNote,
         items: edItems.map(it => ({ description: it.description, qty: it.qty, price: it.price })) },
