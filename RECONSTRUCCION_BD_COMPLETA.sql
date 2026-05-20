@@ -134,6 +134,10 @@ CREATE TABLE company (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+ALTER TABLE company
+  ADD COLUMN phone2 VARCHAR(40) NULL DEFAULT NULL
+  AFTER phone;
+
 INSERT INTO company (name)
 SELECT 'SolarSur'
 WHERE NOT EXISTS (SELECT 1 FROM company);
@@ -243,6 +247,27 @@ CREATE TABLE audit_logs (
   CONSTRAINT fk_audit_logs_user
     FOREIGN KEY (user_id) REFERENCES users(id)
     ON DELETE SET NULL
+);
+
+-- ============================================================
+-- KITS
+-- ============================================================
+
+CREATE TABLE kits (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  description TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE kit_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  kit_id INT NOT NULL,
+  product_id INT NOT NULL,
+  qty DECIMAL(10,2) NOT NULL DEFAULT 1,
+  kit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  FOREIGN KEY (kit_id) REFERENCES kits(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
 );
 
 -- ============================================================
