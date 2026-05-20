@@ -38,6 +38,9 @@ export default function Header({ onNavigate, currentView }) {
     // Almacén/Movimientos: SUPERADMIN, ADMIN, WAREHOUSE — NO SALES
     ...(!isSales ? [{ id: 'movements', label: 'Almacén' }] : []),
 
+    // Kits: SUPERADMIN y ADMIN
+    ...(isAdmin ? [{ id: 'kits', label: 'Kits' }] : []),
+
     // Cotización: SUPERADMIN, ADMIN, SALES — NO WAREHOUSE
     ...(!isWarehouse ? [{ id: 'quotes', label: 'Cotización' }] : []),
 
