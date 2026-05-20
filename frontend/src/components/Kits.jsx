@@ -3,7 +3,7 @@ import AppContext from '../context/AppContext'
 import ModalPortal from './ModalPortal'
 
 export default function Kits() {
-  const { kits, inventory, addKit, updateKit, deleteKit } = useContext(AppContext)
+  const { kits, inventory, addKit, updateKit, deleteKit, loadKits } = useContext(AppContext)
 
   const [search, setSearch]         = useState('')
   const [modalOpen, setModalOpen]   = useState(false)
@@ -86,10 +86,18 @@ export default function Kits() {
         kit_price: Number(it.kit_price)
       }))
     }
-    if (editing) await updateKit(editing.id, payload)
-    else await addKit(payload)
+    let ok = false
+    if (editing) {
+      const result = await updateKit(editing.id, payload)
+      ok = !!result
+    } else {
+      const result = await addKit(payload)
+      ok = !!result
+    }
+    await loadKits()
     setSaving(false)
-    closeModal()
+    if (ok) closeModal()
+    else alert('Error al guardar el kit. Revisa la consola.')
   }
 
   const handleDelete = async (kit) => {
