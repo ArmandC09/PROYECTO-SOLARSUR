@@ -174,7 +174,7 @@ export default function Kits() {
       {/* Modal crear/editar */}
       {modalOpen && (
         <ModalPortal>
-          <div className="ss-modal-overlay" onClick={closeModal}>
+          <div className="ss-overlay" onClick={closeModal}>
             <div className="ss-modal ss-modal-wide" style={{maxWidth:820}} onClick={e => e.stopPropagation()}>
               <div className="ss-modal-head">
                 <h2>{editing ? `Editar: ${editing.name}` : 'Nuevo kit'}</h2>
