@@ -1,4 +1,5 @@
 const pool = require('../db')
+const { log } = require('./auditController')
 
 const getKitsFull = async () => {
   const [kits] = await pool.query('SELECT * FROM kits ORDER BY created_at DESC')
@@ -55,6 +56,17 @@ exports.createKit = async (req, res) => {
     `, [kitId])
     const available = kitItems.length > 0 && kitItems.every(it => Number(it.stock) >= Number(it.qty))
     const total = kitItems.reduce((s, it) => s + (Number(it.kit_price) * Number(it.qty)), 0)
+
+    await log({
+      user_id: req.user?.id,
+      action: 'CREATE',
+      entity: 'kits',
+      entity_id: kitId,
+      after_json: { name, description, items },
+      ip: req.ip,
+      user_agent: req.get('user-agent')
+    })
+
     res.json({ ...kits[0], items: kitItems, available, total })
   } catch (e) {
     console.error('createKit error:', e)
@@ -66,6 +78,8 @@ exports.updateKit = async (req, res) => {
   try {
     const { id } = req.params
     const { name, description, items } = req.body
+
+    const [before] = await pool.query('SELECT * FROM kits WHERE id=?', [id])
 
     await pool.query('UPDATE kits SET name=?, description=? WHERE id=?', [name, description || null, id])
     await pool.query('DELETE FROM kit_items WHERE kit_id=?', [id])
@@ -87,6 +101,18 @@ exports.updateKit = async (req, res) => {
     `, [id])
     const available = kitItems.length > 0 && kitItems.every(it => Number(it.stock) >= Number(it.qty))
     const total = kitItems.reduce((s, it) => s + (Number(it.kit_price) * Number(it.qty)), 0)
+
+    await log({
+      user_id: req.user?.id,
+      action: 'UPDATE',
+      entity: 'kits',
+      entity_id: Number(id),
+      before_json: before[0] || null,
+      after_json: { name, description, items },
+      ip: req.ip,
+      user_agent: req.get('user-agent')
+    })
+
     res.json({ ...kits[0], items: kitItems, available, total })
   } catch (e) {
     console.error('updateKit error:', e)
@@ -96,7 +122,21 @@ exports.updateKit = async (req, res) => {
 
 exports.deleteKit = async (req, res) => {
   try {
-    await pool.query('DELETE FROM kits WHERE id=?', [req.params.id])
+    const { id } = req.params
+    const [before] = await pool.query('SELECT * FROM kits WHERE id=?', [id])
+
+    await pool.query('DELETE FROM kits WHERE id=?', [id])
+
+    await log({
+      user_id: req.user?.id,
+      action: 'DELETE',
+      entity: 'kits',
+      entity_id: Number(id),
+      before_json: before[0] || null,
+      ip: req.ip,
+      user_agent: req.get('user-agent')
+    })
+
     res.json({ ok: true })
   } catch (e) {
     res.status(500).json({ error: e.message })
