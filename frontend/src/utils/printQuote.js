@@ -58,8 +58,8 @@ export function printQuote(quote, client, company = {}) {
           const svgEl = tmp.querySelector('svg')
           if (svgEl) {
             // Forzar dimensiones explícitas — sin esto el SVG inline tiene tamaño 0
-            svgEl.setAttribute('width', '180')
-            svgEl.setAttribute('height', '68')
+            svgEl.setAttribute('width', '220')
+            svgEl.setAttribute('height', '84')
             svgEl.setAttribute('style', 'display:block;')
             // Asegurar que el viewBox esté presente para que escale bien
             if (!svgEl.getAttribute('viewBox')) {
