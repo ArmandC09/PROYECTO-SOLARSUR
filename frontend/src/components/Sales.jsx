@@ -87,7 +87,7 @@ export default function Sales() {
 
     await addSale(sale)
     cancelConversion()
-    showToast('✅ Cotización convertida a venta exitosamente')
+    showToast('Cotización convertida a venta exitosamente')
   }
 
   return (
