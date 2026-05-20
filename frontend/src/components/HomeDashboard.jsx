@@ -34,6 +34,7 @@ export default function HomeDashboard({ onNavigate }) {
   const inventoryCards = [
     { key: 'inventory', label: 'Inventario', desc: 'Control de stock', img: '/images/icon_inventory.png', letter: 'I', color: '#8b5cf6', action: () => onNavigate('inventory'), show: true },
     { key: 'providers', label: 'Proveedores', desc: 'Gestión de proveedores', img: '/images/icon_providers.png', letter: 'P', color: '#0ea5e9', action: () => onNavigate('providers'), show: isAdmin },
+    { key: 'kits', label: 'Kits', desc: 'Gestión de kits', img: '/images/icon_inventory.png', letter: 'K', color: '#0b5ed7', action: () => onNavigate('kits'), show: isAdmin },
     { key: 'movements', label: 'Almacén', desc: 'Entradas / Salidas', img: '/images/icon_warehouse.png', letter: 'A', color: '#22c55e', action: () => onNavigate('movements'), show: !isSales },
     { key: 'clients-warehouse', label: 'Clientes', desc: 'Ver clientes', img: '/images/icon_clients.png', letter: 'C', color: '#ec4899', action: () => onNavigate('clients'), show: isWarehouse }
   ].filter((item) => item.show)
