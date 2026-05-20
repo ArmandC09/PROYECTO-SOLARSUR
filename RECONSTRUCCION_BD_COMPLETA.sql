@@ -267,7 +267,7 @@ CREATE TABLE kit_items (
   qty DECIMAL(10,2) NOT NULL DEFAULT 1,
   kit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
   FOREIGN KEY (kit_id) REFERENCES kits(id) ON DELETE CASCADE,
-  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+  FOREIGN KEY (product_id) REFERENCES inventory(id) ON DELETE RESTRICT
 );
 
 -- ============================================================
