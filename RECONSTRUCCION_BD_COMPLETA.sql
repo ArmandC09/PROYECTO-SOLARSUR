@@ -249,6 +249,9 @@ CREATE TABLE audit_logs (
     ON DELETE SET NULL
 );
 
+ALTER TABLE audit_logs
+  MODIFY COLUMN action ENUM('CREATE','UPDATE','DELETE','LOGIN','LOGOUT','STOCK_IN','STOCK_OUT','RESTORE','REVERT');
+
 -- ============================================================
 -- KITS
 -- ============================================================
