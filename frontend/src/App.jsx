@@ -11,6 +11,7 @@ import SalesHistory from './components/SalesHistory'
 import Users from './components/Users'
 import Movements from './components/Movements'
 import AuditLog from './components/AuditLog'
+import Kits from './components/Kits'
 import Footer from './components/Footer'
 import Login from './components/Login'
 import AuthContext from './context/AuthContext'
@@ -44,6 +45,7 @@ export default function App() {
         {section === 'sales' && !isWarehouse && <Sales />}
         {section === 'quotes' && !isWarehouse && <Quotes />}
         {section === 'inventory' && <Inventory />}
+        {section === 'kits' && <Kits />}
         {section === 'clients' && <Clients />}
         {section === 'history' && !isWarehouse && <SalesHistory />}
         {section === 'users' && isSuperAdmin && <Users />}
