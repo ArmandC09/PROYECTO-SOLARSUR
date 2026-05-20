@@ -82,7 +82,7 @@ export function printQuote(quote, client, company = {}) {
     body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.55; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     .page-header { background: linear-gradient(135deg, #0a3d8f 0%, #0b5ed7 55%, #1e7ee8 100%); padding: 28px 36px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-    .logo-container { background: #fff; border-radius: 10px; padding: 8px 14px; display:inline-flex; align-items:center; }
+    .logo-container { background: transparent; padding: 0; display:inline-flex; align-items:center; }
     .logo-text { font-size: 22px; font-weight: 900; color: #0a3d8f; letter-spacing: -0.5px; }
     .hdr-right { text-align: right; }
     .doc-type  { font-size: 34px; font-weight: 900; color: #fff; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.18); }
