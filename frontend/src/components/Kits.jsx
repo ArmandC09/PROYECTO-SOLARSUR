@@ -107,23 +107,25 @@ export default function Kits() {
 
   return (
     <section className="clients-page fade-in">
-      <div className="clients-head">
-        <h1>Kits</h1>
-        <button className="ss-btn-primary" onClick={openNew}>+ Nuevo kit</button>
-      </div>
+      <div className="inventory-head"><h1>Kits</h1></div>
+      <div className="inventory-shell">
+        <div className="inventory-main-card">
+          <div className="inventory-toolbar">
+            <button type="button" className="inventory-new-btn" onClick={openNew}>
+              <span className="inventory-plus">＋</span>Nuevo kit
+            </button>
+            <div className="inventory-search-wrap">
+              <span className="inventory-search-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+                </svg>
+              </span>
+              <input className="inventory-search-input" placeholder="Buscar kit..."
+                value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+          </div>
 
-      {/* Buscador */}
-      <div className="clients-search-wrap" style={{marginBottom:18}}>
-        <span className="clients-search-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
-          </svg>
-        </span>
-        <input className="clients-search-input" placeholder="Buscar kit..." value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
-
-      {/* Lista de kits */}
-      <div className="inventory-table-wrap">
+          <div className="inventory-table-wrap">
         <table className="data-table inventory-table">
           <thead>
             <tr>
@@ -181,6 +183,9 @@ export default function Kits() {
         </table>
       </div>
 
+
+      </div>
+        </div>
       {/* Modal crear/editar */}
       {modalOpen && (
         <ModalPortal>
