@@ -123,61 +123,63 @@ export default function Kits() {
       </div>
 
       {/* Lista de kits */}
-      {filtered.length === 0 ? (
-        <div style={{textAlign:'center', padding:'60px 0', color:'#9ca3af', fontSize:14}}>
-          {(kits||[]).length === 0 ? 'No hay kits creados aún. Crea el primero.' : 'Sin resultados'}
-        </div>
-      ) : (
-        <div style={{display:'flex', flexDirection:'column', gap:12}}>
-          {filtered.map(kit => (
-            <div key={kit.id} className="card" style={{padding:'16px 20px', margin:0}}>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12}}>
-                <div style={{flex:1}}>
-                  <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:6}}>
-                    <span style={{fontWeight:700, fontSize:15, color:'#0b1220'}}>{kit.name}</span>
-                    <span style={{
-                      padding:'2px 10px', borderRadius:99, fontSize:11, fontWeight:700,
-                      background: kit.available ? '#dcfce7' : '#fee2e2',
-                      color: kit.available ? '#166534' : '#991b1b'
-                    }}>
-                      {kit.available ? '✓ Disponible' : '✗ Sin stock'}
-                    </span>
-                  </div>
-                  {kit.description && (
-                    <div style={{fontSize:12, color:'#6b7280', marginBottom:8}}>{kit.description}</div>
-                  )}
-                  <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
-                    {(kit.items || []).map(it => (
-                      <span key={it.id} style={{
-                        fontSize:11, padding:'3px 8px', borderRadius:6,
+      <div className="inventory-table-wrap">
+        <table className="data-table inventory-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Componentes</th>
+              <th>Estado</th>
+              <th>Total</th>
+              <th className="align-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={5} style={{textAlign:'center', padding:'40px 0', color:'#9ca3af'}}>
+                {(kits||[]).length === 0 ? 'No hay kits creados aún. Crea el primero.' : 'Sin resultados'}
+              </td></tr>
+            ) : filtered.map(kit => (
+              <tr key={kit.id}>
+                <td>
+                  <strong style={{fontSize:14}}>{kit.name}</strong>
+                  {kit.description && <div style={{fontSize:12, color:'#6b7280', marginTop:2}}>{kit.description}</div>}
+                </td>
+                <td>
+                  <div style={{display:'flex', flexWrap:'wrap', gap:4}}>
+                    {(kit.items||[]).map((it,i) => (
+                      <span key={i} style={{
+                        fontSize:11, padding:'2px 8px', borderRadius:6,
                         background: Number(it.stock) >= Number(it.qty) ? '#f0f9ff' : '#fef2f2',
                         color: Number(it.stock) >= Number(it.qty) ? '#0369a1' : '#dc2626',
                         border: `1px solid ${Number(it.stock) >= Number(it.qty) ? '#bae6fd' : '#fecaca'}`
                       }}>
                         {it.product_name} ×{it.qty}
-                        {Number(it.stock) < Number(it.qty) && ` (stock: ${it.stock})`}
                       </span>
                     ))}
                   </div>
-                </div>
-                <div style={{textAlign:'right', flexShrink:0}}>
-                  <div style={{fontSize:18, fontWeight:800, color:'#0b4ea6', marginBottom:10}}>
-                    S/ {Number(kit.total || 0).toFixed(2)}
-                  </div>
-                  <div style={{display:'flex', gap:6, justifyContent:'flex-end'}}>
-                    <button className="ss-btn-cancel" style={{padding:'6px 14px', fontSize:12}} onClick={() => openEdit(kit)}>
-                      Editar
-                    </button>
-                    <button className="ss-btn-danger" style={{padding:'6px 14px', fontSize:12}} onClick={() => handleDelete(kit)}>
-                      Eliminar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                </td>
+                <td>
+                  <span style={{
+                    padding:'3px 10px', borderRadius:99, fontSize:11, fontWeight:700,
+                    background: kit.available ? '#dcfce7' : '#fee2e2',
+                    color: kit.available ? '#166534' : '#991b1b'
+                  }}>
+                    {kit.available ? '✓ Disponible' : '✗ Sin stock'}
+                  </span>
+                </td>
+                <td><strong style={{color:'#0b4ea6'}}>S/ {Number(kit.total||0).toFixed(2)}</strong></td>
+                <td className="align-right inventory-actions-cell">
+                  <button type="button" className="inventory-action-btn edit" onClick={() => openEdit(kit)}>
+                    ✎ Editar
+                  </button>
+                  <button type="button" className="inventory-icon-btn delete" onClick={() => handleDelete(kit)} title="Eliminar">🗑</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Modal crear/editar */}
       {modalOpen && (
@@ -185,7 +187,7 @@ export default function Kits() {
           <div className="ss-overlay" onClick={closeModal}>
             <div className="ss-modal ss-modal-wide" style={{maxWidth:820}} onClick={e => e.stopPropagation()}>
               <div className="ss-modal-head">
-                <h2>{editing ? `Editar: ${editing.name}` : 'Nuevo kit'}</h2>
+                <h2 style={{color:'#fff'}}>{editing ? `Editar: ${editing.name}` : 'Nuevo kit'}</h2>
                 <button className="ss-modal-close" onClick={closeModal}>×</button>
               </div>
 
