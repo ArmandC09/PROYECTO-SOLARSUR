@@ -28,7 +28,7 @@ const IGV_OPTIONS = [
 ]
 
 export default function Quotes() {
-  const { clients, quotes, inventory, addQuote, deleteQuote, company } = useContext(AppContext)
+  const { clients, quotes, inventory, kits, addQuote, deleteQuote, company } = useContext(AppContext)
   const { user } = useContext(AuthContext)
   const canDelete = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
 
@@ -41,6 +41,7 @@ export default function Quotes() {
   const [newClientId, setNewClientId] = useState('')
   const [newItems, setNewItems]       = useState([])
   const [prodQuery, setProdQuery]     = useState('')
+  const [searchMode, setSearchMode]   = useState('products') // 'products' | 'kits'
 
   // ── Editor PDF modal ──
   const [edOpen,      setEdOpen]      = useState(false)
@@ -72,6 +73,12 @@ export default function Quotes() {
       (p.name||'').toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q)
     )
   }, [inventory, prodQuery])
+
+  const filteredKits = useMemo(() => {
+    const q = prodQuery.trim().toLowerCase()
+    if (!q) return kits || []
+    return (kits || []).filter(k => k.name.toLowerCase().includes(q))
+  }, [kits, prodQuery])
 
   const clientOptions = useMemo(
     () => [{ value: '', label: 'Seleccionar cliente...' }, ...clients.map((client) => ({ value: String(client.id), label: client.name }))],
@@ -113,6 +120,30 @@ export default function Quotes() {
       if (ex) return prev.map(it => String(it.inventory_id) === String(prod.id) ? {...it, qty: it.qty+1} : it)
       return [...prev, { id: Date.now()+Math.random(), inventory_id: prod.id,
         description: prod.name, sku: prod.sku||'', qty:1, price: Number(prod.price||0) }]
+    })
+  }
+
+  const addKitToQuote = (kit) => {
+    setNewItems(prev => {
+      let updated = [...prev]
+      for (const it of (kit.items || [])) {
+        const ex = updated.find(x => String(x.inventory_id) === String(it.product_id))
+        if (ex) {
+          updated = updated.map(x => String(x.inventory_id) === String(it.product_id)
+            ? {...x, qty: x.qty + Number(it.qty)} : x)
+        } else {
+          updated.push({
+            id: Date.now() + Math.random(),
+            inventory_id: it.product_id,
+            description: it.product_name,
+            sku: it.sku || '',
+            qty: Number(it.qty),
+            price: Number(it.kit_price || 0),
+            _fromKit: kit.name
+          })
+        }
+      }
+      return updated
     })
   }
 
@@ -310,8 +341,24 @@ export default function Quotes() {
                 </div>
 
                 <div style={{flex:1, display:'flex', flexDirection:'column', gap:10, overflow:'hidden'}}>
-                  <div style={{fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.7px', color:'#4b5563'}}>
-                    BUSCAR PRODUCTOS
+                  {/* Palanca Productos / Kits */}
+                  <div style={{display:'flex', background:'#f1f5f9', borderRadius:10, padding:3, gap:2}}>
+                    <button type="button"
+                      onClick={() => { setSearchMode('products'); setProdQuery('') }}
+                      style={{
+                        flex:1, padding:'7px 0', borderRadius:8, border:'none',
+                        fontSize:12, fontWeight:700, cursor:'pointer', transition:'all 0.2s',
+                        background: searchMode==='products' ? '#0b5ed7' : 'transparent',
+                        color: searchMode==='products' ? '#fff' : '#6b7280'
+                      }}>Productos</button>
+                    <button type="button"
+                      onClick={() => { setSearchMode('kits'); setProdQuery('') }}
+                      style={{
+                        flex:1, padding:'7px 0', borderRadius:8, border:'none',
+                        fontSize:12, fontWeight:700, cursor:'pointer', transition:'all 0.2s',
+                        background: searchMode==='kits' ? '#0b5ed7' : 'transparent',
+                        color: searchMode==='kits' ? '#fff' : '#6b7280'
+                      }}>Kits</button>
                   </div>
                   <div className="clients-search-wrap" style={{flex:'none'}}>
                     <span className="clients-search-icon">
@@ -319,22 +366,61 @@ export default function Quotes() {
                         <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
                       </svg>
                     </span>
-                    <input className="clients-search-input" placeholder="Nombre o SKU..." style={{fontSize:13}}
+                    <input className="clients-search-input"
+                      placeholder={searchMode==='kits' ? 'Buscar kit...' : 'Nombre o SKU...'}
+                      style={{fontSize:13}}
                       value={prodQuery} onChange={e=>setProdQuery(e.target.value)} />
                   </div>
                   <div className="product-search-list" style={{flex:1}}>
-                    {filteredProds.length === 0 ? (
-                      <div style={{color:'#9ca3af', textAlign:'center', padding:'20px 0', fontSize:13}}>Sin resultados</div>
-                    ) : filteredProds.slice(0,20).map(p => (
-                      <div key={p.id} className="product-item">
-                        <div className="product-item-info">
-                          <strong>{p.name}</strong>
-                          <span>SKU: {p.sku||'—'} · Stock: {p.qty}</span>
+                    {searchMode === 'products' ? (
+                      filteredProds.length === 0 ? (
+                        <div style={{color:'#9ca3af', textAlign:'center', padding:'20px 0', fontSize:13}}>Sin resultados</div>
+                      ) : filteredProds.slice(0,20).map(p => (
+                        <div key={p.id} className="product-item">
+                          <div className="product-item-info">
+                            <strong>{p.name}</strong>
+                            <span>SKU: {p.sku||'—'} · Stock: {p.qty}</span>
+                          </div>
+                          <span className="product-item-price">S/ {Number(p.price||0).toFixed(2)}</span>
+                          <button type="button" className="product-add-btn" onClick={() => addProd(p)}>+ Agregar</button>
                         </div>
-                        <span className="product-item-price">S/ {Number(p.price||0).toFixed(2)}</span>
-                        <button type="button" className="product-add-btn" onClick={() => addProd(p)}>+ Agregar</button>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      filteredKits.length === 0 ? (
+                        <div style={{color:'#9ca3af', textAlign:'center', padding:'20px 0', fontSize:13}}>
+                          {(kits||[]).length === 0 ? 'No hay kits creados aún' : 'Sin resultados'}
+                        </div>
+                      ) : filteredKits.map(kit => (
+                        <div key={kit.id} className="product-item" style={{flexDirection:'column', alignItems:'flex-start', gap:6}}>
+                          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
+                            <div style={{display:'flex', alignItems:'center', gap:8}}>
+                              <strong style={{fontSize:13}}>{kit.name}</strong>
+                              <span style={{
+                                padding:'1px 8px', borderRadius:99, fontSize:10, fontWeight:700,
+                                background: kit.available ? '#dcfce7' : '#fee2e2',
+                                color: kit.available ? '#166534' : '#991b1b'
+                              }}>{kit.available ? '✓ Stock OK' : '✗ Sin stock'}</span>
+                            </div>
+                            <div style={{display:'flex', alignItems:'center', gap:8}}>
+                              <span className="product-item-price">S/ {Number(kit.total||0).toFixed(2)}</span>
+                              <button type="button" className="product-add-btn"
+                                onClick={() => addKitToQuote(kit)}
+                                disabled={!kit.available}
+                                style={{opacity: kit.available ? 1 : 0.5, cursor: kit.available ? 'pointer' : 'not-allowed'}}
+                              >+ Kit</button>
+                            </div>
+                          </div>
+                          <div style={{display:'flex', flexWrap:'wrap', gap:4}}>
+                            {(kit.items||[]).map((it,i) => (
+                              <span key={i} style={{fontSize:10, padding:'2px 6px', borderRadius:4,
+                                background:'#f0f9ff', color:'#0369a1', border:'1px solid #bae6fd'}}>
+                                {it.product_name} ×{it.qty}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
