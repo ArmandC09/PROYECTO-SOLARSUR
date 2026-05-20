@@ -5,7 +5,7 @@ const getKitsFull = async () => {
   if (kits.length === 0) return []
   const kitIds = kits.map(k => k.id)
   const [items] = await pool.query(`
-    SELECT ki.*, i.name as product_name, i.sku, i.stock, i.unit
+    SELECT ki.*, i.name as product_name, i.sku, i.qty as stock, i.price as unit_price
     FROM kit_items ki
     JOIN inventory i ON i.id = ki.product_id
     WHERE ki.kit_id IN (?)
@@ -49,7 +49,7 @@ exports.createKit = async (req, res) => {
 
     const [kits] = await pool.query('SELECT * FROM kits WHERE id = ?', [kitId])
     const [kitItems] = await pool.query(`
-      SELECT ki.*, i.name as product_name, i.sku, i.stock, i.unit
+      SELECT ki.*, i.name as product_name, i.sku, i.qty as stock, i.price as unit_price
       FROM kit_items ki JOIN inventory i ON i.id = ki.product_id
       WHERE ki.kit_id = ?
     `, [kitId])
@@ -81,7 +81,7 @@ exports.updateKit = async (req, res) => {
 
     const [kits] = await pool.query('SELECT * FROM kits WHERE id=?', [id])
     const [kitItems] = await pool.query(`
-      SELECT ki.*, i.name as product_name, i.sku, i.stock, i.unit
+      SELECT ki.*, i.name as product_name, i.sku, i.qty as stock, i.price as unit_price
       FROM kit_items ki JOIN inventory i ON i.id = ki.product_id
       WHERE ki.kit_id = ?
     `, [id])
