@@ -3,27 +3,27 @@ import { apiFetch } from '../context/AppContext'
 import StyledSelect from './StyledSelect'
 
 const ACTION_LABELS = {
-  LOGIN:     { label: 'Inicio de sesión',  color: '#10b981', bg:'#d1fae5', icon: '🔐' },
-  LOGOUT:    { label: 'Cierre de sesión',  color: '#6b7280', bg:'#f3f4f6', icon: '🚪' },
-  CREATE:    { label: 'Creación',          color: '#3b82f6', bg:'#dbeafe', icon: '✅' },
-  UPDATE:    { label: 'Edición',           color: '#f59e0b', bg:'#fef3c7', icon: '✏️' },
-  DELETE:    { label: 'Eliminación',       color: '#ef4444', bg:'#fee2e2', icon: '🗑️' },
-  REVERT:    { label: 'Reversión de venta',color: '#8b5cf6', bg:'#ede9fe', icon: '↩️' },
-  STOCK_IN:  { label: 'Entrada almacén',  color: '#10b981', bg:'#d1fae5', icon: '📦' },
-  STOCK_OUT: { label: 'Salida almacén',   color: '#f59e0b', bg:'#fef3c7', icon: '📤' },
+  LOGIN:     { label: 'Inicio de sesión',    color: '#10b981', bg:'#d1fae5' },
+  LOGOUT:    { label: 'Cierre de sesión',    color: '#6b7280', bg:'#f3f4f6' },
+  CREATE:    { label: 'Creación',            color: '#3b82f6', bg:'#dbeafe' },
+  UPDATE:    { label: 'Edición',             color: '#f59e0b', bg:'#fef3c7' },
+  DELETE:    { label: 'Eliminación',         color: '#ef4444', bg:'#fee2e2' },
+  REVERT:    { label: 'Reversión de venta',  color: '#8b5cf6', bg:'#ede9fe' },
+  STOCK_IN:  { label: 'Entrada almacén',     color: '#10b981', bg:'#d1fae5' },
+  STOCK_OUT: { label: 'Salida almacén',      color: '#f59e0b', bg:'#fef3c7' },
 }
 
 const ENTITY_LABELS = {
   users:'Usuario', clients:'Cliente', inventory:'Inventario',
   sales:'Venta', quotes:'Cotización', providers:'Proveedor',
-  movements:'Movimiento', company:'Empresa',
+  movements:'Movimiento', company:'Empresa', kits:'Kit',
 }
 
 const PER_PAGE = 25
 
 const ACTION_OPTIONS = [
   { value: '', label: 'Todas las acciones' },
-  ...Object.entries(ACTION_LABELS).map(([value, item]) => ({ value, label: `${item.icon} ${item.label}` }))
+  ...Object.entries(ACTION_LABELS).map(([value, item]) => ({ value, label: item.label }))
 ]
 
 const ENTITY_OPTIONS = [
@@ -160,7 +160,7 @@ export default function AuditLog() {
                 background:v.bg,color:v.color,fontWeight:700,fontSize:'12px',
                 padding:'4px 12px',borderRadius:'99px',border:`1px solid ${v.color}30`
               }}>
-                {v.icon} {count} {v.label}
+                {count} {v.label}
               </span>
             )
           })}
@@ -174,7 +174,7 @@ export default function AuditLog() {
           onTouchMove={handleTableTouchMove}
         >
           {loading ? (
-            <div className="clients-empty">⏳ Cargando registros...</div>
+            <div className="clients-empty">Cargando registros...</div>
           ) : paginated.length === 0 ? (
             <div className="clients-empty">No hay registros de auditoría.</div>
           ) : (
@@ -190,7 +190,7 @@ export default function AuditLog() {
               </thead>
               <tbody>
                 {paginated.map(log => {
-                  const ai = ACTION_LABELS[log.action] || {label:log.action, color:'#6b7280', bg:'#f3f4f6', icon:'•'}
+                  const ai = ACTION_LABELS[log.action] || {label:log.action, color:'#6b7280', bg:'#f3f4f6'}
                   return (
                     <tr key={log.id}>
                       <td style={{fontSize:'12px',color:'#6b7280',whiteSpace:'nowrap'}}>{fmt(log.created_at)}</td>
@@ -204,7 +204,7 @@ export default function AuditLog() {
                           background:ai.bg,color:ai.color,fontWeight:700,fontSize:'11px',
                           padding:'3px 10px',borderRadius:'99px',border:`1px solid ${ai.color}30`
                         }}>
-                          {ai.icon} {ai.label}
+                          {ai.label}
                         </span>
                       </td>
                       <td style={{fontSize:'13px'}}>{ENTITY_LABELS[log.entity]||log.entity||'—'}</td>
