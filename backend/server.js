@@ -12,6 +12,7 @@ const companyRoutes = require('./routes/company.routes')
 const usersRoutes = require('./routes/users.routes')
 const movementsRoutes = require('./routes/movements.routes')
 const auditRoutes = require('./routes/audit.routes')
+const kitsRoutes   = require('./routes/kits.routes')
 
 const app = express()
 
@@ -30,6 +31,7 @@ app.use('/api/company', companyRoutes)
 app.use('/api/users', usersRoutes)
 app.use('/api/movements', movementsRoutes)
 app.use('/api/audit', auditRoutes)
+app.use('/api/kits',  kitsRoutes)
 
 // ==========================================
 
