@@ -55,6 +55,7 @@ export function AppProvider({ children }) {
   const [company,   setCompany]   = useState(null)
   const [users,     setUsers]     = useState([])
   const [movements, setMovements] = useState([])
+  const [kits,      setKits]      = useState([])
 
   // Cargar datos públicos de la empresa al arrancar (sin token),
   // para que el logo aparezca en el Login desde el primer momento.
@@ -70,14 +71,16 @@ export function AppProvider({ children }) {
 
   const loadAll = async () => {
     try {
-      const [cR, iR, pR, qR, sR, coR] = await Promise.all([
+      const [cR, iR, pR, qR, sR, coR, kR] = await Promise.all([
         apiFetch('/clients'), apiFetch('/inventory'), apiFetch('/providers'),
-        apiFetch('/quotes'),  apiFetch('/sales'),     apiFetch('/company')
+        apiFetch('/quotes'),  apiFetch('/sales'),     apiFetch('/company'),
+        apiFetch('/kits')
       ])
       if (cR.ok)  setClients(await cR.json())
       if (iR.ok)  setInventory(await iR.json())
       if (pR.ok)  setProviders(await pR.json())
       if (coR.ok) setCompany(await coR.json())
+      if (kR.ok)  setKits(await kR.json())
 
       const salesData  = sR.ok  ? await sR.json()  : []
       const quotesData = qR.ok  ? await qR.json()  : []
@@ -237,6 +240,22 @@ export function AppProvider({ children }) {
     return r.ok
   }
 
+  // KITS
+  const loadKits = async () => {
+    const r = await apiFetch('/kits'); if (r.ok) setKits(await r.json())
+  }
+  const addKit = async (kit) => {
+    const r = await apiFetch('/kits', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(kit) })
+    const d = await r.json(); if (r.ok) setKits(p => [d, ...p]); return r.ok ? d : null
+  }
+  const updateKit = async (id, kit) => {
+    const r = await apiFetch(`/kits/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(kit) })
+    const d = await r.json(); if (r.ok) setKits(p => p.map(k => k.id===id ? d : k)); return r.ok ? d : null
+  }
+  const deleteKit = async (id) => {
+    const r = await apiFetch(`/kits/${id}`, { method:'DELETE' }); if (r.ok) setKits(p => p.filter(k => k.id!==id)); return r.ok
+  }
+
   // COMPANY
   const updateCompany = async (d) => {
     try {
@@ -253,13 +272,14 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      clients, quotes, inventory, sales, providers, company, users, movements,
+      clients, quotes, inventory, sales, providers, company, users, movements, kits,
       loadUsers, createUser, updateUser, toggleUserActive, resetUserPassword,
       loadMovements, createMovement,
       addClient, updateClient, deleteClient,
       addInventoryItem, updateInventoryItem, deleteInventoryItem,
       addProvider, updateProvider, deleteProvider,
       addQuote, deleteQuote, addSale, deleteSale, revertSale,
+      loadKits, addKit, updateKit, deleteKit,
       updateCompany, loadAll
     }}>
       {children}
