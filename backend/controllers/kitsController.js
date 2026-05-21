@@ -1,6 +1,5 @@
 const pool = require('../db')
 const { log } = require('./auditController')
-const { log } = require('./auditController')
 
 const getKitsFull = async () => {
   const [kits] = await pool.query('SELECT * FROM kits ORDER BY created_at DESC')
