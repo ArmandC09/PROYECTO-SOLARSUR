@@ -189,6 +189,7 @@ export function AppProvider({ children }) {
   const addSale = async (sale) => {
     const r = await apiFetch('/sales', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sale) })
     const d = await r.json()
+    if (!r.ok) return { ok: false, message: d.message || 'Error al crear la venta' }
     if (r.ok) {
       let updatedSales = [d, ...sales.filter((currentSale) => String(currentSale.id) !== String(d.id))]
       setSales(updatedSales)
@@ -218,7 +219,7 @@ export function AppProvider({ children }) {
       const mr = await apiFetch('/movements')
       if (mr.ok) setMovements(await mr.json())
     }
-    return d
+    return { ok: true, data: d }
   }
 
   const deleteSale = async (id) => {
