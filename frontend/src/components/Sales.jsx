@@ -85,7 +85,11 @@ export default function Sales() {
       sourceQuoteId: selectedQuote.id
     }
 
-    await addSale(sale)
+    const result = await addSale(sale)
+    if (result && result.ok === false) {
+      alert(`No se pudo completar la venta:\n\n${result.message}`)
+      return
+    }
     cancelConversion()
     showToast('Cotización convertida a venta exitosamente')
   }
