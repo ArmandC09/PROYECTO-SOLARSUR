@@ -166,7 +166,7 @@ export default function Inventory() {
                             ? <span className="inventory-provider-badge">{it.provider_name}</span>
                             : <span className="inventory-provider-none">—</span>}
                         </td>
-                        <td><span className={`inventory-qty ${it.qty <= 0 ? 'low' : ''}`}>{it.qty}</span></td>
+                        <td><span className={`inventory-qty ${it.qty <= 0 ? 'low' : it.qty <= 10 ? 'low-stock' : ''}`}>{it.qty}</span></td>
                         <td>S/ {Number(it.price).toFixed(2)}</td>
                         <td className="align-right inventory-actions-cell">
                           <button type="button" className="inventory-action-btn edit" onClick={() => startEdit(it)}>
