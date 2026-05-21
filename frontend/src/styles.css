@@ -4877,6 +4877,10 @@ users-submit-btn:hover{
   color: #dc2626;
 }
 
+.inventory-qty.low-stock {
+  color: #d97706;
+}
+
 .inventory-provider-field {
   position: relative;
   margin-top: 6px;
