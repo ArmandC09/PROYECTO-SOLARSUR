@@ -37,6 +37,30 @@ exports.createSale = async (req, res) => {
   try {
     await ensureSalesSchema(conn)
 
+    // Validar stock suficiente para todos los items ANTES de crear la venta
+    for (const item of items) {
+      if (item.inventory_id) {
+        const [invRows] = await conn.query(
+          'SELECT qty, name FROM inventory WHERE id = ? FOR UPDATE',
+          [item.inventory_id]
+        )
+        if (invRows.length === 0) {
+          await conn.rollback()
+          conn.release()
+          return res.status(400).json({ message: `Producto no encontrado (ID: ${item.inventory_id})` })
+        }
+        const available = Number(invRows[0].qty)
+        const needed = Number(item.qty)
+        if (available < needed) {
+          await conn.rollback()
+          conn.release()
+          return res.status(400).json({
+            message: `Stock insuficiente para "${invRows[0].name}": disponible ${available}, necesario ${needed}`
+          })
+        }
+      }
+    }
+
     const [result] = await conn.query(
       'INSERT INTO sales (client_id, total, source_quote_id) VALUES (?, ?, ?)',
       [client_id, total, sourceQuoteId || null]
