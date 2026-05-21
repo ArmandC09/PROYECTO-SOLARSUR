@@ -1,5 +1,6 @@
 const pool = require('../db')
 const { log } = require('./auditController')
+const { log } = require('./auditController')
 
 const getKitsFull = async () => {
   const [kits] = await pool.query('SELECT * FROM kits ORDER BY created_at DESC')
@@ -67,7 +68,9 @@ exports.createKit = async (req, res) => {
       user_agent: req.get('user-agent')
     })
 
-    res.json({ ...kits[0], items: kitItems, available, total })
+    const kitData = { ...kits[0], items: kitItems, available, total }
+    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'kits', entity_id: kitId, after_json: { name, description, items }, ip: req.ip, user_agent: req.get('user-agent') })
+    res.json(kitData)
   } catch (e) {
     console.error('createKit error:', e)
     res.status(500).json({ error: e.message })
@@ -113,7 +116,9 @@ exports.updateKit = async (req, res) => {
       user_agent: req.get('user-agent')
     })
 
-    res.json({ ...kits[0], items: kitItems, available, total })
+    const kitData = { ...kits[0], items: kitItems, available, total }
+    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'kits', entity_id: Number(id), after_json: { name, description, items }, ip: req.ip, user_agent: req.get('user-agent') })
+    res.json(kitData)
   } catch (e) {
     console.error('updateKit error:', e)
     res.status(500).json({ error: e.message })
