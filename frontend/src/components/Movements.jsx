@@ -408,6 +408,16 @@ export default function Movements() {
                       placeholder="Ej: ingreso de proveedor, salida para instalación..."
                     />
                   </div>
+
+                  {error && (
+                    <div style={{
+                      padding: '10px 14px', borderRadius: 8, marginTop: 4,
+                      background: '#fef2f2', color: '#dc2626',
+                      border: '1px solid #fecaca', fontSize: 13, fontWeight: 600
+                    }}>
+                      ⚠ {error}
+                    </div>
+                  )}
                 </div>
 
                 <div className="ss-modal-foot">
