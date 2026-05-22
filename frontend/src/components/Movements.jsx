@@ -256,8 +256,6 @@ export default function Movements() {
           </div>
         </div>
 
-        {error && <div className="error" role="alert">{error}</div>}
-
         {msg && (
           <div
             style={{
