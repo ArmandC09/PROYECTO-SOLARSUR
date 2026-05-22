@@ -179,7 +179,7 @@ export function AppProvider({ children }) {
   // QUOTES
   const addQuote = async (q) => {
     const r = await apiFetch('/quotes', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(q) })
-    const d = await r.json(); setQuotes(p => [d,...p])
+    const d = await r.json(); setQuotes(p => [{ ...d, date: d.date || new Date().toISOString() }, ...p])
   }
   const deleteQuote = async (id) => {
     await apiFetch(`/quotes/${id}`, { method:'DELETE' }); setQuotes(p => p.filter(q => q.id!==id))
@@ -189,7 +189,6 @@ export function AppProvider({ children }) {
   const addSale = async (sale) => {
     const r = await apiFetch('/sales', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sale) })
     const d = await r.json()
-    if (!r.ok) return { ok: false, message: d.message || 'Error al crear la venta' }
     if (r.ok) {
       let updatedSales = [d, ...sales.filter((currentSale) => String(currentSale.id) !== String(d.id))]
       setSales(updatedSales)
@@ -219,7 +218,7 @@ export function AppProvider({ children }) {
       const mr = await apiFetch('/movements')
       if (mr.ok) setMovements(await mr.json())
     }
-    return { ok: true, data: d }
+    return d
   }
 
   const deleteSale = async (id) => {
