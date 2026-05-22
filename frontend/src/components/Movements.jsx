@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import AuthContext from '../context/AuthContext'
+import AppContext from '../context/AppContext'
 import ModalPortal from './ModalPortal'
 import StyledSelect from './StyledSelect'
 
@@ -37,6 +38,7 @@ const MOVEMENT_TYPE_OPTIONS = [
 
 export default function Movements() {
   const { user } = useContext(AuthContext)
+  const { loadAll: reloadAppContext } = useContext(AppContext)
 
   const canAccess =
     user?.role === 'WAREHOUSE' ||
@@ -181,6 +183,7 @@ export default function Movements() {
       }))
 
       await loadAll()
+      reloadAppContext()  // actualizar inventario en el contexto global
       return true
     } catch (e2) {
       console.error(e2)
