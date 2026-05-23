@@ -12,7 +12,7 @@ exports.login = async (req, res) => {
     const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username])
 
     if (rows.length === 0) {
-      return res.status(401).json({ message: 'Usuario no encontrado' })
+      return res.status(401).json({ message: 'Credenciales incorrectas' })
     }
 
     const user = rows[0]
@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password)
 
     if (!validPassword) {
-      return res.status(401).json({ message: 'Contraseña incorrecta' })
+      return res.status(401).json({ message: 'Credenciales incorrectas' })
     }
 
     const token = jwt.sign(
@@ -33,7 +33,6 @@ exports.login = async (req, res) => {
       { expiresIn: '8h' }
     )
 
-    // Registrar login en auditoría
     await log({ user_id: user.id, action: 'LOGIN', entity: 'users', entity_id: user.id, ip, user_agent: ua })
 
     res.json({
