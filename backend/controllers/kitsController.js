@@ -67,9 +67,7 @@ exports.createKit = async (req, res) => {
       user_agent: req.get('user-agent')
     })
 
-    const kitData = { ...kits[0], items: kitItems, available, total }
-    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'kits', entity_id: kitId, after_json: { name, description, items }, ip: req.ip, user_agent: req.get('user-agent') })
-    res.json(kitData)
+    res.json({ ...kits[0], items: kitItems, available, total })
   } catch (e) {
     console.error('createKit error:', e)
     res.status(500).json({ error: e.message })
@@ -115,9 +113,7 @@ exports.updateKit = async (req, res) => {
       user_agent: req.get('user-agent')
     })
 
-    const kitData = { ...kits[0], items: kitItems, available, total }
-    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'kits', entity_id: Number(id), after_json: { name, description, items }, ip: req.ip, user_agent: req.get('user-agent') })
-    res.json(kitData)
+    res.json({ ...kits[0], items: kitItems, available, total })
   } catch (e) {
     console.error('updateKit error:', e)
     res.status(500).json({ error: e.message })
