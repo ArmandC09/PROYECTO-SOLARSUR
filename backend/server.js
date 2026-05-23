@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const helmet = require('helmet')
 require('dotenv').config()
 
 const authRoutes = require('./routes/auth.routes')
@@ -16,7 +17,22 @@ const kitsRoutes   = require('./routes/kits.routes')
 
 const app = express()
 
-app.use(cors())
+// ============ SEGURIDAD ============
+app.use(helmet())
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5173']
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true)
+    callback(new Error('CORS: origen no permitido'))
+  },
+  credentials: true
+}))
+// ===================================
+
 app.use(express.json({ limit: '10mb' }))
 
 // ================= ROUTES =================
