@@ -18,6 +18,8 @@ const kitsRoutes   = require('./routes/kits.routes')
 const app = express()
 
 // ============ SEGURIDAD ============
+app.set('trust proxy', 1)
+
 app.use(helmet())
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
