@@ -385,15 +385,15 @@ export default function Users() {
                             Editar
                           </button>
 
-                          <button
-                            type="button"
-                            className={`users-action-btn ${u.is_active ? 'red' : 'green'}`}
-                            onClick={() => toggleActive(u)}
-                            disabled={u.is_system}
-                            title={u.is_system ? 'Cuenta del sistema' : ''}
-                          >
-                            {u.is_active ? 'Deshabilitar' : 'Habilitar'}
-                          </button>
+                          {!u.is_system && (
+                            <button
+                              type="button"
+                              className={`users-action-btn ${u.is_active ? 'red' : 'green'}`}
+                              onClick={() => toggleActive(u)}
+                            >
+                              {u.is_active ? 'Deshabilitar' : 'Habilitar'}
+                            </button>
+                          )}
 
                           {!u.is_system && (
                             <button
@@ -446,15 +446,15 @@ export default function Users() {
                         Editar
                       </button>
 
-                      <button
-                        type="button"
-                        className={`users-action-btn ${u.is_active ? 'red' : 'green'}`}
-                        onClick={() => toggleActive(u)}
-                        disabled={u.is_system}
-                        title={u.is_system ? 'Cuenta del sistema' : ''}
-                      >
-                        {u.is_active ? 'Deshabilitar' : 'Habilitar'}
-                      </button>
+                      {!u.is_system && (
+                        <button
+                          type="button"
+                          className={`users-action-btn ${u.is_active ? 'red' : 'green'}`}
+                          onClick={() => toggleActive(u)}
+                        >
+                          {u.is_active ? 'Deshabilitar' : 'Habilitar'}
+                        </button>
+                      )}
 
                       {!u.is_system && (
                         <button
