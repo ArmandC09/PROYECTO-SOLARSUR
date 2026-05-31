@@ -222,13 +222,13 @@ export default function Inventory() {
                   <div className="ss-field">
                     <label>Nombre</label>
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="Ej: Panel Solar 200W" required />
+                      placeholder="Ej: Panel Solar 200W" required maxLength={150} />
                   </div>
 
                   <div className="ss-field">
                     <label>SKU</label>
                     <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                      placeholder="Ej: PS200W" />
+                      placeholder="Ej: PS200W" maxLength={50} />
                   </div>
                 </div>
 
