@@ -407,6 +407,7 @@ export default function Movements() {
                       value={form.note}
                       onChange={(e) => setForm({ ...form, note: e.target.value })}
                       placeholder="Ej: ingreso de proveedor, salida para instalación..."
+                      maxLength={250}
                     />
                   </div>
 
