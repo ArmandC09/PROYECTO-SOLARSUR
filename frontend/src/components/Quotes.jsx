@@ -619,6 +619,7 @@ export default function Quotes() {
               <div className="ss-field">
                 <label>Condiciones / Nota al pie del PDF</label>
                 <textarea rows={2} value={edNote} onChange={e=>setEdNote(e.target.value)}
+                  maxLength={300}
                   style={{resize:'vertical', fontFamily:'inherit', lineHeight:1.5}} />
               </div>
             </div>
