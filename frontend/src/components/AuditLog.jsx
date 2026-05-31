@@ -31,6 +31,102 @@ const ENTITY_OPTIONS = [
   ...Object.entries(ENTITY_LABELS).map(([value, label]) => ({ value, label }))
 ]
 
+// ── Fila expandible con detalle before/after ──────────────────────────────
+function AuditRow({ log, ai, fmt, hasDetail }) {
+  const [open, setOpen] = useState(false)
+
+  const parseJSON = (val) => {
+    if (!val) return null
+    if (typeof val === 'object') return val
+    try { return JSON.parse(val) } catch { return null }
+  }
+
+  const renderFields = (obj, label, color) => {
+    if (!obj) return null
+    const entries = Object.entries(obj).filter(([,v]) => v !== null && v !== undefined && v !== '')
+    if (!entries.length) return null
+    return (
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:'10px',fontWeight:700,color,marginBottom:'6px',textTransform:'uppercase',letterSpacing:'0.05em'}}>
+          {label}
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:'3px'}}>
+          {entries.map(([k,v]) => (
+            <div key={k} style={{display:'flex',gap:'6px',fontSize:'11px',alignItems:'flex-start'}}>
+              <span style={{color:'#9ca3af',fontWeight:600,minWidth:'90px',flexShrink:0}}>{k}:</span>
+              <span style={{color:'#374151',wordBreak:'break-all'}}>{String(v)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const before = parseJSON(log.before_json)
+  const after  = parseJSON(log.after_json)
+
+  return (
+    <>
+      <tr>
+        <td style={{fontSize:'12px',color:'#6b7280',whiteSpace:'nowrap'}}>{fmt(log.created_at)}</td>
+        <td>
+          <strong style={{display:'block'}}>{log.user_name||'—'}</strong>
+          {log.username && <span style={{fontSize:'11px',color:'#9ca3af'}}>@{log.username}</span>}
+        </td>
+        <td>
+          <span style={{
+            display:'inline-flex',alignItems:'center',gap:'4px',
+            background:ai.bg,color:ai.color,fontWeight:700,fontSize:'11px',
+            padding:'3px 10px',borderRadius:'99px',border:`1px solid ${ai.color}30`
+          }}>
+            {ai.label}
+          </span>
+        </td>
+        <td style={{fontSize:'13px'}}>{ENTITY_LABELS[log.entity]||log.entity||'—'}</td>
+        <td style={{fontSize:'12px',color:'#9ca3af'}}>{log.entity_id?`#${log.entity_id}`:'—'}</td>
+        <td>
+          {hasDetail ? (
+            <button
+              type="button"
+              onClick={() => setOpen(o => !o)}
+              style={{
+                background:'none',border:'1px solid #e5e7eb',borderRadius:'6px',
+                padding:'3px 8px',fontSize:'11px',cursor:'pointer',
+                color: open ? '#3b82f6' : '#6b7280',
+                display:'inline-flex',alignItems:'center',gap:'4px'
+              }}
+            >
+              {open ? '▲' : '▼'} {open ? 'Ocultar' : 'Ver'}
+            </button>
+          ) : (
+            <span style={{fontSize:'11px',color:'#d1d5db'}}>—</span>
+          )}
+        </td>
+      </tr>
+      {open && hasDetail && (
+        <tr>
+          <td colSpan={6} style={{padding:'0',background:'#f9fafb',borderTop:'none'}}>
+            <div style={{
+              padding:'12px 16px',borderLeft:'3px solid '+ai.color,
+              margin:'0 4px 4px',borderRadius:'0 6px 6px 0',
+              background:'#fff',display:'flex',gap:'24px',flexWrap:'wrap'
+            }}>
+              {before && renderFields(before, '← Antes', '#ef4444')}
+              {before && after && (
+                <div style={{width:'1px',background:'#e5e7eb',alignSelf:'stretch'}} />
+              )}
+              {after  && renderFields(after,  '→ Después', '#10b981')}
+              {!before && !after && (
+                <span style={{fontSize:'12px',color:'#9ca3af'}}>Sin datos adicionales</span>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  )
+}
+
 export default function AuditLog() {
   const [logs,         setLogs]         = useState([])
   const [loading,      setLoading]      = useState(true)
@@ -186,30 +282,15 @@ export default function AuditLog() {
                   <th>Acción</th>
                   <th>Módulo</th>
                   <th>ID</th>
+                  <th>Detalle</th>
                 </tr>
               </thead>
               <tbody>
                 {paginated.map(log => {
                   const ai = ACTION_LABELS[log.action] || {label:log.action, color:'#6b7280', bg:'#f3f4f6'}
+                  const hasDetail = log.before_json || log.after_json
                   return (
-                    <tr key={log.id}>
-                      <td style={{fontSize:'12px',color:'#6b7280',whiteSpace:'nowrap'}}>{fmt(log.created_at)}</td>
-                      <td>
-                        <strong style={{display:'block'}}>{log.user_name||'—'}</strong>
-                        {log.username && <span style={{fontSize:'11px',color:'#9ca3af'}}>@{log.username}</span>}
-                      </td>
-                      <td>
-                        <span style={{
-                          display:'inline-flex',alignItems:'center',gap:'4px',
-                          background:ai.bg,color:ai.color,fontWeight:700,fontSize:'11px',
-                          padding:'3px 10px',borderRadius:'99px',border:`1px solid ${ai.color}30`
-                        }}>
-                          {ai.label}
-                        </span>
-                      </td>
-                      <td style={{fontSize:'13px'}}>{ENTITY_LABELS[log.entity]||log.entity||'—'}</td>
-                      <td style={{fontSize:'12px',color:'#9ca3af'}}>{log.entity_id?`#${log.entity_id}`:'—'}</td>
-                    </tr>
+                    <AuditRow key={log.id} log={log} ai={ai} fmt={fmt} hasDetail={hasDetail} />
                   )
                 })}
               </tbody>
@@ -224,9 +305,27 @@ export default function AuditLog() {
           </div>
           <div className="clients-pagination-controls">
             <button type="button" className="clients-page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={safePage===1}>‹</button>
-            {Array.from({length:Math.min(totalPages,8)},(_,i)=>i+1).map(p=>(
-              <button key={p} type="button" className={`clients-page-number ${p===safePage?'active':''}`} onClick={()=>setPage(p)}>{p}</button>
-            ))}
+            {(() => {
+              const WINDOW = 5
+              let start = Math.max(1, safePage - Math.floor(WINDOW / 2))
+              let end   = Math.min(totalPages, start + WINDOW - 1)
+              if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1)
+              const pages = []
+              if (start > 1) {
+                pages.push(<button key={1} type="button" className="clients-page-number" onClick={()=>setPage(1)}>1</button>)
+                if (start > 2) pages.push(<span key="e1" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+              }
+              for (let p = start; p <= end; p++) {
+                pages.push(
+                  <button key={p} type="button" className={`clients-page-number ${p===safePage?'active':''}`} onClick={()=>setPage(p)}>{p}</button>
+                )
+              }
+              if (end < totalPages) {
+                if (end < totalPages - 1) pages.push(<span key="e2" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                pages.push(<button key={totalPages} type="button" className="clients-page-number" onClick={()=>setPage(totalPages)}>{totalPages}</button>)
+              }
+              return pages
+            })()}
             <button type="button" className="clients-page-next" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={safePage===totalPages}>Siguiente ›</button>
           </div>
         </div>
