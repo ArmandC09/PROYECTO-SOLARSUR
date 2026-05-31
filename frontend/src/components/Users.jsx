@@ -274,6 +274,7 @@ export default function Users() {
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 placeholder="Ej: vendedor2"
                 required
+                maxLength={50}
               />
             </label>
 
@@ -283,6 +284,7 @@ export default function Users() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Ej: Juan Pérez"
+                maxLength={100}
               />
             </label>
 
