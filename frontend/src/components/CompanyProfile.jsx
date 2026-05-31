@@ -182,6 +182,7 @@ export default function CompanyProfile() {
                       <input
                         value={form.name || ''}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        maxLength={120}
                       />
                     </div>
 
@@ -190,6 +191,7 @@ export default function CompanyProfile() {
                       <input
                         value={form.ruc || ''}
                         onChange={(e) => setForm({ ...form, ruc: e.target.value })}
+                        maxLength={11}
                       />
                     </div>
                   </div>
@@ -212,6 +214,7 @@ export default function CompanyProfile() {
                       <input
                         value={form.email || ''}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        maxLength={120}
                       />
                     </div>
                   </div>
@@ -221,6 +224,7 @@ export default function CompanyProfile() {
                     <input
                       value={form.address || ''}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
+                      maxLength={200}
                     />
                   </div>
 
