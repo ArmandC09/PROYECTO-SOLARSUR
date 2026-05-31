@@ -142,6 +142,7 @@ export default function Providers() {
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       required
                       placeholder="Nombre del proveedor"
+                      maxLength={120}
                     />
                   </div>
 
@@ -151,6 +152,7 @@ export default function Providers() {
                       value={form.contact}
                       onChange={(e) => setForm({ ...form, contact: e.target.value })}
                       placeholder="Nombre de contacto"
+                      maxLength={100}
                     />
                   </div>
 
