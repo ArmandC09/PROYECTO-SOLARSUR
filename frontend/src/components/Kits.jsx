@@ -202,11 +202,11 @@ export default function Kits() {
                 <div style={{display:'flex', flexDirection:'column', gap:14}}>
                   <div className="ss-field">
                     <label>Nombre del kit *</label>
-                    <input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} placeholder="Ej: Terma Solar 200L" />
+                    <input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} placeholder="Ej: Terma Solar 200L" maxLength={120} />
                   </div>
                   <div className="ss-field">
                     <label>Descripción <span style={{fontWeight:400, color:'#9ca3af', fontSize:12}}>(opcional)</span></label>
-                    <input value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} placeholder="Descripción breve del kit" />
+                    <input value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} placeholder="Descripción breve del kit" maxLength={250} />
                   </div>
                   <div className="ss-field">
                     <label>Buscar producto para agregar</label>
