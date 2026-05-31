@@ -209,7 +209,7 @@ export default function Clients() {
                 <div className="ss-modal-body clients-form-modal-body">
                   <div className="ss-field">
                     <label>Nombre *</label>
-                    <input value={form.name} onChange={e=>f('name',e.target.value)} required placeholder="Nombre completo o razón social" />
+                    <input value={form.name} onChange={e=>f('name',e.target.value)} required placeholder="Nombre completo o razón social" maxLength={120} />
                   </div>
 
                   <div className="ss-field">
@@ -219,7 +219,7 @@ export default function Clients() {
 
                   <div className="ss-field">
                     <label>Dirección</label>
-                    <input value={form.address} onChange={e=>f('address',e.target.value)} placeholder="Av. Ejemplo 123" />
+                    <input value={form.address} onChange={e=>f('address',e.target.value)} placeholder="Av. Ejemplo 123" maxLength={200} />
                   </div>
 
                   <div className="clients-optional-toggle">
@@ -256,17 +256,17 @@ export default function Clients() {
 
                       <div className="ss-field">
                         <label>Email</label>
-                        <input type="email" value={form.email} onChange={e=>f('email',e.target.value)} placeholder="correo@ejemplo.com" />
+                        <input type="email" value={form.email} onChange={e=>f('email',e.target.value)} placeholder="correo@ejemplo.com" maxLength={120} />
                       </div>
 
                       <div className="ss-row-2">
                         <div className="ss-field">
                           <label>Distrito</label>
-                          <input value={form.district} onChange={e=>f('district',e.target.value)} placeholder="Tacna" />
+                          <input value={form.district} onChange={e=>f('district',e.target.value)} placeholder="Tacna" maxLength={80} />
                         </div>
                         <div className="ss-field">
                           <label>Ciudad / Provincia</label>
-                          <input value={form.city} onChange={e=>f('city',e.target.value)} placeholder="Tacna" />
+                          <input value={form.city} onChange={e=>f('city',e.target.value)} placeholder="Tacna" maxLength={80} />
                         </div>
                       </div>
                     </>
