@@ -2136,6 +2136,7 @@ main.home-main{
 
 .clients-table-wrap{
   overflow-x:auto;
+  touch-action: pan-y;
 }
 
 .clients-table{
@@ -2303,6 +2304,7 @@ main.home-main{
   .clients-table-wrap{
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
+    touch-action: pan-y;
   }
 
   .clients-table{
