@@ -42,11 +42,12 @@ export default function Providers() {
 
   const filtered = useMemo(() => providers.filter((p) => {
     if (!query) return true
-    const q = query.toLowerCase()
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm(query)
     return (
-      (p.name || '').toLowerCase().includes(q) ||
-      (p.contact || '').toLowerCase().includes(q) ||
-      (p.phone || '').toLowerCase().includes(q)
+      norm(p.name).includes(q) ||
+      norm(p.contact).includes(q) ||
+      norm(p.phone).includes(q)
     )
   }), [providers, query])
 
