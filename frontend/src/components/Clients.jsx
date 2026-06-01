@@ -89,23 +89,28 @@ export default function Clients() {
     const touch = event.touches[0]
     tableTouchRef.current = {
       startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, dragging: false
+      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
     }
   }
 
   const handleTableTouchMove = (event) => {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
+    const ref = tableTouchRef.current
+    if (ref.blocked) return                          // gesto vertical — no interferir
     const touch = event.touches[0]
-    const dx = touch.clientX - tableTouchRef.current.startX
-    const dy = touch.clientY - tableTouchRef.current.startY
-    if (!tableTouchRef.current.dragging) {
-      if (Math.abs(dx) < 6) return
-      if (Math.abs(dx) <= Math.abs(dy)) return
-      tableTouchRef.current.dragging = true
+    const dx = touch.clientX - ref.startX
+    const dy = touch.clientY - ref.startY
+    if (!ref.dragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return   // sin dirección clara aún
+      if (Math.abs(dy) >= Math.abs(dx)) {                  // gesto más vertical que horizontal
+        ref.blocked = true                                  // dejar pasar el scroll de página
+        return
+      }
+      ref.dragging = true
     }
-    event.preventDefault()
-    wrapper.scrollLeft = tableTouchRef.current.scrollLeft - dx
+    event.preventDefault()                           // solo prevenir si es scroll horizontal
+    wrapper.scrollLeft = ref.scrollLeft - dx
   }
 
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
