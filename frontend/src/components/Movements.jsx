@@ -115,15 +115,16 @@ export default function Movements() {
   }, [canAccess])
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm(query.trim())
     if (!q) return movements
 
     return movements.filter((m) => {
-      const name = String(m.inventory_name || '').toLowerCase()
-      const sku = String(m.sku || '').toLowerCase()
-      const username = String(m.username || '').toLowerCase()
-      const note = String(m.reason || '').toLowerCase()
-      const type = String(m.type || '').toLowerCase()
+      const name = norm(m.inventory_name)
+      const sku = norm(m.sku)
+      const username = norm(m.username)
+      const note = norm(m.reason)
+      const type = norm(m.type)
 
       return (
         name.includes(q) ||
