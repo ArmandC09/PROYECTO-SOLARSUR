@@ -62,7 +62,12 @@ exports.createKit = async (req, res) => {
       action: 'CREATE',
       entity: 'kits',
       entity_id: kitId,
-      after_json: { name, description, items },
+      after_json: {
+        nombre: name,
+        descripcion: description || '—',
+        total_soles: `S/ ${total.toFixed(2)}`,
+        productos: kitItems.map(it => `${it.product_name} (x${it.qty} · S/ ${it.kit_price})`)
+      },
       ip: req.ip,
       user_agent: req.get('user-agent')
     })
@@ -107,8 +112,13 @@ exports.updateKit = async (req, res) => {
       action: 'UPDATE',
       entity: 'kits',
       entity_id: Number(id),
-      before_json: before[0] || null,
-      after_json: { name, description, items },
+      before_json: before[0] ? { nombre: before[0].name, descripcion: before[0].description || '—' } : null,
+      after_json: {
+        nombre: name,
+        descripcion: description || '—',
+        total_soles: `S/ ${total.toFixed(2)}`,
+        productos: kitItems.map(it => `${it.product_name} (x${it.qty} · S/ ${it.kit_price})`)
+      },
       ip: req.ip,
       user_agent: req.get('user-agent')
     })
@@ -132,7 +142,7 @@ exports.deleteKit = async (req, res) => {
       action: 'DELETE',
       entity: 'kits',
       entity_id: Number(id),
-      before_json: before[0] || null,
+      before_json: before[0] ? { nombre: before[0].name, descripcion: before[0].description || '—' } : null,
       ip: req.ip,
       user_agent: req.get('user-agent')
     })
