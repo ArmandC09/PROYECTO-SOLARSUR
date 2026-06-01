@@ -67,12 +67,18 @@ exports.createQuote = async (req, res) => {
 
     await conn.commit()
 
+    const [[clientRow]] = await pool.query('SELECT name FROM clients WHERE id=?', [client_id])
     await log({
       user_id: req.user?.id || null,
       action: 'CREATE',
       entity: 'quote',
       entity_id: quoteId,
-      after_json: { id: quoteId, client_id, total, items },
+      after_json: {
+        cotizacion_id: `COT-${String(quoteId).padStart(5,'0')}`,
+        cliente: clientRow?.name || `Cliente ID ${client_id}`,
+        total_soles: `S/ ${Number(total).toFixed(2)}`,
+        productos: items.map(it => `${it.description} (x${it.qty} · S/ ${it.price})`)
+      },
       ip: req.ip,
       user_agent: req.headers['user-agent']
     })
