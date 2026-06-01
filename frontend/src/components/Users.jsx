@@ -83,12 +83,13 @@ export default function Users() {
   }, [])
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm(query.trim())
     if (!q) return users
     return users.filter(u =>
-      String(u.username || '').toLowerCase().includes(q) ||
-      String(u.name || '').toLowerCase().includes(q) ||
-      String(u.role || '').toLowerCase().includes(q)
+      norm(u.username).includes(q) ||
+      norm(u.name).includes(q) ||
+      norm(u.role).includes(q)
     )
   }, [users, query])
 
