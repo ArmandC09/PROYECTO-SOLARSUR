@@ -107,12 +107,28 @@ exports.createQuote = async (req, res) => {
 exports.deleteQuote = async (req, res) => {
   const { id } = req.params
   const user_id = req.user?.id || null
+
+  // Obtener datos de la cotización ANTES de eliminar
+  const [[quote]] = await pool.query('SELECT * FROM quotes WHERE id=?', [id])
+  const [items]   = await pool.query(
+    `SELECT qi.qty, qi.price, qi.description
+     FROM quote_items qi WHERE qi.quote_id=?`, [id])
+  const [[client]] = await pool.query(
+    'SELECT name FROM clients WHERE id=?', [quote?.client_id])
+
   await pool.query('DELETE FROM quotes WHERE id=?', [id])
+
   await log({
     user_id,
     action: 'DELETE',
     entity: 'quote',
     entity_id: Number(id),
+    before_json: quote ? {
+      cotizacion_id: `COT-${String(id).padStart(5,'0')}`,
+      cliente: client?.name || `Cliente ID ${quote.client_id}`,
+      total_soles: `S/ ${Number(quote.total || 0).toFixed(2)}`,
+      productos: items.map(it => `${it.description} (x${it.qty} · S/ ${it.price})`)
+    } : null,
     ip: req.ip,
     user_agent: req.headers['user-agent']
   })
