@@ -15,7 +15,7 @@ const ACTION_LABELS = {
 
 const ENTITY_LABELS = {
   users:'Usuario', clients:'Cliente', inventory:'Inventario',
-  sales:'Venta', quotes:'Cotización', providers:'Proveedor',
+  sales:'Venta', quotes:'Cotización', quote:'Cotización', providers:'Proveedor',
   movements:'Movimiento', company:'Empresa', kits:'Kit',
 }
 
@@ -28,7 +28,15 @@ const ACTION_OPTIONS = [
 
 const ENTITY_OPTIONS = [
   { value: '', label: 'Todos los módulos' },
-  ...Object.entries(ENTITY_LABELS).map(([value, label]) => ({ value, label }))
+  { value: 'users',     label: 'Usuario' },
+  { value: 'clients',   label: 'Cliente' },
+  { value: 'inventory', label: 'Inventario' },
+  { value: 'sales',     label: 'Venta' },
+  { value: 'quote',     label: 'Cotización' },
+  { value: 'providers', label: 'Proveedor' },
+  { value: 'movements', label: 'Movimiento' },
+  { value: 'company',   label: 'Empresa' },
+  { value: 'kits',      label: 'Kit' },
 ]
 
 // ── Diccionario de claves técnicas → etiquetas legibles ───────────────────
@@ -267,15 +275,15 @@ export default function AuditLog() {
     if (filterEntity) r = r.filter(l => l.entity === filterEntity)
     if (query.trim()) {
       const q = query.toLowerCase()
+      const entityLabel = (e) => (ENTITY_LABELS[e] || e || '').toLowerCase()
       r = r.filter(l =>
         (l.user_name||'').toLowerCase().includes(q) ||
         (l.username||'').toLowerCase().includes(q) ||
         (l.action||'').toLowerCase().includes(q) ||
-        (l.entity||'').toLowerCase().includes(q)
+        (l.entity||'').toLowerCase().includes(q) ||
+        entityLabel(l.entity).includes(q)
       )
     }
-    // normalizar 'quote' → 'quotes' para display consistente
-    r = r.map(l => l.entity === 'quote' ? {...l, entity:'quotes'} : l)
     return r
   }, [logs, query, filterAction, filterEntity])
 
