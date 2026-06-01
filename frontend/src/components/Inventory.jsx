@@ -29,10 +29,11 @@ export default function Inventory() {
   })
 
   const filteredProviders = useMemo(() => {
-    const q = providerQuery.trim().toLowerCase()
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm(providerQuery.trim())
     if (!q) return providers || []
     return (providers || []).filter(p =>
-      String(p.name || '').toLowerCase().includes(q)
+      norm(p.name).includes(q)
     )
   }, [providers, providerQuery])
 
@@ -82,12 +83,13 @@ export default function Inventory() {
   }
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const norm2 = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm2(query.trim())
     if (!q) return inventory
     return inventory.filter((it) =>
-      String(it.name || '').toLowerCase().includes(q) ||
-      String(it.sku || '').toLowerCase().includes(q) ||
-      String(it.provider_name || '').toLowerCase().includes(q)
+      norm2(it.name).includes(q) ||
+      norm2(it.sku).includes(q) ||
+      norm2(it.provider_name).includes(q)
     )
   }, [inventory, query])
 
