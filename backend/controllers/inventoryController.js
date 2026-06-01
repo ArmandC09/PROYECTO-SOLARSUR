@@ -36,7 +36,13 @@ exports.createInventory = async (req, res) => {
       provider_name = pRows[0]?.name || null
     }
 
-    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'inventory', entity_id: result.insertId, after_json: { name, sku, qty, price, provider_id } })
+    await log({ user_id: req.user?.id, action: 'CREATE', entity: 'inventory', entity_id: result.insertId, after_json: {
+      nombre: name,
+      sku: sku || '—',
+      cantidad: qty,
+      precio_unitario: `S/ ${Number(price).toFixed(2)}`,
+      proveedor: provider_name || '—'
+    } })
     res.json({ id: result.insertId, name, sku, qty, price, provider_id: provider_id || null, provider_name })
   } catch (error) {
     console.error(error)
@@ -54,7 +60,18 @@ exports.updateInventory = async (req, res) => {
       [name, sku, qty, price, provider_id || null, id]
     )
 
-    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'inventory', entity_id: id, after_json: { name, sku, qty, price, provider_id } })
+    let upd_provider_name = null
+    if (provider_id) {
+      const [pRowsUpd] = await pool.query('SELECT name FROM providers WHERE id=?', [provider_id])
+      upd_provider_name = pRowsUpd[0]?.name || null
+    }
+    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'inventory', entity_id: id, after_json: {
+      nombre: name,
+      sku: sku || '—',
+      cantidad: qty,
+      precio_unitario: `S/ ${Number(price).toFixed(2)}`,
+      proveedor: upd_provider_name || '—'
+    } })
     res.json({ message: 'Producto actualizado' })
   } catch (error) {
     console.error(error)
