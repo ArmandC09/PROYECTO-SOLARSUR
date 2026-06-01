@@ -15,8 +15,9 @@ export default function Kits() {
   const [form, setForm] = useState(emptyForm)
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
-    return (kits || []).filter(k => k.name.toLowerCase().includes(q))
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm(search)
+    return (kits || []).filter(k => norm(k.name).includes(q))
   }, [kits, search])
 
   const openNew = () => {
@@ -44,10 +45,11 @@ export default function Kits() {
 
   const availableProducts = useMemo(() => {
     const inKit = new Set(form.items.map(i => i.product_id))
-    const q = prodSearch.toLowerCase()
+    const normProd = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = normProd(prodSearch)
     return (inventory || []).filter(p =>
       !inKit.has(p.id) &&
-      ((p.name||'').toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q))
+      (normProd(p.name).includes(q) || normProd(p.sku).includes(q))
     )
   }, [inventory, form.items, prodSearch])
 
