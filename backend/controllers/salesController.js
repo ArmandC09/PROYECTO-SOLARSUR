@@ -105,16 +105,23 @@ exports.createSale = async (req, res) => {
     const sale = saleRows[0]
     sale.items = items
 
+    const [[saleClientRow]] = await conn.query('SELECT name FROM clients WHERE id=?', [client_id])
     await log({
       user_id: req.user?.id,
       action: 'CREATE',
       entity: 'sales',
       entity_id: saleId,
       after_json: {
-        client_id,
-        total,
-        source_quote_id: sourceQuoteId || null,
-        items
+        venta_id: `VTA-${String(saleId).padStart(5,'0')}`,
+        cliente: saleClientRow?.name || `Cliente ID ${client_id}`,
+        total_soles: `S/ ${Number(total).toFixed(2)}`,
+        descuento: (discount_type && discountValue > 0)
+          ? `${discountValue}${discount_type === 'percent' ? '%' : ' S/'} — ${discountReason || 'sin motivo'}`
+          : 'Sin descuento',
+        cotizacion_origen: sourceQuoteId ? `COT-${String(sourceQuoteId).padStart(5,'0')}` : null,
+        productos: Array.isArray(items)
+          ? items.map(it => `${it.description || it.name || 'Producto'} (x${it.qty} · S/ ${it.price})`)
+          : []
       },
       ip: req.ip,
       user_agent: req.get('user-agent')
@@ -173,12 +180,18 @@ exports.revertSale = async (req, res) => {
     }
 
     // Registrar auditoría ANTES de eliminar
+    const [[revertClientRow]] = await conn.query('SELECT name FROM clients WHERE id=?', [sale.client_id])
     await log({
       user_id: req.user?.id,
       action: 'REVERT',
       entity: 'sales',
       entity_id: Number(id),
-      before_json: { ...sale, items },
+      before_json: {
+        venta_id: `VTA-${String(id).padStart(5,'0')}`,
+        cliente: revertClientRow?.name || `Cliente ID ${sale.client_id}`,
+        total_soles: `S/ ${Number(sale.total).toFixed(2)}`,
+        productos: items.map(it => `${it.description || it.name || 'Producto'} (x${it.qty} · S/ ${it.price})`)
+      },
       ip: req.ip,
       user_agent: req.get('user-agent')
     })
