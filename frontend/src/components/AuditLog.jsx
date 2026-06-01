@@ -310,23 +310,28 @@ export default function AuditLog() {
     const touch = event.touches[0]
     tableTouchRef.current = {
       startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, dragging: false
+      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
     }
   }
 
   const handleTableTouchMove = (event) => {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
+    const ref = tableTouchRef.current
+    if (ref.blocked) return
     const touch = event.touches[0]
-    const dx = touch.clientX - tableTouchRef.current.startX
-    const dy = touch.clientY - tableTouchRef.current.startY
-    if (!tableTouchRef.current.dragging) {
-      if (Math.abs(dx) < 6) return
-      if (Math.abs(dx) <= Math.abs(dy)) return
-      tableTouchRef.current.dragging = true
+    const dx = touch.clientX - ref.startX
+    const dy = touch.clientY - ref.startY
+    if (!ref.dragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        ref.blocked = true
+        return
+      }
+      ref.dragging = true
     }
     event.preventDefault()
-    wrapper.scrollLeft = tableTouchRef.current.scrollLeft - dx
+    wrapper.scrollLeft = ref.scrollLeft - dx
   }
 
   return (
