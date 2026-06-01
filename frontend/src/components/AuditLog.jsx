@@ -200,7 +200,6 @@ function AuditRow({ log, ai, fmt, hasDetail }) {
           </span>
         </td>
         <td style={{fontSize:'13px'}}>{ENTITY_LABELS[log.entity]||log.entity||'—'}</td>
-        <td style={{fontSize:'12px',color:'#9ca3af'}}>{log.entity_id?`#${log.entity_id}`:'—'}</td>
         <td>
           {hasDetail ? (
             <button
@@ -222,7 +221,7 @@ function AuditRow({ log, ai, fmt, hasDetail }) {
       </tr>
       {open && hasDetail && (
         <tr>
-          <td colSpan={6} style={{padding:'0',background:'#f9fafb',borderTop:'none'}}>
+          <td colSpan={5} style={{padding:'0',background:'#f9fafb',borderTop:'none'}}>
             <div style={{
               padding:'12px 16px',borderLeft:'3px solid '+ai.color,
               margin:'0 4px 4px',borderRadius:'0 6px 6px 0',
@@ -408,7 +407,6 @@ export default function AuditLog() {
                   <th>Usuario</th>
                   <th>Acción</th>
                   <th>Módulo</th>
-                  <th>ID</th>
                   <th>Detalle</th>
                 </tr>
               </thead>
