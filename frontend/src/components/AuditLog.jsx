@@ -15,7 +15,7 @@ const ACTION_LABELS = {
 
 const ENTITY_LABELS = {
   users:'Usuario', clients:'Cliente', inventory:'Inventario',
-  sales:'Venta', quotes:'Cotización', providers:'Proveedor',
+  sales:'Venta', quotes:'Cotización', quote:'Cotización', providers:'Proveedor',
   movements:'Movimiento', company:'Empresa', kits:'Kit',
 }
 
@@ -31,6 +31,54 @@ const ENTITY_OPTIONS = [
   ...Object.entries(ENTITY_LABELS).map(([value, label]) => ({ value, label }))
 ]
 
+// ── Diccionario de claves técnicas → etiquetas legibles ───────────────────
+const FIELD_LABELS = {
+  name:'Nombre', username:'Usuario', role:'Rol', is_active:'Activo',
+  email:'Correo', phone:'Teléfono', address:'Dirección',
+  district:'Distrito', city:'Ciudad', dni:'DNI', ruc:'RUC',
+  sku:'SKU', qty:'Cantidad', price:'Precio (S/)', total:'Total (S/)',
+  subtotal:'Subtotal (S/)', discount:'Descuento', discount_type:'Tipo descuento',
+  discount_reason:'Motivo descuento', igv:'IGV (%)', note:'Nota',
+  description:'Descripción', contact:'Contacto',
+  provider_id:'Proveedor', client_id:'Cliente',
+  source_quote_id:'Cotización origen', date:'Fecha', items:'Productos',
+  // claves enriquecidas desde backend
+  cotizacion_id:'N° Cotización', venta_id:'N° Venta',
+  cliente:'Cliente', total_soles:'Total', descuento:'Descuento aplicado',
+  cotizacion_origen:'Cotización origen', productos:'Productos',
+  nombre:'Nombre', descripcion:'Descripción',
+  cantidad:'Cantidad', precio_unitario:'Precio unitario', proveedor:'Proveedor',
+}
+
+const HIDDEN_FIELDS = new Set(['id','created_at','updated_at','logo','logo_base64','password','hash'])
+
+const humanValue = (key, val) => {
+  if (val === null || val === undefined) return '—'
+  if (key === 'is_active') return val ? 'Sí' : 'No'
+  if (key === 'role') {
+    const roles = { SUPERADMIN:'Super Administrador', ADMIN:'Administrador', SALES:'Ventas', WAREHOUSE:'Almacén' }
+    return roles[val] || val
+  }
+  if (key === 'discount_type') return val === 'percent' ? 'Porcentaje (%)' : val === 'fixed' ? 'Monto fijo (S/)' : val
+  if (Array.isArray(val)) {
+    if (val.length === 0) return 'Sin ítems'
+    return val.map((item, i) => {
+      if (typeof item === 'object' && item !== null) {
+        const desc  = item.description || item.name || `Ítem ${i+1}`
+        const qty   = item.qty ?? item.quantity ?? ''
+        const price = item.unit_price ?? item.price ?? item.kit_price ?? ''
+        const parts = [desc]
+        if (qty   !== '') parts.push(`cant: ${qty}`)
+        if (price !== '') parts.push(`S/ ${price}`)
+        return parts.join(' · ')
+      }
+      return String(item)
+    }).join('\n')
+  }
+  if (typeof val === 'object') return JSON.stringify(val)
+  return String(val)
+}
+
 // ── Fila expandible con detalle before/after ──────────────────────────────
 function AuditRow({ log, ai, fmt, hasDetail }) {
   const [open, setOpen] = useState(false)
@@ -43,18 +91,75 @@ function AuditRow({ log, ai, fmt, hasDetail }) {
 
   const renderFields = (obj, label, color) => {
     if (!obj) return null
-    const entries = Object.entries(obj).filter(([,v]) => v !== null && v !== undefined && v !== '')
+    const entries = Object.entries(obj).filter(([k,v]) =>
+      !HIDDEN_FIELDS.has(k) && v !== null && v !== undefined && v !== ''
+    )
     if (!entries.length) return null
     return (
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:'10px',fontWeight:700,color,marginBottom:'6px',textTransform:'uppercase',letterSpacing:'0.05em'}}>
+      <div style={{flex:1,minWidth:200}}>
+        <div style={{fontSize:'10px',fontWeight:700,color,marginBottom:'8px',
+          textTransform:'uppercase',letterSpacing:'0.06em',display:'flex',alignItems:'center',gap:'5px'}}>
+          <span style={{display:'inline-block',width:8,height:8,borderRadius:'50%',background:color}}/>
           {label}
         </div>
-        <div style={{display:'flex',flexDirection:'column',gap:'3px'}}>
-          {entries.map(([k,v]) => (
-            <div key={k} style={{display:'flex',gap:'6px',fontSize:'11px',alignItems:'flex-start'}}>
-              <span style={{color:'#9ca3af',fontWeight:600,minWidth:'90px',flexShrink:0}}>{k}:</span>
-              <span style={{color:'#374151',wordBreak:'break-all'}}>{String(v)}</span>
+        <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
+          {entries.map(([k,v]) => {
+            const humanVal = humanValue(k, v)
+            const isMultiline = humanVal.includes('\n')
+            return (
+              <div key={k} style={{display:'flex',gap:'8px',fontSize:'11px',alignItems:'flex-start',
+                background:'#f9fafb',borderRadius:'5px',padding:'4px 8px'}}>
+                <span style={{color:'#6b7280',fontWeight:600,minWidth:'120px',flexShrink:0}}>
+                  {FIELD_LABELS[k] || k}
+                </span>
+                {isMultiline ? (
+                  <div style={{color:'#111827',display:'flex',flexDirection:'column',gap:'2px'}}>
+                    {humanVal.split('\n').map((line, i) => (
+                      <span key={i} style={{
+                        background:'#e5e7eb',borderRadius:'4px',padding:'2px 6px',
+                        display:'inline-block',fontSize:'10.5px'
+                      }}>{line}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <span style={{color:'#111827',wordBreak:'break-all'}}>{humanVal}</span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  const renderDiff = (before, after) => {
+    if (!before || !after) return null
+    const allKeys = new Set([...Object.keys(before), ...Object.keys(after)].filter(k => !HIDDEN_FIELDS.has(k)))
+    const changed = [...allKeys].filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+    if (changed.length === 0) return (
+      <span style={{fontSize:'12px',color:'#9ca3af',padding:'8px'}}>Sin cambios detectados</span>
+    )
+    return (
+      <div style={{width:'100%'}}>
+        <div style={{fontSize:'10px',fontWeight:700,color:'#6b7280',marginBottom:'8px',
+          textTransform:'uppercase',letterSpacing:'0.06em'}}>
+          Campos modificados
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+          {changed.map(k => (
+            <div key={k} style={{display:'grid',gridTemplateColumns:'120px 1fr auto 1fr',
+              gap:'8px',fontSize:'11px',alignItems:'center',
+              background:'#f9fafb',borderRadius:'6px',padding:'5px 10px'}}>
+              <span style={{color:'#6b7280',fontWeight:600}}>{FIELD_LABELS[k] || k}</span>
+              <span style={{background:'#fee2e2',color:'#991b1b',padding:'2px 8px',
+                borderRadius:'4px',wordBreak:'break-all',textDecoration:'line-through',opacity:0.85}}>
+                {humanValue(k, before[k])}
+              </span>
+              <span style={{color:'#9ca3af',fontWeight:700,fontSize:'13px'}}>→</span>
+              <span style={{background:'#dcfce7',color:'#166534',padding:'2px 8px',
+                borderRadius:'4px',wordBreak:'break-all',fontWeight:600}}>
+                {humanValue(k, after[k])}
+              </span>
             </div>
           ))}
         </div>
@@ -64,6 +169,7 @@ function AuditRow({ log, ai, fmt, hasDetail }) {
 
   const before = parseJSON(log.before_json)
   const after  = parseJSON(log.after_json)
+  const isEdit = before && after
 
   return (
     <>
@@ -111,11 +217,14 @@ function AuditRow({ log, ai, fmt, hasDetail }) {
               margin:'0 4px 4px',borderRadius:'0 6px 6px 0',
               background:'#fff',display:'flex',gap:'24px',flexWrap:'wrap'
             }}>
-              {before && renderFields(before, '← Antes', '#ef4444')}
-              {before && after && (
-                <div style={{width:'1px',background:'#e5e7eb',alignSelf:'stretch'}} />
-              )}
-              {after  && renderFields(after,  '→ Después', '#10b981')}
+              {isEdit
+                ? renderDiff(before, after)
+                : <>
+                    {before && renderFields(before, 'Datos eliminados / antes', '#ef4444')}
+                    {before && after && <div style={{width:'1px',background:'#e5e7eb',alignSelf:'stretch'}} />}
+                    {after  && renderFields(after,  'Datos registrados', '#10b981')}
+                  </>
+              }
               {!before && !after && (
                 <span style={{fontSize:'12px',color:'#9ca3af'}}>Sin datos adicionales</span>
               )}
