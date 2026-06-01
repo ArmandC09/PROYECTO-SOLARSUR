@@ -14,6 +14,7 @@ const usersRoutes = require('./routes/users.routes')
 const movementsRoutes = require('./routes/movements.routes')
 const auditRoutes = require('./routes/audit.routes')
 const kitsRoutes   = require('./routes/kits.routes')
+const sanitizeBody = require('./middleware/sanitize')
 
 const app = express()
 
@@ -35,9 +36,10 @@ app.use(cors({
 }))
 // ===================================
 
-app.use(express.json({ limit: '10mb' }))
+app.use(express.json({ limit: '2mb' }))  // reducir límite — logo ya viene comprimido del frontend
+app.use(sanitizeBody)                      // sanitizar todos los inputs
 
-// ================= ROUTES =================
+// ================= ROUTES ================= 
 
 app.use('/api/auth', authRoutes)
 app.use('/api/clients', clientsRoutes)
