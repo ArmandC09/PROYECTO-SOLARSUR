@@ -275,13 +275,18 @@ export default function AuditLog() {
     if (filterEntity) r = r.filter(l => l.entity === filterEntity)
     if (query.trim()) {
       const q = query.toLowerCase()
-      const entityLabel = (e) => (ENTITY_LABELS[e] || e || '').toLowerCase()
+      // Normaliza tildes: "cotización" = "cotizacion", "sesión" = "sesion"
+      const norm = (s) => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      const qn = norm(q)
+      const entityLabel = (e) => norm(ENTITY_LABELS[e] || e || '')
+      const actionLabel = (a) => norm((ACTION_LABELS[a]?.label) || a || '')
       r = r.filter(l =>
-        (l.user_name||'').toLowerCase().includes(q) ||
-        (l.username||'').toLowerCase().includes(q) ||
-        (l.action||'').toLowerCase().includes(q) ||
-        (l.entity||'').toLowerCase().includes(q) ||
-        entityLabel(l.entity).includes(q)
+        norm(l.user_name).includes(qn) ||
+        norm(l.username).includes(qn) ||
+        norm(l.action).includes(qn) ||
+        norm(l.entity).includes(qn) ||
+        entityLabel(l.entity).includes(qn) ||
+        actionLabel(l.action).includes(qn)
       )
     }
     return r
