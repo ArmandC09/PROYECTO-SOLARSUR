@@ -62,14 +62,15 @@ export default function Clients() {
 
   const filtered = useMemo(() => {
     if (!query) return clients
-    const q = query.toLowerCase()
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    const q = norm(query)
     return clients.filter(c =>
-      (c.name||'').toLowerCase().includes(q) ||
-      (c.phone||'').toLowerCase().includes(q) ||
-      (c.address||'').toLowerCase().includes(q) ||
-      (c.dni||'').toLowerCase().includes(q) ||
-      (c.ruc||'').toLowerCase().includes(q) ||
-      (c.email||'').toLowerCase().includes(q)
+      norm(c.name).includes(q) ||
+      norm(c.phone).includes(q) ||
+      norm(c.address).includes(q) ||
+      norm(c.dni).includes(q) ||
+      norm(c.ruc).includes(q) ||
+      norm(c.email).includes(q)
     )
   }, [clients, query])
 
