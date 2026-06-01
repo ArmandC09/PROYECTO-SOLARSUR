@@ -5,6 +5,13 @@ const { log } = require('./auditController')
 
 exports.login = async (req, res) => {
   const { username, password } = req.body
+
+  // Validación básica de entrada
+  if (!username || !password) return res.status(400).json({ message: 'Credenciales requeridas' })
+  if (typeof username !== 'string' || typeof password !== 'string')
+    return res.status(400).json({ message: 'Formato inválido' })
+  if (username.length > 50 || password.length > 100)
+    return res.status(400).json({ message: 'Datos demasiado largos' })
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null
   const ua = req.headers['user-agent'] || null
 
