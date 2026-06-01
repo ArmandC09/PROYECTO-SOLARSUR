@@ -15,7 +15,7 @@ const ACTION_LABELS = {
 
 const ENTITY_LABELS = {
   users:'Usuario', clients:'Cliente', inventory:'Inventario',
-  sales:'Venta', quotes:'Cotización', quote:'Cotización', providers:'Proveedor',
+  sales:'Venta', quotes:'Cotización', providers:'Proveedor',
   movements:'Movimiento', company:'Empresa', kits:'Kit',
 }
 
@@ -60,6 +60,9 @@ const humanValue = (key, val) => {
     return roles[val] || val
   }
   if (key === 'discount_type') return val === 'percent' ? 'Porcentaje (%)' : val === 'fixed' ? 'Monto fijo (S/)' : val
+  if (key === 'client_id')   return `Cliente #${val} (registro histórico)`
+  if (key === 'provider_id') return `Proveedor #${val} (registro histórico)`
+  if (key === 'source_quote_id' && val) return `COT-${String(val).padStart(5,'0')}`
   if (Array.isArray(val)) {
     if (val.length === 0) return 'Sin ítems'
     return val.map((item, i) => {
@@ -271,6 +274,8 @@ export default function AuditLog() {
         (l.entity||'').toLowerCase().includes(q)
       )
     }
+    // normalizar 'quote' → 'quotes' para display consistente
+    r = r.map(l => l.entity === 'quote' ? {...l, entity:'quotes'} : l)
     return r
   }, [logs, query, filterAction, filterEntity])
 
