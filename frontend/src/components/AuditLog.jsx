@@ -254,7 +254,7 @@ export default function AuditLog() {
   const [filterEntity, setFilterEntity] = useState('')
   const [page,         setPage]         = useState(1)
   const tableScrollRef = useRef(null)
-  const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
+  const tableTouchRef = useRef({ startX:0, startY:0, scrollLeft:0, state:'idle' })
 
   useEffect(() => { fetchLogs() }, [])
 
@@ -310,7 +310,7 @@ export default function AuditLog() {
     const touch = event.touches[0]
     tableTouchRef.current = {
       startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+      scrollLeft: wrapper.scrollLeft, state: 'idle'
     }
   }
 
@@ -318,20 +318,16 @@ export default function AuditLog() {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
     const ref = tableTouchRef.current
-    if (ref.blocked) return
     const touch = event.touches[0]
-    const dx = touch.clientX - ref.startX
-    const dy = touch.clientY - ref.startY
-    if (!ref.dragging) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-      if (Math.abs(dy) >= Math.abs(dx)) {
-        ref.blocked = true
-        return
-      }
-      ref.dragging = true
+    const dx = Math.abs(touch.clientX - ref.startX)
+    const dy = Math.abs(touch.clientY - ref.startY)
+    if (ref.state === 'idle') {
+      if (dx < 5 && dy < 5) return
+      ref.state = dx > dy ? 'horizontal' : 'vertical'
     }
+    if (ref.state === 'vertical') return
     event.preventDefault()
-    wrapper.scrollLeft = ref.scrollLeft - dx
+    wrapper.scrollLeft = ref.scrollLeft - (touch.clientX - ref.startX)
   }
 
   return (
