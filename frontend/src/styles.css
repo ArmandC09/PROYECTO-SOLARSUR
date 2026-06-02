@@ -2136,7 +2136,6 @@ main.home-main{
 
 .clients-table-wrap{
   overflow-x:auto;
-  touch-action: pan-y;
 }
 
 .clients-table{
@@ -2304,7 +2303,6 @@ main.home-main{
   .clients-table-wrap{
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
-    touch-action: pan-y;
   }
 
   .clients-table{
@@ -6943,6 +6941,8 @@ users-submit-btn:hover{
   .ss-modal-foot {
     padding: 10px 12px;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .ss-btn-primary,
@@ -6950,6 +6950,10 @@ users-submit-btn:hover{
   .ss-btn-danger {
     padding: 9px 16px;
     font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 
   .ss-row-2,
