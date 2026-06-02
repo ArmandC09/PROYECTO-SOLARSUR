@@ -42,7 +42,7 @@ export default function App() {
         {section === 'home' && <HomeDashboard onNavigate={setSection} />}
         {section === 'profile' && isAdmin && <CompanyProfile />}
         {section === 'providers' && isAdmin && <Providers />}
-        {section === 'sales' && !isWarehouse && <Sales />}
+        {section === 'sales' && !isWarehouse && <Sales onNavigate={setSection} />}
         {section === 'quotes' && !isWarehouse && <Quotes />}
         {section === 'inventory' && <Inventory />}
         {section === 'kits' && <Kits />}
