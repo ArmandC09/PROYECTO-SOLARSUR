@@ -10,7 +10,7 @@ const DISCOUNT_TYPES = [
   { value: 'otro',       label: 'Otro' },
 ]
 
-export default function Sales() {
+export default function Sales({ onNavigate }) {
   const { quotes, clients, addSale } = useContext(AppContext)
 
   const [selectedQuote, setSelectedQuote] = useState(null)
@@ -92,6 +92,7 @@ export default function Sales() {
     }
     cancelConversion()
     showToast('Cotización convertida a venta exitosamente')
+    if (onNavigate) setTimeout(() => onNavigate('history'), 800)
   }
 
   return (
