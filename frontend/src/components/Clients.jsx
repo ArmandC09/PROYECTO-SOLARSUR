@@ -23,7 +23,8 @@ export default function Clients() {
   const [page, setPage] = useState(1)
   const [saving, setSaving] = useState(false)
   const tableScrollRef = useRef(null)
-  const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
+  const tableTouchRef = useRef({ startX:0, startY:0, scrollLeft:0, state:'idle' })
+  // state: 'idle' | 'horizontal' | 'vertical'
 
   const hasOptionalData = (clientForm) => Boolean(
     clientForm.dni || clientForm.ruc || clientForm.email || clientForm.district || clientForm.city
@@ -89,7 +90,7 @@ export default function Clients() {
     const touch = event.touches[0]
     tableTouchRef.current = {
       startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+      scrollLeft: wrapper.scrollLeft, state: 'idle'
     }
   }
 
@@ -97,20 +98,16 @@ export default function Clients() {
     const wrapper = tableScrollRef.current
     if (!wrapper || !event.touches?.length) return
     const ref = tableTouchRef.current
-    if (ref.blocked) return                          // gesto vertical — no interferir
     const touch = event.touches[0]
-    const dx = touch.clientX - ref.startX
-    const dy = touch.clientY - ref.startY
-    if (!ref.dragging) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return   // sin dirección clara aún
-      if (Math.abs(dy) >= Math.abs(dx)) {                  // gesto más vertical que horizontal
-        ref.blocked = true                                  // dejar pasar el scroll de página
-        return
-      }
-      ref.dragging = true
+    const dx = Math.abs(touch.clientX - ref.startX)
+    const dy = Math.abs(touch.clientY - ref.startY)
+    if (ref.state === 'idle') {
+      if (dx < 5 && dy < 5) return
+      ref.state = dx > dy ? 'horizontal' : 'vertical'
     }
-    event.preventDefault()                           // solo prevenir si es scroll horizontal
-    wrapper.scrollLeft = ref.scrollLeft - dx
+    if (ref.state === 'vertical') return
+    event.preventDefault()
+    wrapper.scrollLeft = ref.scrollLeft - (touch.clientX - ref.startX)
   }
 
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
