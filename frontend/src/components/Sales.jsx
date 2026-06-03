@@ -86,13 +86,14 @@ export default function Sales({ onNavigate }) {
     }
 
     const result = await addSale(sale)
-    if (result && result.ok === false) {
-      alert(`No se pudo completar la venta:\n\n${result.message}`)
+    if (!result?.ok) {
+      alert(`No se pudo completar la venta:\n\n${result?.message || 'Error desconocido'}`)
       return
     }
     cancelConversion()
     showToast('Cotización convertida a venta exitosamente')
-    if (onNavigate) setTimeout(() => onNavigate('history'), 800)
+    // addSale ya terminó todos los fetches — navegar directo
+    if (onNavigate) onNavigate('history')
   }
 
   return (
