@@ -24,7 +24,36 @@ export default function Clients() {
   const [saving, setSaving] = useState(false)
   const tableScrollRef = useRef(null)
   const tableTouchRef = useRef({ startX:0, startY:0, scrollLeft:0, state:'idle' })
-  // state: 'idle' | 'horizontal' | 'vertical'
+
+  useEffect(() => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper) return
+    const onStart = (e) => {
+      if (!e.touches?.length) return
+      const t = e.touches[0]
+      tableTouchRef.current = { startX:t.clientX, startY:t.clientY, scrollLeft:wrapper.scrollLeft, state:'idle' }
+    }
+    const onMove = (e) => {
+      if (!e.touches?.length) return
+      const ref = tableTouchRef.current
+      const t = e.touches[0]
+      const dx = Math.abs(t.clientX - ref.startX)
+      const dy = Math.abs(t.clientY - ref.startY)
+      if (ref.state === 'idle') {
+        if (dx < 5 && dy < 5) return
+        ref.state = dx > dy ? 'horizontal' : 'vertical'
+      }
+      if (ref.state === 'vertical') return
+      e.preventDefault()
+      wrapper.scrollLeft = ref.scrollLeft - (t.clientX - ref.startX)
+    }
+    wrapper.addEventListener('touchstart', onStart, { passive: true })
+    wrapper.addEventListener('touchmove',  onMove,  { passive: false })
+    return () => {
+      wrapper.removeEventListener('touchstart', onStart)
+      wrapper.removeEventListener('touchmove',  onMove)
+    }
+  }, [])
 
   const hasOptionalData = (clientForm) => Boolean(
     clientForm.dni || clientForm.ruc || clientForm.email || clientForm.district || clientForm.city
@@ -84,31 +113,7 @@ export default function Clients() {
 
   React.useEffect(() => { setPage(1) }, [query])
 
-  const handleTableTouchStart = (event) => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const touch = event.touches[0]
-    tableTouchRef.current = {
-      startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, state: 'idle'
-    }
-  }
 
-  const handleTableTouchMove = (event) => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const ref = tableTouchRef.current
-    const touch = event.touches[0]
-    const dx = Math.abs(touch.clientX - ref.startX)
-    const dy = Math.abs(touch.clientY - ref.startY)
-    if (ref.state === 'idle') {
-      if (dx < 5 && dy < 5) return
-      ref.state = dx > dy ? 'horizontal' : 'vertical'
-    }
-    if (ref.state === 'vertical') return
-    event.preventDefault()
-    wrapper.scrollLeft = ref.scrollLeft - (touch.clientX - ref.startX)
-  }
 
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
@@ -136,8 +141,6 @@ export default function Clients() {
         <div
           className="clients-table-wrap"
           ref={tableScrollRef}
-          onTouchStart={handleTableTouchStart}
-          onTouchMove={handleTableTouchMove}
         >
           {paginatedClients.length === 0 ? (
             <div className="clients-empty">No hay clientes registrados.</div>
