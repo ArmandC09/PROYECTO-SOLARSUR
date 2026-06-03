@@ -185,40 +185,35 @@ export function AppProvider({ children }) {
     await apiFetch(`/quotes/${id}`, { method:'DELETE' }); setQuotes(p => p.filter(q => q.id!==id))
   }
 
-  // SALES — KEY FIX: reload quotes from API after sale to get backend truth
+  // SALES — reload completo antes de resolver
   const addSale = async (sale) => {
     const r = await apiFetch('/sales', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sale) })
     const d = await r.json()
     if (r.ok) {
-      let updatedSales = [d, ...sales.filter((currentSale) => String(currentSale.id) !== String(d.id))]
-      setSales(updatedSales)
-
-      if (sale.sourceQuoteId) {
-        rememberConvertedQuoteId(sale.sourceQuoteId)
-        setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
-      }
-
+      // 1. Actualizar ventas desde el backend
       const sr = await apiFetch('/sales')
-      if (sr.ok) {
-        updatedSales = await sr.json()
-        setSales(updatedSales)
-      }
+      if (sr.ok) setSales(await sr.json())
 
+      // 2. Actualizar cotizaciones desde el backend
+      if (sale.sourceQuoteId) rememberConvertedQuoteId(sale.sourceQuoteId)
       const qr = await apiFetch('/quotes')
       if (qr.ok) {
         const quotesData = await qr.json()
-        setQuotes(filterConvertedQuotes(quotesData, updatedSales))
+        setSales(prev => {
+          setQuotes(filterConvertedQuotes(quotesData, prev))
+          return prev
+        })
       } else if (sale.sourceQuoteId) {
-        setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
+        setQuotes(prev => prev.filter(q => String(q.id) !== String(sale.sourceQuoteId)))
       }
 
+      // 3. Inventario y movimientos
       const ir = await apiFetch('/inventory')
       if (ir.ok) setInventory(await ir.json())
-
       const mr = await apiFetch('/movements')
       if (mr.ok) setMovements(await mr.json())
     }
-    return d
+    return { ...d, ok: r.ok }
   }
 
   const deleteSale = async (id) => {
