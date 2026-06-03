@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react'
 import AppContext from '../context/AppContext'
-
+import StyledSelect from './StyledSelect'
 
 const DISCOUNT_TYPES = [
   { value: 'general',    label: 'Descuento general' },
