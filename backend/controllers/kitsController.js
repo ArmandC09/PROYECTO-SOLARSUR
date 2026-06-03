@@ -85,6 +85,12 @@ exports.updateKit = async (req, res) => {
     const { name, description, items } = req.body
 
     const [before] = await pool.query('SELECT * FROM kits WHERE id=?', [id])
+    const [beforeItems] = await pool.query(`
+      SELECT ki.*, i.name as product_name
+      FROM kit_items ki JOIN inventory i ON i.id = ki.product_id
+      WHERE ki.kit_id = ?
+    `, [id])
+    const beforeTotal = beforeItems.reduce((s, it) => s + (Number(it.kit_price) * Number(it.qty)), 0)
 
     await pool.query('UPDATE kits SET name=?, description=? WHERE id=?', [name, description || null, id])
     await pool.query('DELETE FROM kit_items WHERE kit_id=?', [id])
@@ -112,7 +118,12 @@ exports.updateKit = async (req, res) => {
       action: 'UPDATE',
       entity: 'kits',
       entity_id: Number(id),
-      before_json: before[0] ? { nombre: before[0].name, descripcion: before[0].description || '—' } : null,
+      before_json: before[0] ? {
+        nombre: before[0].name,
+        descripcion: before[0].description || '—',
+        total_soles: `S/ ${beforeTotal.toFixed(2)}`,
+        productos: beforeItems.map(it => `${it.product_name} (x${it.qty} · S/ ${it.kit_price})`)
+      } : null,
       after_json: {
         nombre: name,
         descripcion: description || '—',
