@@ -30,11 +30,39 @@ exports.updateClient = async (req, res) => {
   const { id } = req.params
   const { name, phone, address, dni, ruc, email, district, city } = req.body
   try {
+    // Leer datos ANTES de editar para auditoría
+    const [[before]] = await pool.query('SELECT * FROM clients WHERE id=?', [id])
+
     await pool.query(
       'UPDATE clients SET name=?, phone=?, address=?, dni=?, ruc=?, email=?, district=?, city=? WHERE id=?',
       [name, phone||null, address||null, dni||null, ruc||null, email||null, district||null, city||null, id]
     )
-    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'clients', entity_id: id, after_json: { name, phone, address, dni, ruc, email, district, city } })
+    await log({
+      user_id: req.user?.id,
+      action: 'UPDATE',
+      entity: 'clients',
+      entity_id: id,
+      before_json: before ? {
+        nombre: before.name,
+        telefono: before.phone || '—',
+        direccion: before.address || '—',
+        dni: before.dni || '—',
+        ruc: before.ruc || '—',
+        email: before.email || '—',
+        distrito: before.district || '—',
+        ciudad: before.city || '—'
+      } : null,
+      after_json: {
+        nombre: name,
+        telefono: phone || '—',
+        direccion: address || '—',
+        dni: dni || '—',
+        ruc: ruc || '—',
+        email: email || '—',
+        distrito: district || '—',
+        ciudad: city || '—'
+      }
+    })
     res.json({ message: 'Cliente actualizado' })
   } catch (error) {
     console.error(error)
