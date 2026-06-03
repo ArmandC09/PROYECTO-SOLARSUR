@@ -55,37 +55,7 @@ export default function Movements() {
 
   const [query, setQuery] = useState('')
   const tableScrollRef = useRef(null)
-  const tableTouchRef = useRef({ startX:0, startY:0, scrollLeft:0, state:'idle' })
-
-  useEffect(() => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper) return
-    const onStart = (e) => {
-      if (!e.touches?.length) return
-      const t = e.touches[0]
-      tableTouchRef.current = { startX:t.clientX, startY:t.clientY, scrollLeft:wrapper.scrollLeft, state:'idle' }
-    }
-    const onMove = (e) => {
-      if (!e.touches?.length) return
-      const ref = tableTouchRef.current
-      const t = e.touches[0]
-      const dx = Math.abs(t.clientX - ref.startX)
-      const dy = Math.abs(t.clientY - ref.startY)
-      if (ref.state === 'idle') {
-        if (dx < 5 && dy < 5) return
-        ref.state = dx > dy ? 'horizontal' : 'vertical'
-      }
-      if (ref.state === 'vertical') return
-      e.preventDefault()
-      wrapper.scrollLeft = ref.scrollLeft - (t.clientX - ref.startX)
-    }
-    wrapper.addEventListener('touchstart', onStart, { passive: true })
-    wrapper.addEventListener('touchmove',  onMove,  { passive: false })
-    return () => {
-      wrapper.removeEventListener('touchstart', onStart)
-      wrapper.removeEventListener('touchmove',  onMove)
-    }
-  }, [])
+  const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
   const [form, setForm] = useState({
     inventory_id: '',
     type: 'IN',
@@ -225,7 +195,35 @@ export default function Movements() {
     }
   }
 
+  const handleTableTouchStart = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const touch = event.touches[0]
+    tableTouchRef.current = {
+      startX: touch.clientX, startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+    }
+  }
 
+  const handleTableTouchMove = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const ref = tableTouchRef.current
+    if (ref.blocked) return
+    const touch = event.touches[0]
+    const dx = touch.clientX - ref.startX
+    const dy = touch.clientY - ref.startY
+    if (!ref.dragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        ref.blocked = true
+        return
+      }
+      ref.dragging = true
+    }
+    event.preventDefault()
+    wrapper.scrollLeft = ref.scrollLeft - dx
+  }
 
   if (!canAccess) {
     return (
