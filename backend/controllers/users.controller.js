@@ -83,7 +83,7 @@ exports.update = async (req, res) => {
     const { username, name, role, password } = req.body || {}
 
     const [rows] = await pool.query(
-      'SELECT id, username FROM users WHERE id = ?',
+      'SELECT id, username, name, role FROM users WHERE id = ?',
       [id]
     )
 
@@ -92,6 +92,7 @@ exports.update = async (req, res) => {
     }
 
     const currentUser = rows[0]
+    const beforeUser = rows[0]
     const currentUsername = String(currentUser.username || '').toLowerCase()
     const newUsername = String(username || '').trim()
 
@@ -143,7 +144,22 @@ exports.update = async (req, res) => {
 
     const updated = updatedRows[0]
 
-    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'users', entity_id: id, after_json: { username: updated.username, name: updated.name, role: updated.role } })
+    await log({
+      user_id: req.user?.id,
+      action: 'UPDATE',
+      entity: 'users',
+      entity_id: id,
+      before_json: {
+        usuario: beforeUser.username,
+        nombre: beforeUser.name || '—',
+        rol: beforeUser.role
+      },
+      after_json: {
+        usuario: updated.username,
+        nombre: updated.name || '—',
+        rol: updated.role
+      }
+    })
     return res.json({
       ...updated,
       is_system: SYSTEM_USERS.has(String(updated.username).toLowerCase())
