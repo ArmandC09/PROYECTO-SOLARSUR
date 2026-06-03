@@ -29,7 +29,7 @@ exports.getSales = async (req, res) => {
 }
 
 exports.createSale = async (req, res) => {
-  const { client_id, items, total, sourceQuoteId } = req.body
+  const { client_id, items, total, sourceQuoteId, discount_type, discountValue, discountReason } = req.body
 
   const conn = await pool.getConnection()
   await conn.beginTransaction()
