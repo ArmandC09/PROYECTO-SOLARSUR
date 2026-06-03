@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import AppContext from '../context/AppContext'
 import ModalPortal from './ModalPortal'
+import StyledSelect from './StyledSelect'
 
 const API = '/api'
 
