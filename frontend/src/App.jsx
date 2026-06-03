@@ -27,6 +27,12 @@ export default function App() {
     if (user) loadAll()
   }, [user])
 
+  // Recargar datos cada vez que el usuario cambia de módulo
+  const handleNavigate = (newSection) => {
+    setSection(newSection)
+    if (user) loadAll()
+  }
+
   if (!user) return <Login />
 
   const isSuperAdmin = user?.role === 'SUPERADMIN'
@@ -36,10 +42,10 @@ export default function App() {
 
   return (
     <div className={`app ${section !== 'home' ? 'with-topbar' : ''}`}>
-      <Header onNavigate={setSection} currentView={section} />
+      <Header onNavigate={handleNavigate} currentView={section} />
 
       <main className={section === 'home' ? 'home-main' : ''}>
-        {section === 'home' && <HomeDashboard onNavigate={setSection} />}
+        {section === 'home' && <HomeDashboard onNavigate={handleNavigate} />}
         {section === 'profile' && isAdmin && <CompanyProfile />}
         {section === 'providers' && isAdmin && <Providers />}
         {section === 'sales' && !isWarehouse && <Sales />}
