@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { apiFetch } from '../context/AppContext'
+import StyledSelect from './StyledSelect'
 
 const ACTION_LABELS = {
   LOGIN:     { label: 'Inicio de sesión',    color: '#10b981', bg:'#d1fae5' },
