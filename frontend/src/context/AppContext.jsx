@@ -217,8 +217,10 @@ export function AppProvider({ children }) {
 
       const mr = await apiFetch('/movements')
       if (mr.ok) setMovements(await mr.json())
+
+      return { ok: true, ...d }
     }
-    return d
+    return { ok: false, message: d?.message || 'Error desconocido' }
   }
 
   const deleteSale = async (id) => {
