@@ -5,9 +5,10 @@ const auth = require('../middleware/auth.middleware')
 const rateLimit = require('express-rate-limit')
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { message: 'Demasiados intentos. Intenta en 15 minutos.' },
+  windowMs: 3 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  message: { message: 'Demasiados intentos. Intenta en 3 minutos.' },
   standardHeaders: true,
   legacyHeaders: false
 })
