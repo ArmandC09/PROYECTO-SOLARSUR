@@ -185,35 +185,40 @@ export function AppProvider({ children }) {
     await apiFetch(`/quotes/${id}`, { method:'DELETE' }); setQuotes(p => p.filter(q => q.id!==id))
   }
 
-  // SALES — reload completo antes de resolver
+  // SALES — KEY FIX: reload quotes from API after sale to get backend truth
   const addSale = async (sale) => {
     const r = await apiFetch('/sales', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sale) })
     const d = await r.json()
     if (r.ok) {
-      // 1. Actualizar ventas desde el backend
-      const sr = await apiFetch('/sales')
-      if (sr.ok) setSales(await sr.json())
+      let updatedSales = [d, ...sales.filter((currentSale) => String(currentSale.id) !== String(d.id))]
+      setSales(updatedSales)
 
-      // 2. Actualizar cotizaciones desde el backend
-      if (sale.sourceQuoteId) rememberConvertedQuoteId(sale.sourceQuoteId)
+      if (sale.sourceQuoteId) {
+        rememberConvertedQuoteId(sale.sourceQuoteId)
+        setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
+      }
+
+      const sr = await apiFetch('/sales')
+      if (sr.ok) {
+        updatedSales = await sr.json()
+        setSales(updatedSales)
+      }
+
       const qr = await apiFetch('/quotes')
       if (qr.ok) {
         const quotesData = await qr.json()
-        setSales(prev => {
-          setQuotes(filterConvertedQuotes(quotesData, prev))
-          return prev
-        })
+        setQuotes(filterConvertedQuotes(quotesData, updatedSales))
       } else if (sale.sourceQuoteId) {
-        setQuotes(prev => prev.filter(q => String(q.id) !== String(sale.sourceQuoteId)))
+        setQuotes((prev) => prev.filter((quote) => String(quote.id) !== String(sale.sourceQuoteId)))
       }
 
-      // 3. Inventario y movimientos
       const ir = await apiFetch('/inventory')
       if (ir.ok) setInventory(await ir.json())
+
       const mr = await apiFetch('/movements')
       if (mr.ok) setMovements(await mr.json())
     }
-    return { ...d, ok: r.ok }
+    return d
   }
 
   const deleteSale = async (id) => {
