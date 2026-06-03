@@ -262,7 +262,6 @@ export default function Clients() {
 
                       <div className="ss-field">
                         <label>Email</label>
-                        <input type="email" value={form.email} onChange={e=>f('email',e.target.value)} placeholder="correo@ejemplo.com" maxLength={120} />
                       </div>
 
                       <div className="ss-row-2">
