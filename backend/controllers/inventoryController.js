@@ -55,6 +55,13 @@ exports.updateInventory = async (req, res) => {
   const { name, sku, qty, price, provider_id } = req.body
 
   try {
+    // Leer datos ANTES de editar para auditoría
+    const [beforeRows] = await pool.query(
+      `SELECT i.*, p.name AS provider_name FROM inventory i LEFT JOIN providers p ON p.id = i.provider_id WHERE i.id=?`,
+      [id]
+    )
+    const before = beforeRows[0] || null
+
     await pool.query(
       'UPDATE inventory SET name=?, sku=?, qty=?, price=?, provider_id=? WHERE id=?',
       [name, sku, qty, price, provider_id || null, id]
@@ -65,13 +72,26 @@ exports.updateInventory = async (req, res) => {
       const [pRowsUpd] = await pool.query('SELECT name FROM providers WHERE id=?', [provider_id])
       upd_provider_name = pRowsUpd[0]?.name || null
     }
-    await log({ user_id: req.user?.id, action: 'UPDATE', entity: 'inventory', entity_id: id, after_json: {
-      nombre: name,
-      sku: sku || '—',
-      cantidad: qty,
-      precio_unitario: `S/ ${Number(price).toFixed(2)}`,
-      proveedor: upd_provider_name || '—'
-    } })
+    await log({
+      user_id: req.user?.id,
+      action: 'UPDATE',
+      entity: 'inventory',
+      entity_id: id,
+      before_json: before ? {
+        nombre: before.name,
+        sku: before.sku || '—',
+        cantidad: before.qty,
+        precio_unitario: `S/ ${Number(before.price).toFixed(2)}`,
+        proveedor: before.provider_name || '—'
+      } : null,
+      after_json: {
+        nombre: name,
+        sku: sku || '—',
+        cantidad: qty,
+        precio_unitario: `S/ ${Number(price).toFixed(2)}`,
+        proveedor: upd_provider_name || '—'
+      }
+    })
     res.json({ message: 'Producto actualizado' })
   } catch (error) {
     console.error(error)
