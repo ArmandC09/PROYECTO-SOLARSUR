@@ -256,6 +256,36 @@ export default function AuditLog() {
   const tableScrollRef = useRef(null)
   const tableTouchRef = useRef({ startX:0, startY:0, scrollLeft:0, state:'idle' })
 
+  useEffect(() => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper) return
+    const onStart = (e) => {
+      if (!e.touches?.length) return
+      const t = e.touches[0]
+      tableTouchRef.current = { startX:t.clientX, startY:t.clientY, scrollLeft:wrapper.scrollLeft, state:'idle' }
+    }
+    const onMove = (e) => {
+      if (!e.touches?.length) return
+      const ref = tableTouchRef.current
+      const t = e.touches[0]
+      const dx = Math.abs(t.clientX - ref.startX)
+      const dy = Math.abs(t.clientY - ref.startY)
+      if (ref.state === 'idle') {
+        if (dx < 5 && dy < 5) return
+        ref.state = dx > dy ? 'horizontal' : 'vertical'
+      }
+      if (ref.state === 'vertical') return
+      e.preventDefault()
+      wrapper.scrollLeft = ref.scrollLeft - (t.clientX - ref.startX)
+    }
+    wrapper.addEventListener('touchstart', onStart, { passive: true })
+    wrapper.addEventListener('touchmove',  onMove,  { passive: false })
+    return () => {
+      wrapper.removeEventListener('touchstart', onStart)
+      wrapper.removeEventListener('touchmove',  onMove)
+    }
+  }, [])
+
   useEffect(() => { fetchLogs() }, [])
 
   const fetchLogs = async () => {
@@ -304,31 +334,7 @@ export default function AuditLog() {
            d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
   }
 
-  const handleTableTouchStart = (event) => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const touch = event.touches[0]
-    tableTouchRef.current = {
-      startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, state: 'idle'
-    }
-  }
 
-  const handleTableTouchMove = (event) => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const ref = tableTouchRef.current
-    const touch = event.touches[0]
-    const dx = Math.abs(touch.clientX - ref.startX)
-    const dy = Math.abs(touch.clientY - ref.startY)
-    if (ref.state === 'idle') {
-      if (dx < 5 && dy < 5) return
-      ref.state = dx > dy ? 'horizontal' : 'vertical'
-    }
-    if (ref.state === 'vertical') return
-    event.preventDefault()
-    wrapper.scrollLeft = ref.scrollLeft - (touch.clientX - ref.startX)
-  }
 
   return (
     <section className="clients-page fade-in">
@@ -393,8 +399,6 @@ export default function AuditLog() {
         <div
           className="clients-table-wrap audit-table-wrap"
           ref={tableScrollRef}
-          onTouchStart={handleTableTouchStart}
-          onTouchMove={handleTableTouchMove}
         >
           {loading ? (
             <div className="clients-empty">Cargando registros...</div>
