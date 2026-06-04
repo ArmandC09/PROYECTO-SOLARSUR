@@ -1,15 +1,21 @@
 import React, { useState, useContext, useMemo } from 'react'
+
+const ITEMS_PER_PAGE = 25
 import AppContext from '../context/AppContext'
+import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
 
 export default function Kits() {
   const { kits, inventory, addKit, updateKit, deleteKit, loadKits } = useContext(AppContext)
+  const { user } = useContext(AuthContext)
+  const canWrite = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
 
   const [search, setSearch]         = useState('')
   const [modalOpen, setModalOpen]   = useState(false)
   const [editing, setEditing]       = useState(null)
   const [prodSearch, setProdSearch] = useState('')
   const [saving, setSaving]         = useState(false)
+  const [page, setPage]             = useState(1)
 
   const emptyForm = { name: '', description: '', items: [] }
   const [form, setForm] = useState(emptyForm)
@@ -19,6 +25,10 @@ export default function Kits() {
     const q = norm(search)
     return (kits || []).filter(k => norm(k.name).includes(q))
   }, [kits, search])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
+  const safePage   = Math.min(page, totalPages)
+  const paginated  = filtered.slice((safePage-1)*ITEMS_PER_PAGE, safePage*ITEMS_PER_PAGE)
 
   const openNew = () => {
     setEditing(null); setForm(emptyForm); setProdSearch(''); setModalOpen(true)
@@ -113,9 +123,9 @@ export default function Kits() {
       <div className="inventory-shell">
         <div className="inventory-main-card">
           <div className="inventory-toolbar">
-            <button type="button" className="inventory-new-btn" onClick={openNew}>
+{canWrite && <button type="button" className="inventory-new-btn" onClick={openNew}>
               <span className="inventory-plus">＋</span>Nuevo kit
-            </button>
+            </button>}
             <div className="inventory-search-wrap">
               <span className="inventory-search-icon">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -174,10 +184,10 @@ export default function Kits() {
                 </td>
                 <td><strong style={{color:'#0b4ea6'}}>S/ {Number(kit.total||0).toFixed(2)}</strong></td>
                 <td className="align-right inventory-actions-cell">
-                  <button type="button" className="inventory-action-btn edit" onClick={() => openEdit(kit)}>
+{canWrite && <><button type="button" className="inventory-action-btn edit" onClick={() => openEdit(kit)}>
                     ✎ Editar
                   </button>
-                  <button type="button" className="inventory-icon-btn delete" onClick={() => handleDelete(kit)} title="Eliminar">🗑</button>
+                  <button type="button" className="inventory-icon-btn delete" onClick={() => handleDelete(kit)} title="Eliminar">🗑</button></>}
                 </td>
               </tr>
             ))}
