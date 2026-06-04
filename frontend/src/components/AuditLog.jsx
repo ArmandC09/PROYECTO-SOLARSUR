@@ -261,7 +261,7 @@ export default function AuditLog() {
   const fetchLogs = async () => {
     setLoading(true)
     try {
-      const r = await apiFetch('/audit?limit=500')
+      const r = await apiFetch('/audit')
       if (r.ok) setLogs(await r.json())
       else console.warn('Audit fetch failed:', r.status)
     } catch(e) { console.error(e) }
