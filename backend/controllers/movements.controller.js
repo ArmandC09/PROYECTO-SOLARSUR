@@ -20,7 +20,6 @@ exports.getMovements = async (req, res) => {
       JOIN inventory i ON i.id = m.inventory_id
       LEFT JOIN users u ON u.id = m.user_id
       ORDER BY m.id DESC
-      LIMIT 300
     `)
 
     res.json(rows)
@@ -90,7 +89,7 @@ exports.createMovement = async (req, res) => {
       action: type === 'IN' ? 'STOCK_IN' : 'STOCK_OUT',
       entity: 'movements',
       entity_id: result.insertId,
-      after_json: { inventory_id, type, qty: q, reason: note || '' },
+      after_json: { producto_id: inventory_id, tipo: type === 'IN' ? 'Entrada' : 'Salida', cantidad: q, motivo: note || '—' },
       ip: req.ip,
       user_agent: req.headers['user-agent']
     })
