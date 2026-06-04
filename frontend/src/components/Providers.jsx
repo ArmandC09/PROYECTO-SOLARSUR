@@ -1,4 +1,6 @@
 import React, { useMemo, useState, useContext } from 'react'
+
+const ITEMS_PER_PAGE = 25
 import AppContext from '../context/AppContext'
 import ModalPortal from './ModalPortal'
 import PhoneInput from './PhoneInput'
@@ -11,6 +13,7 @@ export default function Providers() {
   const [editingId, setEditingId] = useState(null)
   const [query, setQuery] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [page, setPage] = useState(1)
 
   const resetForm = () => {
     setEditingId(null)
@@ -50,6 +53,10 @@ export default function Providers() {
       norm(p.phone).includes(q)
     )
   }), [providers, query])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
+  const safePage   = Math.min(page, totalPages)
+  const paginated  = filtered.slice((safePage-1)*ITEMS_PER_PAGE, safePage*ITEMS_PER_PAGE)
 
   return (
     <section className="clients-page fade-in providers-page">
@@ -94,7 +101,7 @@ export default function Providers() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((p) => (
+                {paginated.map((p) => (
                   <tr key={p.id}>
                     <td>
                       <strong style={{ color: '#0b1220' }}>{p.name}</strong>
@@ -118,6 +125,39 @@ export default function Providers() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="clients-pagination">
+            <div className="clients-pagination-info">
+              {filtered.length===0 ? 'Sin registros' : `Mostrando ${(safePage-1)*ITEMS_PER_PAGE+1}–${Math.min(safePage*ITEMS_PER_PAGE,filtered.length)} de ${filtered.length}`}
+            </div>
+            <div className="clients-pagination-controls">
+              <button type="button" className="clients-page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={safePage===1}>‹</button>
+              {(() => {
+                const WINDOW = 5
+                let start = Math.max(1, safePage - Math.floor(WINDOW / 2))
+                let end   = Math.min(totalPages, start + WINDOW - 1)
+                if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1)
+                const pages = []
+                if (start > 1) {
+                  pages.push(<button key={1} type="button" className="clients-page-number" onClick={()=>setPage(1)}>1</button>)
+                  if (start > 2) pages.push(<span key="e1" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                }
+                for (let p = start; p <= end; p++) {
+                  pages.push(
+                    <button key={p} type="button" className={`clients-page-number ${p===safePage?'active':''}`} onClick={()=>setPage(p)}>{p}</button>
+                  )
+                }
+                if (end < totalPages) {
+                  if (end < totalPages - 1) pages.push(<span key="e2" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                  pages.push(<button key={totalPages} type="button" className="clients-page-number" onClick={()=>setPage(totalPages)}>{totalPages}</button>)
+                }
+                return pages
+              })()}
+              <button type="button" className="clients-page-next" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={safePage===totalPages}>Siguiente ›</button>
+            </div>
           </div>
         )}
       </div>
