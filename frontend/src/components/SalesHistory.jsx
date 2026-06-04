@@ -1,4 +1,6 @@
 import React, { useContext, useState, useMemo } from 'react'
+
+const ITEMS_PER_PAGE = 25
 import AppContext from '../context/AppContext'
 import AuthContext from '../context/AuthContext'
 import { downloadCSV } from '../utils/export'
@@ -12,8 +14,10 @@ export default function SalesHistory() {
   const [revertModal, setRevertModal] = useState(null) // { id, clientName, total }
   const [reverting, setReverting] = useState(false)
   const [toast, setToast] = useState(null) // { msg, type }
+  const [page, setPage] = useState(1)
 
   const canRevert = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
+  const canExport  = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
 
   const getClientName = (sale) =>
     clients.find(c => String(c.id) === String(sale.client_id || sale.clientId))?.name || '—'
@@ -27,6 +31,10 @@ export default function SalesHistory() {
       return name.includes(q) || items.includes(q)
     })
   }, [sales, clients, query])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
+  const safePage   = Math.min(page, totalPages)
+  const paginated  = filtered.slice((safePage-1)*ITEMS_PER_PAGE, safePage*ITEMS_PER_PAGE)
 
   const exportCSV = () => {
     const rows = sales.map(s => ({
@@ -116,7 +124,7 @@ export default function SalesHistory() {
           </div>
         ) : (
           <div className="sales-history-list">
-            {filtered.map((s) => {
+            {paginated.map((s) => {
               const saleTotal = Number(s.total) || (s.items || []).reduce((a, b) => a + (Number(b.qty) * Number(b.price)), 0)
               const dateStr = s.created_at
                 ? new Date(s.created_at).toLocaleString('es-PE')
@@ -186,6 +194,39 @@ export default function SalesHistory() {
                 </div>
               )
             })}
+          </div>
+        )}
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="clients-pagination">
+            <div className="clients-pagination-info">
+              {filtered.length===0 ? 'Sin registros' : `Mostrando ${(safePage-1)*ITEMS_PER_PAGE+1}–${Math.min(safePage*ITEMS_PER_PAGE,filtered.length)} de ${filtered.length}`}
+            </div>
+            <div className="clients-pagination-controls">
+              <button type="button" className="clients-page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={safePage===1}>‹</button>
+              {(() => {
+                const WINDOW = 5
+                let start = Math.max(1, safePage - Math.floor(WINDOW / 2))
+                let end   = Math.min(totalPages, start + WINDOW - 1)
+                if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1)
+                const pages = []
+                if (start > 1) {
+                  pages.push(<button key={1} type="button" className="clients-page-number" onClick={()=>setPage(1)}>1</button>)
+                  if (start > 2) pages.push(<span key="e1" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                }
+                for (let p = start; p <= end; p++) {
+                  pages.push(
+                    <button key={p} type="button" className={`clients-page-number ${p===safePage?'active':''}`} onClick={()=>setPage(p)}>{p}</button>
+                  )
+                }
+                if (end < totalPages) {
+                  if (end < totalPages - 1) pages.push(<span key="e2" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                  pages.push(<button key={totalPages} type="button" className="clients-page-number" onClick={()=>setPage(totalPages)}>{totalPages}</button>)
+                }
+                return pages
+              })()}
+              <button type="button" className="clients-page-next" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={safePage===totalPages}>Siguiente ›</button>
+            </div>
           </div>
         )}
       </div>
