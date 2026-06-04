@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useContext, useEffect, useRef } from 'react'
 import AppContext from '../context/AppContext'
+import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 25
 
 export default function Inventory() {
   const {
@@ -12,6 +13,8 @@ export default function Inventory() {
     updateInventoryItem,
     deleteInventoryItem
   } = useContext(AppContext)
+  const { user } = useContext(AuthContext)
+  const canWrite = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
 
   const [query, setQuery] = useState('')
   const [formOpen, setFormOpen] = useState(false)
@@ -106,13 +109,7 @@ export default function Inventory() {
   const startItem = filtered.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1
   const endItem = Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)
 
-  const pageNumbers = useMemo(() => {
-    const pages = []
-    if (totalPages <= 5) { for (let i = 1; i <= totalPages; i++) pages.push(i); return pages }
-    if (currentPage <= 3) return [1, 2, 3, '...', totalPages]
-    if (currentPage >= totalPages - 2) return [1, '...', totalPages - 2, totalPages - 1, totalPages]
-    return [1, '...', currentPage, '...', totalPages]
-  }, [totalPages, currentPage])
+
 
   useEffect(() => {
     const handle = (e) => {
@@ -171,12 +168,14 @@ export default function Inventory() {
                         <td><span className={`inventory-qty ${it.qty <= 0 ? 'low' : it.qty <= 10 ? 'low-stock' : ''}`}>{it.qty}</span></td>
                         <td>S/ {Number(it.price).toFixed(2)}</td>
                         <td className="align-right inventory-actions-cell">
+                          {canWrite && <>
                           <button type="button" className="inventory-action-btn edit" onClick={() => startEdit(it)}>
                             ✎ Editar
                           </button>
                           <button type="button" className="inventory-icon-btn delete"
                             onClick={() => { if (window.confirm('¿Eliminar producto?')) deleteInventoryItem(it.id) }}
                             title="Eliminar">🗑</button>
+                          </>}
                         </td>
                       </tr>
                     ))}
@@ -184,24 +183,38 @@ export default function Inventory() {
                 </table>
               </div>
 
-              <div className="inventory-pagination">
-                <button type="button" className="inventory-page-btn"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
-                <div className="inventory-pagination-controls">
-                  {pageNumbers.map((page, index) =>
-                    page === '...' ? (
-                      <span key={`dots-${index}`} className="inventory-page-dots">•••</span>
-                    ) : (
-                      <button key={page} type="button"
-                        className={`inventory-page-number ${currentPage === page ? 'active' : ''}`}
-                        onClick={() => setCurrentPage(page)}>{page}</button>
-                    )
-                  )}
+              {totalPages > 1 && (
+                <div className="clients-pagination">
+                  <div className="clients-pagination-info">
+                    {filtered.length===0 ? 'Sin registros' : `Mostrando ${startItem}–${endItem} de ${filtered.length}`}
+                  </div>
+                  <div className="clients-pagination-controls">
+                    <button type="button" className="clients-page-btn" onClick={()=>setCurrentPage(p=>Math.max(1,p-1))} disabled={currentPage===1}>‹</button>
+                    {(() => {
+                      const WINDOW = 5
+                      let start = Math.max(1, currentPage - Math.floor(WINDOW / 2))
+                      let end   = Math.min(totalPages, start + WINDOW - 1)
+                      if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1)
+                      const pages = []
+                      if (start > 1) {
+                        pages.push(<button key={1} type="button" className="clients-page-number" onClick={()=>setCurrentPage(1)}>1</button>)
+                        if (start > 2) pages.push(<span key="e1" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                      }
+                      for (let p = start; p <= end; p++) {
+                        pages.push(
+                          <button key={p} type="button" className={`clients-page-number ${p===currentPage?'active':''}`} onClick={()=>setCurrentPage(p)}>{p}</button>
+                        )
+                      }
+                      if (end < totalPages) {
+                        if (end < totalPages - 1) pages.push(<span key="e2" style={{padding:'0 4px',color:'#9ca3af'}}>…</span>)
+                        pages.push(<button key={totalPages} type="button" className="clients-page-number" onClick={()=>setCurrentPage(totalPages)}>{totalPages}</button>)
+                      }
+                      return pages
+                    })()}
+                    <button type="button" className="clients-page-next" onClick={()=>setCurrentPage(p=>Math.min(totalPages,p+1))} disabled={currentPage===totalPages}>Siguiente ›</button>
+                  </div>
                 </div>
-                <button type="button" className="inventory-page-btn"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
-              </div>
-              <div className="inventory-pagination-info">{startItem} - {endItem} de {filtered.length} items</div>
+              )}
             </>
           )}
         </div>
