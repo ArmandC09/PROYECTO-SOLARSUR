@@ -47,15 +47,15 @@ export default function App() {
       <main className={section === 'home' ? 'home-main' : ''}>
         {section === 'home' && <HomeDashboard onNavigate={handleNavigate} />}
         {section === 'profile' && isAdmin && <CompanyProfile />}
-        {section === 'providers' && isAdmin && <Providers />}
-        {section === 'sales' && !isWarehouse && <Sales />}
-        {section === 'quotes' && !isWarehouse && <Quotes />}
+        {section === 'providers' && (isAdmin || isWarehouse) && <Providers />}
+        {section === 'sales' && (isAdmin || isSales) && <Sales />}
+        {section === 'quotes' && (isAdmin || isSales) && <Quotes />}
         {section === 'inventory' && <Inventory />}
         {section === 'kits' && <Kits />}
         {section === 'clients' && <Clients />}
-        {section === 'history' && !isWarehouse && <SalesHistory />}
+        {section === 'history' && (isAdmin || isSales) && <SalesHistory />}
         {section === 'users' && isSuperAdmin && <Users />}
-        {section === 'movements' && !isSales && <Movements />}
+        {section === 'movements' && (isAdmin || isWarehouse) && <Movements />}
         {section === 'audit' && isSuperAdmin && <AuditLog />}
       </main>
 
