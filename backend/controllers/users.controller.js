@@ -224,6 +224,11 @@ exports.changePassword = async (req, res) => {
     const [rows] = await pool.query('SELECT id, username FROM users WHERE id = ?', [id])
     if (rows.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' })
 
+    // No permitir cambiar contraseña de cuentas del sistema
+    if (isSystemUser(rows[0])) {
+      return res.status(403).json({ message: 'No se puede cambiar la contraseña de una cuenta del sistema' })
+    }
+
     const hash = await bcrypt.hash(String(password), 10)
     await pool.query('UPDATE users SET password = ? WHERE id = ?', [hash, id])
 
