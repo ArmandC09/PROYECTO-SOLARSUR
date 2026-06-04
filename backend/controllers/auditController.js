@@ -3,14 +3,11 @@ const pool = require('../db')
 // GET /api/audit  — solo SUPERADMIN
 exports.list = async (req, res) => {
   try {
-    const limit = Math.min(Number(req.query.limit) || 200, 500)
     const [rows] = await pool.query(
       `SELECT al.*, u.name AS user_name, u.username
        FROM audit_logs al
        LEFT JOIN users u ON u.id = al.user_id
-       ORDER BY al.created_at DESC
-       LIMIT ?`,
-      [limit]
+       ORDER BY al.created_at DESC`
     )
     res.json(rows)
   } catch (err) {
