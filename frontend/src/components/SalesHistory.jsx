@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react'
+import React, { useContext, useState, useMemo, useRef } from 'react'
 
 const ITEMS_PER_PAGE = 25
 import AppContext from '../context/AppContext'
@@ -15,6 +15,37 @@ export default function SalesHistory() {
   const [reverting, setReverting] = useState(false)
   const [toast, setToast] = useState(null) // { msg, type }
   const [page, setPage] = useState(1)
+
+  const tableScrollRef = useRef(null)
+  const tableTouchRef  = useRef({})
+
+  const handleTableTouchStart = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const touch = event.touches[0]
+    tableTouchRef.current = {
+      startX: touch.clientX, startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+    }
+  }
+
+  const handleTableTouchMove = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const ref = tableTouchRef.current
+    if (ref.blocked) return
+    const touch = event.touches[0]
+    const dx = touch.clientX - ref.startX
+    const dy = touch.clientY - ref.startY
+    if (!ref.dragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
+      ref.dragging = true
+    }
+    event.preventDefault()
+    wrapper.scrollLeft = ref.scrollLeft - dx
+  }
+
 
   const canRevert = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
   const canExport  = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
@@ -93,7 +124,7 @@ export default function SalesHistory() {
           </p>
         </div>
         <button className="sales-history-export-btn" onClick={exportCSV}>
-          ⬇ Exportar CSV
+          ⬇ Descargar Historial
         </button>
       </div>
 
@@ -123,7 +154,10 @@ export default function SalesHistory() {
             <p>{query ? 'No se encontraron ventas con ese criterio.' : 'No hay ventas registradas aún.'}</p>
           </div>
         ) : (
-          <div className="sales-history-list">
+          <div className="sales-history-list"
+            ref={tableScrollRef}
+            onTouchStart={handleTableTouchStart}
+            onTouchMove={handleTableTouchMove}>
             {paginated.map((s) => {
               const saleTotal = Number(s.total) || (s.items || []).reduce((a, b) => a + (Number(b.qty) * Number(b.price)), 0)
               const dateStr = s.created_at
