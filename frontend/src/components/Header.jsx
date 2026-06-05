@@ -29,8 +29,8 @@ export default function Header({ onNavigate, currentView }) {
     // Clientes: todos
     { id: 'clients', label: 'Clientes' },
 
-    // Proveedores: solo ADMIN y SUPERADMIN
-    ...(isAdmin ? [{ id: 'providers', label: 'Proveedores' }] : []),
+    // Proveedores: ADMIN, SUPERADMIN y WAREHOUSE
+    ...(isAdmin || isWarehouse ? [{ id: 'providers', label: 'Proveedores' }] : []),
 
     // Inventario: todos
     { id: 'inventory', label: 'Inventario' },
@@ -38,8 +38,8 @@ export default function Header({ onNavigate, currentView }) {
     // Almacén/Movimientos: SUPERADMIN, ADMIN, WAREHOUSE — NO SALES
     ...(!isSales ? [{ id: 'movements', label: 'Almacén' }] : []),
 
-    // Kits: SUPERADMIN y ADMIN
-    ...(isAdmin ? [{ id: 'kits', label: 'Kits' }] : []),
+    // Kits: SUPERADMIN, ADMIN, SALES y WAREHOUSE (todos)
+    [{ id: 'kits', label: 'Kits' }],
 
     // Cotización: SUPERADMIN, ADMIN, SALES — NO WAREHOUSE
     ...(!isWarehouse ? [{ id: 'quotes', label: 'Cotización' }] : []),
