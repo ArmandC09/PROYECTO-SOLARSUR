@@ -73,8 +73,21 @@ exports.updateClient = async (req, res) => {
 exports.deleteClient = async (req, res) => {
   const { id } = req.params
   try {
+    const [[before]] = await pool.query('SELECT * FROM clients WHERE id=?', [id])
     await pool.query('DELETE FROM clients WHERE id=?', [id])
-    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'clients', entity_id: id })
+    await log({
+      user_id: req.user?.id, action: 'DELETE', entity: 'clients', entity_id: id,
+      before_json: before ? {
+        nombre: before.name,
+        telefono: before.phone || '—',
+        direccion: before.address || '—',
+        dni: before.dni || '—',
+        ruc: before.ruc || '—',
+        email: before.email || '—',
+        distrito: before.district || '—',
+        ciudad: before.city || '—'
+      } : null
+    })
     res.json({ message: 'Cliente eliminado' })
   } catch (error) {
     console.error(error)
