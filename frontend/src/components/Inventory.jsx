@@ -109,7 +109,13 @@ export default function Inventory() {
   const startItem = filtered.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1
   const endItem = Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)
 
-
+  const pageNumbers = useMemo(() => {
+    const pages = []
+    if (totalPages <= 5) { for (let i = 1; i <= totalPages; i++) pages.push(i); return pages }
+    if (currentPage <= 3) return [1, 2, 3, '...', totalPages]
+    if (currentPage >= totalPages - 2) return [1, '...', totalPages - 2, totalPages - 1, totalPages]
+    return [1, '...', currentPage, '...', totalPages]
+  }, [totalPages, currentPage])
 
   useEffect(() => {
     const handle = (e) => {
@@ -127,9 +133,9 @@ export default function Inventory() {
       <div className="inventory-shell">
         <div className="inventory-main-card">
           <div className="inventory-toolbar">
-            <button type="button" className="inventory-new-btn" onClick={openNewForm}>
+{canWrite && <button type="button" className="inventory-new-btn" onClick={openNewForm}>
               <span className="inventory-plus">＋</span>Nuevo producto
-            </button>
+            </button>}
             <div className="inventory-search-wrap">
               <span className="inventory-search-icon">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -152,7 +158,7 @@ export default function Inventory() {
                     <tr>
                       <th>Nombre</th><th>SKU</th><th>Proveedor</th>
                       <th>Cantidad</th><th>Precio</th>
-                      <th className="align-right">Acciones</th>
+{canWrite && <th className="align-right">Acciones</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -167,16 +173,14 @@ export default function Inventory() {
                         </td>
                         <td><span className={`inventory-qty ${it.qty <= 0 ? 'low' : it.qty <= 10 ? 'low-stock' : ''}`}>{it.qty}</span></td>
                         <td>S/ {Number(it.price).toFixed(2)}</td>
-                        <td className="align-right inventory-actions-cell">
-                          {canWrite && <>
+{canWrite && <td className="align-right inventory-actions-cell">
                           <button type="button" className="inventory-action-btn edit" onClick={() => startEdit(it)}>
                             ✎ Editar
                           </button>
                           <button type="button" className="inventory-icon-btn delete"
                             onClick={() => { if (window.confirm('¿Eliminar producto?')) deleteInventoryItem(it.id) }}
                             title="Eliminar">🗑</button>
-                          </>}
-                        </td>
+                        </td>}
                       </tr>
                     ))}
                   </tbody>
