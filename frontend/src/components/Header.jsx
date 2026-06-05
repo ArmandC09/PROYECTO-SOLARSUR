@@ -39,7 +39,7 @@ export default function Header({ onNavigate, currentView }) {
     ...(!isSales ? [{ id: 'movements', label: 'Almacén' }] : []),
 
     // Kits: SUPERADMIN, ADMIN, SALES y WAREHOUSE (todos)
-    [{ id: 'kits', label: 'Kits' }],
+    { id: 'kits', label: 'Kits' },
 
     // Cotización: SUPERADMIN, ADMIN, SALES — NO WAREHOUSE
     ...(!isWarehouse ? [{ id: 'quotes', label: 'Cotización' }] : []),
