@@ -60,8 +60,16 @@ exports.updateProvider = async (req, res) => {
 exports.deleteProvider = async (req, res) => {
   const { id } = req.params
   try {
+    const [[before]] = await pool.query('SELECT * FROM providers WHERE id=?', [id])
     await pool.query('DELETE FROM providers WHERE id=?', [id])
-    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'providers', entity_id: id })
+    await log({
+      user_id: req.user?.id, action: 'DELETE', entity: 'providers', entity_id: id,
+      before_json: before ? {
+        nombre: before.name,
+        contacto: before.contact || '—',
+        telefono: before.phone || '—'
+      } : null
+    })
     res.json({ message: 'Proveedor eliminado' })
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar proveedor' })
