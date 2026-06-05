@@ -357,7 +357,6 @@ export default function Movements() {
             </table>
           </div>
         )}
-        {/* PAGINATION */}
         {totalPages > 1 && (
           <div className="clients-pagination">
             <div className="clients-pagination-info">
