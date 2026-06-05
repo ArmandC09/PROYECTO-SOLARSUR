@@ -245,7 +245,7 @@ exports.remove = async (req, res) => {
     const id = Number(req.params.id)
     if (!id) return res.status(400).json({ message: 'ID inválido' })
 
-    const [rows] = await pool.query('SELECT id, username FROM users WHERE id = ?', [id])
+    const [rows] = await pool.query('SELECT id, username, name, role FROM users WHERE id = ?', [id])
     if (rows.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' })
 
     // ✅ Regla: NO borrar cuentas base
@@ -254,7 +254,14 @@ exports.remove = async (req, res) => {
     }
 
     await pool.query('DELETE FROM users WHERE id = ?', [id])
-    await log({ user_id: req.user?.id, action: 'DELETE', entity: 'users', entity_id: id })
+    await log({
+      user_id: req.user?.id, action: 'DELETE', entity: 'users', entity_id: id,
+      before_json: {
+        usuario: rows[0].username,
+        nombre: rows[0].name || '—',
+        rol: rows[0].role
+      }
+    })
     return res.json({ ok: true })
   } catch (err) {
     console.error('users.remove error:', err)
