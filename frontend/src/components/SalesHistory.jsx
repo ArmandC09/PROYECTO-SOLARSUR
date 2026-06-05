@@ -196,7 +196,6 @@ export default function SalesHistory() {
             })}
           </div>
         )}
-        {/* PAGINATION */}
         {totalPages > 1 && (
           <div className="clients-pagination">
             <div className="clients-pagination-info">
