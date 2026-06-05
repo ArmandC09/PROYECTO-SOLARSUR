@@ -381,6 +381,7 @@ export default function Users() {
                           {u.is_system ? <span className="users-system-tag">sistema</span> : null}
                         </td>
                         <td className="users-actions-cell">
+                          {(!u.is_system || user?.username?.toLowerCase() === 'superadmin') && (
                           <button
                             type="button"
                             className="users-action-btn blue"
@@ -388,6 +389,7 @@ export default function Users() {
                           >
                             Editar
                           </button>
+                          )}
 
                           {!u.is_system && (
                             <button
