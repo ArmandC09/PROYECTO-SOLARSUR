@@ -4,7 +4,7 @@ import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
 import PhoneInput from './PhoneInput'
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 25
 
 export default function Clients() {
   const { clients, addClient, updateClient, deleteClient } = useContext(AppContext)
@@ -191,7 +191,7 @@ export default function Clients() {
 
         <div className="clients-pagination">
           <div className="clients-pagination-info">
-            {filtered.length===0 ? 'Sin registros' : `Mostrando ${(safePage-1)*ITEMS_PER_PAGE+1}–${Math.min(safePage*ITEMS_PER_PAGE,filtered.length)} de ${filtered.length}`}
+            {filtered.length===0 ? 'Sin registros' : `Mostrando ${from}–${to} de ${filtered.length} clientes`}
           </div>
           <div className="clients-pagination-controls">
             <button type="button" className="clients-page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={safePage===1}>‹</button>
