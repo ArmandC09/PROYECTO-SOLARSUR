@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useContext } from 'react'
+import React, { useMemo, useState, useContext, useRef } from 'react'
 
 const ITEMS_PER_PAGE = 25
 import AppContext from '../context/AppContext'
@@ -14,6 +14,37 @@ export default function Providers() {
   const [query, setQuery] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [page, setPage] = useState(1)
+
+  const tableScrollRef = useRef(null)
+  const tableTouchRef  = useRef({})
+
+  const handleTableTouchStart = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const touch = event.touches[0]
+    tableTouchRef.current = {
+      startX: touch.clientX, startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+    }
+  }
+
+  const handleTableTouchMove = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const ref = tableTouchRef.current
+    if (ref.blocked) return
+    const touch = event.touches[0]
+    const dx = touch.clientX - ref.startX
+    const dy = touch.clientY - ref.startY
+    if (!ref.dragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
+      ref.dragging = true
+    }
+    event.preventDefault()
+    wrapper.scrollLeft = ref.scrollLeft - dx
+  }
+
 
   const resetForm = () => {
     setEditingId(null)
@@ -90,7 +121,10 @@ export default function Providers() {
         {filtered.length === 0 ? (
           <div className="clients-empty">No hay proveedores registrados.</div>
         ) : (
-          <div className="clients-table-wrap">
+          <div className="clients-table-wrap"
+            ref={tableScrollRef}
+            onTouchStart={handleTableTouchStart}
+            onTouchMove={handleTableTouchMove}>
             <table className="data-table providers-table">
               <thead>
                 <tr>
