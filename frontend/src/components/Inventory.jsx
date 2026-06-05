@@ -14,7 +14,7 @@ export default function Inventory() {
     deleteInventoryItem
   } = useContext(AppContext)
   const { user } = useContext(AuthContext)
-  const canWrite = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
+  const canWrite = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN' || user?.role === 'WAREHOUSE'
 
   const tableScrollRef = useRef(null)
   const tableTouchRef  = useRef({})
