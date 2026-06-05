@@ -16,6 +16,36 @@ export default function Inventory() {
   const { user } = useContext(AuthContext)
   const canWrite = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
 
+  const tableScrollRef = useRef(null)
+  const tableTouchRef  = useRef({})
+
+  const handleTableTouchStart = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const touch = event.touches[0]
+    tableTouchRef.current = {
+      startX: touch.clientX, startY: touch.clientY,
+      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+    }
+  }
+
+  const handleTableTouchMove = (event) => {
+    const wrapper = tableScrollRef.current
+    if (!wrapper || !event.touches?.length) return
+    const ref = tableTouchRef.current
+    if (ref.blocked) return
+    const touch = event.touches[0]
+    const dx = touch.clientX - ref.startX
+    const dy = touch.clientY - ref.startY
+    if (!ref.dragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
+      ref.dragging = true
+    }
+    event.preventDefault()
+    wrapper.scrollLeft = ref.scrollLeft - dx
+  }
+
   const [query, setQuery] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -152,7 +182,10 @@ export default function Inventory() {
             <div className="inventory-empty">No hay productos en inventario.</div>
           ) : (
             <>
-              <div className="inventory-table-wrap">
+              <div className="inventory-table-wrap"
+              ref={tableScrollRef}
+              onTouchStart={handleTableTouchStart}
+              onTouchMove={handleTableTouchMove}>
                 <table className="data-table inventory-table">
                   <thead>
                     <tr>
