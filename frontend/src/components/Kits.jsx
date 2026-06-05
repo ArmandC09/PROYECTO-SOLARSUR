@@ -1,21 +1,21 @@
 import React, { useState, useContext, useMemo } from 'react'
-
-const ITEMS_PER_PAGE = 25
 import AppContext from '../context/AppContext'
 import AuthContext from '../context/AuthContext'
+
+const ITEMS_PER_PAGE = 25
 import ModalPortal from './ModalPortal'
 
 export default function Kits() {
   const { kits, inventory, addKit, updateKit, deleteKit, loadKits } = useContext(AppContext)
   const { user } = useContext(AuthContext)
   const canWrite = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
+  const [page, setPage] = useState(1)
 
   const [search, setSearch]         = useState('')
   const [modalOpen, setModalOpen]   = useState(false)
   const [editing, setEditing]       = useState(null)
   const [prodSearch, setProdSearch] = useState('')
   const [saving, setSaving]         = useState(false)
-  const [page, setPage]             = useState(1)
 
   const emptyForm = { name: '', description: '', items: [] }
   const [form, setForm] = useState(emptyForm)
@@ -183,12 +183,12 @@ export default function Kits() {
                   </span>
                 </td>
                 <td><strong style={{color:'#0b4ea6'}}>S/ {Number(kit.total||0).toFixed(2)}</strong></td>
-                <td className="align-right inventory-actions-cell">
-{canWrite && <><button type="button" className="inventory-action-btn edit" onClick={() => openEdit(kit)}>
+{canWrite && <td className="align-right inventory-actions-cell">
+                  <button type="button" className="inventory-action-btn edit" onClick={() => openEdit(kit)}>
                     ✎ Editar
                   </button>
-                  <button type="button" className="inventory-icon-btn delete" onClick={() => handleDelete(kit)} title="Eliminar">🗑</button></>}
-                </td>
+                  <button type="button" className="inventory-icon-btn delete" onClick={() => handleDelete(kit)} title="Eliminar">🗑</button>
+                </td>}
               </tr>
             ))}
           </tbody>
