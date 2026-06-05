@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useContext } from 'react'
 import StyledSelect from './StyledSelect'
+import AuthContext from '../context/AuthContext'
 
 const API = '/api'
 
@@ -34,6 +35,7 @@ const ROLE_OPTIONS = [
 ]
 
 export default function Users() {
+  const { user } = useContext(AuthContext)
   const [users, setUsers] = useState([])
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
