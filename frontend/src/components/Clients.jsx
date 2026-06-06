@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useContext, useMemo, useRef } from 'react'
 import AppContext from '../context/AppContext'
 import AuthContext from '../context/AuthContext'
 import ModalPortal from './ModalPortal'
@@ -83,35 +83,35 @@ export default function Clients() {
 
   React.useEffect(() => { setPage(1) }, [query])
 
-  const handleTableTouchStart = (event) => {
+  useEffect(() => {
     const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const touch = event.touches[0]
-    tableTouchRef.current = {
-      startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+    if (!wrapper) return
+    const onTouchStart = (e) => {
+      if (!e.touches?.length) return
+      const t = e.touches[0]
+      tableTouchRef.current = { startX: t.clientX, startY: t.clientY, scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false }
     }
-  }
-
-  const handleTableTouchMove = (event) => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const ref = tableTouchRef.current
-    if (ref.blocked) return                          // gesto vertical — no interferir
-    const touch = event.touches[0]
-    const dx = touch.clientX - ref.startX
-    const dy = touch.clientY - ref.startY
-    if (!ref.dragging) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return   // sin dirección clara aún
-      if (Math.abs(dy) >= Math.abs(dx)) {                  // gesto más vertical que horizontal
-        ref.blocked = true                                  // dejar pasar el scroll de página
-        return
+    const onTouchMove = (e) => {
+      const ref = tableTouchRef.current
+      if (!e.touches?.length || ref.blocked) return
+      const t = e.touches[0]
+      const dx = t.clientX - ref.startX
+      const dy = t.clientY - ref.startY
+      if (!ref.dragging) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+        if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
+        ref.dragging = true
       }
-      ref.dragging = true
+      e.preventDefault()
+      wrapper.scrollLeft = ref.scrollLeft - dx
     }
-    event.preventDefault()                           // solo prevenir si es scroll horizontal
-    wrapper.scrollLeft = ref.scrollLeft - dx
-  }
+    wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
+    wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => {
+      wrapper.removeEventListener('touchstart', onTouchStart)
+      wrapper.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [])
 
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
@@ -139,8 +139,6 @@ export default function Clients() {
         <div
           className="clients-table-wrap"
           ref={tableScrollRef}
-          onTouchStart={handleTableTouchStart}
-          onTouchMove={handleTableTouchMove}
         >
           {paginatedClients.length === 0 ? (
             <div className="clients-empty">No hay clientes registrados.</div>
