@@ -22,25 +22,36 @@ export default function Inventory() {
   useEffect(() => {
     const wrapper = tableScrollRef.current
     if (!wrapper) return
+
+    let startX = 0, startY = 0, scrollLeft = 0, direction = null
+
     const onTouchStart = (e) => {
       if (!e.touches?.length) return
       const t = e.touches[0]
-      tableTouchRef.current = { startX: t.clientX, startY: t.clientY, scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false }
+      startX = t.clientX
+      startY = t.clientY
+      scrollLeft = wrapper.scrollLeft
+      direction = null
     }
+
     const onTouchMove = (e) => {
-      const ref = tableTouchRef.current
-      if (!e.touches?.length || ref.blocked) return
+      if (!e.touches?.length) return
       const t = e.touches[0]
-      const dx = t.clientX - ref.startX
-      const dy = t.clientY - ref.startY
-      if (!ref.dragging) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-        if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
-        ref.dragging = true
+      const dx = t.clientX - startX
+      const dy = t.clientY - startY
+
+      if (!direction) {
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
+        direction = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical'
       }
-      e.preventDefault()
-      wrapper.scrollLeft = ref.scrollLeft - dx
+
+      if (direction === 'horizontal') {
+        e.preventDefault()
+        wrapper.scrollLeft = scrollLeft - dx
+      }
+      // si es vertical, no hacemos nada y el navegador scrollea la página
     }
+
     wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
     wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
     return () => {
