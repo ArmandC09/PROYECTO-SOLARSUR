@@ -152,6 +152,8 @@ export default function Movements() {
     }
   }, [])
 
+  useEffect(() => { loadAll() }, [canAccess])
+
   if (!canAccess) {
     return (
       <section className="card">
