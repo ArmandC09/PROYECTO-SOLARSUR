@@ -112,117 +112,38 @@ export default function Movements() {
   }
 
   useEffect(() => {
-    loadAll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canAccess])
-
-  const filtered = useMemo(() => {
-    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    const q = norm(query.trim())
-    if (!q) return movements
-
-    return movements.filter((m) => {
-      const name = norm(m.inventory_name)
-      const sku = norm(m.sku)
-      const username = norm(m.username)
-      const note = norm(m.reason)
-      const type = norm(m.type)
-
-      return (
-        name.includes(q) ||
-        sku.includes(q) ||
-        username.includes(q) ||
-        note.includes(q) ||
-        type.includes(q)
-      )
-    })
-  }, [movements, query])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
-  const safePage   = Math.min(page, totalPages)
-  const paginated  = filtered.slice((safePage-1)*ITEMS_PER_PAGE, safePage*ITEMS_PER_PAGE)
-
-  const submit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setMsg('')
-
-    const qty = Number(form.qty)
-
-    if (!form.inventory_id) {
-      setError('Selecciona un producto')
-      return false
-    }
-
-    if (!Number.isFinite(qty) || qty <= 0) {
-      setError('La cantidad debe ser mayor a 0')
-      return false
-    }
-
-    try {
-      setSubmitting(true)
-
-      const payload = {
-        inventory_id: Number(form.inventory_id),
-        type: form.type,
-        qty,
-        note: form.note
-      }
-
-      const res = await apiFetch('/movements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok) {
-        setError(data?.message || `Error al registrar movimiento (${res.status})`)
-        return false
-      }
-
-      showMsg('Movimiento registrado')
-      setForm((prev) => ({
-        ...prev,
-        qty: 1,
-        note: ''
-      }))
-
-      await loadAll()
-      reloadAppContext()  // actualizar inventario en el contexto global
-      return true
-    } catch (e2) {
-      console.error(e2)
-      setError('Error de conexión al registrar movimiento')
-      return false
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  useEffect(() => {
     const wrapper = tableScrollRef.current
     if (!wrapper) return
+
+    let startX = 0, startY = 0, scrollLeft = 0, direction = null
+
     const onTouchStart = (e) => {
       if (!e.touches?.length) return
       const t = e.touches[0]
-      tableTouchRef.current = { startX: t.clientX, startY: t.clientY, scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false }
+      startX = t.clientX
+      startY = t.clientY
+      scrollLeft = wrapper.scrollLeft
+      direction = null
     }
+
     const onTouchMove = (e) => {
-      const ref = tableTouchRef.current
-      if (!e.touches?.length || ref.blocked) return
+      if (!e.touches?.length) return
       const t = e.touches[0]
-      const dx = t.clientX - ref.startX
-      const dy = t.clientY - ref.startY
-      if (!ref.dragging) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-        if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
-        ref.dragging = true
+      const dx = t.clientX - startX
+      const dy = t.clientY - startY
+
+      if (!direction) {
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
+        direction = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical'
       }
-      e.preventDefault()
-      wrapper.scrollLeft = ref.scrollLeft - dx
+
+      if (direction === 'horizontal') {
+        e.preventDefault()
+        wrapper.scrollLeft = scrollLeft - dx
+      }
+      // si es vertical, no hacemos nada y el navegador scrollea la página
     }
+
     wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
     wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
     return () => {
