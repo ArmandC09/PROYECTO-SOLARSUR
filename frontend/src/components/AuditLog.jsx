@@ -304,35 +304,35 @@ export default function AuditLog() {
            d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
   }
 
-  const handleTableTouchStart = (event) => {
+  useEffect(() => {
     const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const touch = event.touches[0]
-    tableTouchRef.current = {
-      startX: touch.clientX, startY: touch.clientY,
-      scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false
+    if (!wrapper) return
+    const onTouchStart = (e) => {
+      if (!e.touches?.length) return
+      const t = e.touches[0]
+      tableTouchRef.current = { startX: t.clientX, startY: t.clientY, scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false }
     }
-  }
-
-  const handleTableTouchMove = (event) => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper || !event.touches?.length) return
-    const ref = tableTouchRef.current
-    if (ref.blocked) return
-    const touch = event.touches[0]
-    const dx = touch.clientX - ref.startX
-    const dy = touch.clientY - ref.startY
-    if (!ref.dragging) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-      if (Math.abs(dy) >= Math.abs(dx)) {
-        ref.blocked = true
-        return
+    const onTouchMove = (e) => {
+      const ref = tableTouchRef.current
+      if (!e.touches?.length || ref.blocked) return
+      const t = e.touches[0]
+      const dx = t.clientX - ref.startX
+      const dy = t.clientY - ref.startY
+      if (!ref.dragging) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+        if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
+        ref.dragging = true
       }
-      ref.dragging = true
+      e.preventDefault()
+      wrapper.scrollLeft = ref.scrollLeft - dx
     }
-    event.preventDefault()
-    wrapper.scrollLeft = ref.scrollLeft - dx
-  }
+    wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
+    wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => {
+      wrapper.removeEventListener('touchstart', onTouchStart)
+      wrapper.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [])
 
   return (
     <section className="clients-page fade-in">
@@ -397,8 +397,6 @@ export default function AuditLog() {
         <div
           className="clients-table-wrap audit-table-wrap"
           ref={tableScrollRef}
-          onTouchStart={handleTableTouchStart}
-          onTouchMove={handleTableTouchMove}
         >
           {loading ? (
             <div className="clients-empty">Cargando registros...</div>
