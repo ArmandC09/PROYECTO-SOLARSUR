@@ -256,76 +256,39 @@ export default function AuditLog() {
   const tableScrollRef = useRef(null)
   const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
 
-  useEffect(() => { fetchLogs() }, [])
-
-  const fetchLogs = async () => {
-    setLoading(true)
-    try {
-      const r = await apiFetch('/audit')
-      if (r.ok) setLogs(await r.json())
-      else console.warn('Audit fetch failed:', r.status)
-    } catch(e) { console.error(e) }
-    setLoading(false)
-  }
-
-  const filtered = useMemo(() => {
-    let r = logs
-    if (filterAction) r = r.filter(l => l.action === filterAction)
-    if (filterEntity) r = r.filter(l => l.entity === filterEntity)
-    if (query.trim()) {
-      const q = query.toLowerCase()
-      // Normaliza tildes: "cotización" = "cotizacion", "sesión" = "sesion"
-      const norm = (s) => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      const qn = norm(q)
-      const entityLabel = (e) => norm(ENTITY_LABELS[e] || e || '')
-      const actionLabel = (a) => norm((ACTION_LABELS[a]?.label) || a || '')
-      r = r.filter(l =>
-        norm(l.user_name).includes(qn) ||
-        norm(l.username).includes(qn) ||
-        norm(l.action).includes(qn) ||
-        norm(l.entity).includes(qn) ||
-        entityLabel(l.entity).includes(qn) ||
-        actionLabel(l.action).includes(qn)
-      )
-    }
-    return r
-  }, [logs, query, filterAction, filterEntity])
-
-  useEffect(() => { setPage(1) }, [query, filterAction, filterEntity])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
-  const safePage   = Math.min(page, totalPages)
-  const paginated  = filtered.slice((safePage-1)*PER_PAGE, safePage*PER_PAGE)
-
-  const fmt = (dt) => {
-    if (!dt) return '—'
-    const d = new Date(dt)
-    return d.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' +
-           d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
-  }
-
   useEffect(() => {
     const wrapper = tableScrollRef.current
     if (!wrapper) return
+
+    let startX = 0, startY = 0, scrollLeft = 0, direction = null
+
     const onTouchStart = (e) => {
       if (!e.touches?.length) return
       const t = e.touches[0]
-      tableTouchRef.current = { startX: t.clientX, startY: t.clientY, scrollLeft: wrapper.scrollLeft, dragging: false, blocked: false }
+      startX = t.clientX
+      startY = t.clientY
+      scrollLeft = wrapper.scrollLeft
+      direction = null
     }
+
     const onTouchMove = (e) => {
-      const ref = tableTouchRef.current
-      if (!e.touches?.length || ref.blocked) return
+      if (!e.touches?.length) return
       const t = e.touches[0]
-      const dx = t.clientX - ref.startX
-      const dy = t.clientY - ref.startY
-      if (!ref.dragging) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-        if (Math.abs(dy) >= Math.abs(dx)) { ref.blocked = true; return }
-        ref.dragging = true
+      const dx = t.clientX - startX
+      const dy = t.clientY - startY
+
+      if (!direction) {
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
+        direction = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical'
       }
-      e.preventDefault()
-      wrapper.scrollLeft = ref.scrollLeft - dx
+
+      if (direction === 'horizontal') {
+        e.preventDefault()
+        wrapper.scrollLeft = scrollLeft - dx
+      }
+      // si es vertical, no hacemos nada y el navegador scrollea la página
     }
+
     wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
     wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
     return () => {
