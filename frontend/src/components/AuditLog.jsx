@@ -297,6 +297,8 @@ export default function AuditLog() {
     }
   }, [])
 
+  useEffect(() => { fetchAudit() }, [])
+
   return (
     <section className="clients-page fade-in">
       <div className="clients-head">
