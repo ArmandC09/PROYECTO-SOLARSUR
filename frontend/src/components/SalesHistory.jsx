@@ -53,7 +53,7 @@ export default function SalesHistory() {
       wrapper.removeEventListener('touchstart', onTouchStart)
       wrapper.removeEventListener('touchmove', onTouchMove)
     }
-  })
+  }, [tableScrollRef.current])
 
 
   const canRevert = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN'
