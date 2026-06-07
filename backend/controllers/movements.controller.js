@@ -51,7 +51,7 @@ exports.createMovement = async (req, res) => {
 
   try {
     const [invRows] = await conn.query(
-      `SELECT qty FROM inventory WHERE id = ? FOR UPDATE`,
+      `SELECT qty, name FROM inventory WHERE id = ? FOR UPDATE`,
       [inventory_id]
     )
 
@@ -89,7 +89,7 @@ exports.createMovement = async (req, res) => {
       action: type === 'IN' ? 'STOCK_IN' : 'STOCK_OUT',
       entity: 'movements',
       entity_id: result.insertId,
-      after_json: { producto_id: inventory_id, tipo: type === 'IN' ? 'Entrada' : 'Salida', cantidad: q, motivo: note || '—' },
+      after_json: { producto: invRows[0].name, tipo: type === 'IN' ? 'Entrada' : 'Salida', cantidad: q, motivo: note || '—' },
       ip: req.ip,
       user_agent: req.headers['user-agent']
     })
