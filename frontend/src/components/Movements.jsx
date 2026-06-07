@@ -56,8 +56,6 @@ export default function Movements() {
   const [page, setPage] = useState(1)
 
   const [query, setQuery] = useState('')
-  const tableScrollRef = useRef(null)
-  const tableTouchRef = useRef({ startX: 0, startY: 0, scrollLeft: 0, dragging: false })
   const [form, setForm] = useState({
     inventory_id: '',
     type: 'IN',
@@ -111,41 +109,6 @@ export default function Movements() {
     }
   }
 
-  useEffect(() => {
-    const wrapper = tableScrollRef.current
-    if (!wrapper) return
-
-    let startX = 0, startY = 0, scrollLeft = 0, direction = null
-
-    const onTouchStart = (e) => {
-      if (!e.touches?.length) return
-      const t = e.touches[0]
-      startX = t.clientX; startY = t.clientY
-      scrollLeft = wrapper.scrollLeft; direction = null
-    }
-
-    const onTouchMove = (e) => {
-      if (!e.touches?.length) return
-      const t = e.touches[0]
-      const dx = t.clientX - startX
-      const dy = t.clientY - startY
-      if (!direction) {
-        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
-        direction = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical'
-      }
-      if (direction === 'horizontal') {
-        e.preventDefault()
-        wrapper.scrollLeft = scrollLeft - dx
-      }
-    }
-
-    wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
-    wrapper.addEventListener('touchmove', onTouchMove, { passive: false })
-    return () => {
-      wrapper.removeEventListener('touchstart', onTouchStart)
-      wrapper.removeEventListener('touchmove', onTouchMove)
-    }
-  })
 
   useEffect(() => { loadAll() }, [canAccess])
 
@@ -223,7 +186,6 @@ export default function Movements() {
           <div
             className="clients-table-wrap movements-table-wrap"
             style={{ marginTop: 15 }}
-            ref={tableScrollRef}
           >
             <table className="data-table movements-table">
               <thead>
