@@ -52,7 +52,7 @@ export default function Providers() {
       wrapper.removeEventListener('touchstart', onTouchStart)
       wrapper.removeEventListener('touchmove', onTouchMove)
     }
-  })
+  }, [tableScrollRef.current])
 
 
   const resetForm = () => {
