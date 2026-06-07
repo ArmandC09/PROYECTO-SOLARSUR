@@ -117,7 +117,7 @@ export default function Clients() {
       wrapper.removeEventListener('touchstart', onTouchStart)
       wrapper.removeEventListener('touchmove', onTouchMove)
     }
-  })
+  }, [tableScrollRef.current])
 
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
