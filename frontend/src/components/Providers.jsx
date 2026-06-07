@@ -27,10 +27,8 @@ export default function Providers() {
     const onTouchStart = (e) => {
       if (!e.touches?.length) return
       const t = e.touches[0]
-      startX = t.clientX
-      startY = t.clientY
-      scrollLeft = wrapper.scrollLeft
-      direction = null
+      startX = t.clientX; startY = t.clientY
+      scrollLeft = wrapper.scrollLeft; direction = null
     }
 
     const onTouchMove = (e) => {
@@ -38,17 +36,14 @@ export default function Providers() {
       const t = e.touches[0]
       const dx = t.clientX - startX
       const dy = t.clientY - startY
-
       if (!direction) {
         if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
         direction = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical'
       }
-
       if (direction === 'horizontal') {
         e.preventDefault()
         wrapper.scrollLeft = scrollLeft - dx
       }
-      // si es vertical, no hacemos nada y el navegador scrollea la página
     }
 
     wrapper.addEventListener('touchstart', onTouchStart, { passive: true })
@@ -57,7 +52,7 @@ export default function Providers() {
       wrapper.removeEventListener('touchstart', onTouchStart)
       wrapper.removeEventListener('touchmove', onTouchMove)
     }
-  }, [])
+  })
 
 
   const resetForm = () => {
