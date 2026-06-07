@@ -53,7 +53,7 @@ export default function Inventory() {
       wrapper.removeEventListener('touchstart', onTouchStart)
       wrapper.removeEventListener('touchmove', onTouchMove)
     }
-  })
+  }, [tableScrollRef.current])
 
   const [query, setQuery] = useState('')
   const [formOpen, setFormOpen] = useState(false)
