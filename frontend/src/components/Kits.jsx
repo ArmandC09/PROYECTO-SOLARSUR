@@ -47,7 +47,7 @@ export default function Kits() {
       wrapper.removeEventListener('touchstart', onTouchStart)
       wrapper.removeEventListener('touchmove', onTouchMove)
     }
-  })
+  }, [tableScrollRef.current])
 
   const [page, setPage] = useState(1)
 
