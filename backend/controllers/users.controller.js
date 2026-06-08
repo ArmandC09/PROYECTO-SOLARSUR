@@ -109,6 +109,11 @@ exports.update = async (req, res) => {
       return res.status(403).json({ message: 'No puedes cambiar el usuario de una cuenta del sistema' })
     }
 
+    // No permitir que una cuenta normal tome un username reservado del sistema
+    if (!isSystemUser(currentUser) && SYSTEM_USERS.has(newUsername.toLowerCase())) {
+      return res.status(403).json({ message: 'Ese nombre de usuario está reservado por el sistema' })
+    }
+
     // Validar username repetido en otro usuario
     const [exists] = await pool.query(
       'SELECT id FROM users WHERE username = ? AND id <> ?',
@@ -186,7 +191,7 @@ exports.setActive = async (req, res) => {
     )
     if (rows.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' })
 
-    // ✅ Regla: NO deshabilitar cuentas base (evita quedarte sin acceso)
+    // Regla: NO deshabilitar cuentas base (evita quedarte sin acceso)
     if (active === 0 && isSystemUser(rows[0])) {
       return res.status(403).json({ message: 'No puedes deshabilitar una cuenta del sistema' })
     }
@@ -248,7 +253,7 @@ exports.remove = async (req, res) => {
     const [rows] = await pool.query('SELECT id, username, name, role FROM users WHERE id = ?', [id])
     if (rows.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' })
 
-    // ✅ Regla: NO borrar cuentas base
+    // Regla: NO borrar cuentas base
     if (isSystemUser(rows[0])) {
       return res.status(403).json({ message: 'No puedes eliminar una cuenta del sistema' })
     }
