@@ -3,6 +3,7 @@ import AuthContext from '../context/AuthContext'
 import AppContext from '../context/AppContext'
 import ModalPortal from './ModalPortal'
 import StyledSelect from './StyledSelect'
+import SearchableSelect from './SearchableSelect'
 
 const API = '/api'
 const ITEMS_PER_PAGE = 25
@@ -414,10 +415,11 @@ export default function Movements() {
                 <div className="ss-modal-body">
                   <div className="ss-field">
                     <label>Producto</label>
-                    <StyledSelect
+                    <SearchableSelect
                       value={form.inventory_id}
                       onChange={(nextValue) => setForm({ ...form, inventory_id: nextValue })}
                       options={inventoryOptions}
+                      placeholder="Buscar producto..."
                       disabled={inventory.length === 0}
                     />
                   </div>
