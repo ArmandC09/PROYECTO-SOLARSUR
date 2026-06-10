@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext'
 import { printQuote } from '../utils/printQuote'
 import ModalPortal from './ModalPortal'
 import StyledSelect from './StyledSelect'
+import SearchableSelect from './SearchableSelect'
 
 /* ── Qty control ── */
 function QtyCtrl({ value, onChange }) {
@@ -319,10 +320,11 @@ export default function Quotes() {
                   <div style={{fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.7px', color:'#4b5563', marginBottom:8}}>
                     CLIENTE
                   </div>
-                  <StyledSelect
+                  <SearchableSelect
                     value={newClientId}
                     onChange={setNewClientId}
                     options={clientOptions}
+                    placeholder="Buscar cliente..."
                   />
                   {/* Datos del cliente seleccionado */}
                   {newClientId && (() => {
@@ -514,10 +516,11 @@ export default function Quotes() {
               <div className="ss-row-3">
                 <div className="ss-field" style={{gridColumn:'span 1'}}>
                   <label>Cliente</label>
-                  <StyledSelect
+                  <SearchableSelect
                     value={edClientId}
                     onChange={setEdClientId}
                     options={editorClientOptions}
+                    placeholder="Buscar cliente..."
                   />
                 </div>
                 <div className="ss-field">
