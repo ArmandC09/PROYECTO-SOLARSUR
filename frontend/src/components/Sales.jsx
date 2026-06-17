@@ -19,6 +19,7 @@ export default function Sales({ onNavigate }) {
   const [discountType, setDiscountType] = useState('general')
   const [discountReason, setDiscountReason] = useState('')
   const [toast, setToast] = useState(null)
+  const [applyIgv, setApplyIgv] = useState(false)
 
   const showToast = (msg, type = 'success') => {
     const key = Date.now()
@@ -51,7 +52,9 @@ export default function Sales({ onNavigate }) {
     return (discountAmount / subtotal) * 100
   }, [subtotal, discountMode, numericDiscount, discountAmount])
 
-  const finalTotal = Math.max(subtotal - discountAmount, 0)
+  const baseTotal  = Math.max(subtotal - discountAmount, 0)
+  const igvAmount  = applyIgv ? baseTotal * 0.18 : 0
+  const finalTotal = baseTotal + igvAmount
 
   const openQuote = (quote) => {
     setSelectedQuote(quote)
@@ -59,6 +62,7 @@ export default function Sales({ onNavigate }) {
     setDiscountValue('0')
     setDiscountType('general')
     setDiscountReason('')
+    setApplyIgv(false)
   }
 
   const cancelConversion = () => {
@@ -67,6 +71,7 @@ export default function Sales({ onNavigate }) {
     setDiscountValue('0')
     setDiscountType('general')
     setDiscountReason('')
+    setApplyIgv(false)
   }
 
   const convertQuoteToSale = async () => {
@@ -77,6 +82,7 @@ export default function Sales({ onNavigate }) {
       items: selectedQuote.items || [],
       total: finalTotal,
       subtotal,
+      igv: igvAmount,
       discount: discountAmount,
       discountType: discountMode,
       discountValue: numericDiscount,
@@ -252,6 +258,32 @@ export default function Sales({ onNavigate }) {
                   />
                 </div>
 
+                {/* Palanca IGV */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '12px 0 4px' }}>
+                  <label style={{ fontWeight: 600, fontSize: '14px', color: '#374151' }}>
+                    Aplicar IGV (18%)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setApplyIgv(v => !v)}
+                    style={{
+                      width: '44px', height: '24px', borderRadius: '12px', border: 'none',
+                      background: applyIgv ? '#0b4ea6' : '#d1d5db', cursor: 'pointer',
+                      position: 'relative', transition: 'background 0.2s'
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: '2px',
+                      left: applyIgv ? '22px' : '2px',
+                      width: '20px', height: '20px', borderRadius: '50%',
+                      background: '#fff', transition: 'left 0.2s', display: 'block'
+                    }} />
+                  </button>
+                  <span style={{ fontSize: '13px', color: applyIgv ? '#0b4ea6' : '#9ca3af', fontWeight: 500 }}>
+                    {applyIgv ? 'Activado' : 'Desactivado'}
+                  </span>
+                </div>
+
                 <div className="sales-summary-grid">
                   <div className="sales-summary-col">
                     <span>Subtotal</span>
@@ -263,6 +295,13 @@ export default function Sales({ onNavigate }) {
                     <strong>- S/ {discountAmount.toFixed(2)}</strong>
                     <small>({discountPercent.toFixed(2)}%)</small>
                   </div>
+
+                  {applyIgv && (
+                    <div className="sales-summary-col" style={{ color: '#0b4ea6' }}>
+                      <span>IGV (18%)</span>
+                      <strong>+ S/ {igvAmount.toFixed(2)}</strong>
+                    </div>
+                  )}
 
                   <div className="sales-summary-divider"></div>
 
