@@ -273,10 +273,16 @@ export default function Sales({ onNavigate }) {
                     }}
                   >
                     <span style={{
-                      position: 'absolute', top: '2px',
+                      position: 'absolute',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
                       left: applyIgv ? '22px' : '2px',
-                      width: '20px', height: '20px', borderRadius: '50%',
-                      background: '#fff', transition: 'left 0.2s', display: 'block'
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      background: '#fff',
+                      transition: 'left 0.2s',
+                      display: 'block'
                     }} />
                   </button>
                   <span style={{ fontSize: '13px', color: applyIgv ? '#0b4ea6' : '#9ca3af', fontWeight: 500 }}>
@@ -299,7 +305,18 @@ export default function Sales({ onNavigate }) {
                   {applyIgv && (
                     <div className="sales-summary-col" style={{ color: '#0b4ea6' }}>
                       <span>IGV (18%)</span>
-                      <strong>+ S/ {igvAmount.toFixed(2)}</strong>
+                    
+                      <strong
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <span>+</span>
+                        <span>S/ {igvAmount.toFixed(2)}</span>
+                      </strong>
                     </div>
                   )}
 
