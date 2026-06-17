@@ -1992,27 +1992,27 @@ main.home-main{
 
   .dashboard-card-horizontal{
     width:100%;
-    min-height:88px;
-    padding:16px 18px;
+    min-height:64px;
+    padding:10px 14px;
   }
 
   .dashboard-icon{
-    width:64px;
-    height:64px;
-    flex-basis:64px;
+    width:44px;
+    height:44px;
+    flex-basis:44px;
   }
 
   .dashboard-icon img{
-    width:34px;
-    height:34px;
+    width:24px;
+    height:24px;
   }
 
   .dashboard-card-horizontal h3{
-    font-size:17px;
+    font-size:14px;
   }
 
   .dashboard-card-horizontal p{
-    font-size:13px;
+    font-size:11px;
   }
 
   .company-form-card{
@@ -7144,6 +7144,31 @@ users-submit-btn:hover{
 
 /* ── 2. Botones del carrito: tamaño compacto en mobile ── */
 @media (max-width: 640px) {
+  /* product-item: en pantallas angostas, nombre largo arriba y precio+botón abajo en fila */
+  .product-item {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .product-item-info {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .product-item-info strong {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .product-item-info span {
+    font-size: 10px;
+  }
+
+  .product-item-price {
+    font-size: 12px;
+  }
+
   .product-add-btn {
     padding: 5px 10px !important;
     font-size: 11px !important;
