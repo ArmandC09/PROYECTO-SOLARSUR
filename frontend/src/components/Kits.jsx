@@ -249,7 +249,7 @@ export default function Kits() {
                 <button className="ss-modal-close" onClick={closeModal}>×</button>
               </div>
 
-              <div className="ss-modal-body" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
+              <div className="ss-modal-body kit-builder-grid" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
 
                 {/* Columna izquierda */}
                 <div style={{display:'flex', flexDirection:'column', gap:14}}>
@@ -342,13 +342,13 @@ export default function Kits() {
                   )}
 
                   {form.items.length > 0 && (
-                    <div style={{
+                    <div className="kit-total-box" style={{
                       padding:'12px 16px', borderRadius:10, marginTop:'auto',
                       background:'linear-gradient(135deg,#0a3d8f,#1a7fd4)',
                       color:'#fff', textAlign:'right'
                     }}>
-                      <span style={{fontSize:13, opacity:0.8}}>Total del kit: </span>
-                      <span style={{fontSize:18, fontWeight:800}}>S/ {kitTotal.toFixed(2)}</span>
+                      <span className="kit-total-label" style={{fontSize:13, opacity:0.8}}>Total del kit: </span>
+                      <span className="kit-total-value" style={{fontSize:18, fontWeight:800}}>S/ {kitTotal.toFixed(2)}</span>
                     </div>
                   )}
                 </div>
