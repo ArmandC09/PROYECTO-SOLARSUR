@@ -3203,6 +3203,7 @@ users-submit-btn:hover{
 .inventory-table td{
   color:#344566;
   font-size:15px;
+  white-space:nowrap;
 }
 
 .inventory-actions-cell{
@@ -3471,16 +3472,17 @@ users-submit-btn:hover{
   }
 
   .inventory-head h1{
-    font-size:18px;
+    font-size:20px;
   }
 
   .inventory-main-card{
-    padding:10px 10px 8px;
+    padding:14px 12px 10px;
+    margin: 0 2px;
   }
 
   .inventory-new-btn{
-    font-size:12px;
-    padding:9px 12px !important;
+    font-size:13px;
+    padding:10px 14px !important;
   }
 
   .inventory-table{
@@ -3490,6 +3492,10 @@ users-submit-btn:hover{
   .inventory-table th,
   .inventory-table td{
     padding:7px 5px;
+  }
+
+  .inventory-table td span{
+    white-space:nowrap;
   }
 
   .table-btn{
@@ -3517,10 +3523,6 @@ users-submit-btn:hover{
     grid-template-columns: 1fr !important;
     gap: 14px !important;
     padding: 12px !important;
-  }
-
-  .ss-modal-head{
-    padding: 14px 16px !important;
   }
 
   .ss-modal-head h2{
