@@ -1,7 +1,5 @@
 -- ============================================================
 -- BASE DE DATOS - SOLARSUR
--- Sistema de gestión de ventas, cotizaciones e inventario
--- Ejecutar en MySQL/MariaDB
 -- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -25,7 +23,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
 -- USERS
--- No se elimina ni se repuebla. Solo se asegura estructura.
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS users (
@@ -292,6 +289,3 @@ CREATE EVENT clean_old_audit_logs
     DELETE FROM audit_logs
     WHERE created_at < DATE_SUB(NOW(), INTERVAL 2 MONTH);
 
--- ============================================================
--- FIN
--- ============================================================
