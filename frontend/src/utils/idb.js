@@ -1,4 +1,3 @@
-// Minimal IndexedDB helper for storing small assets (dataURLs)
 export function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('solarsur-db', 1)
