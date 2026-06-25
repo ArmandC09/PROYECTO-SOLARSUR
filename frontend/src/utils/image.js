@@ -3,7 +3,7 @@ export function resizeFileToDataURL(file, maxWidth = 800, quality = 0.8) {
     const reader = new FileReader()
     reader.onerror = () => reject(new Error('Error reading file'))
     reader.onload = () => {
-      // if the uploaded file is an SVG, return the original dataURL (preserve vector and transparency)
+      // si el archivo cargado es un SVG, devuelve el dataURL original (conserva el vector y la transparencia)
       if (file && file.type && file.type.toLowerCase().includes('svg')) {
         resolve(reader.result)
         return
@@ -16,10 +16,10 @@ export function resizeFileToDataURL(file, maxWidth = 800, quality = 0.8) {
         canvas.width = Math.round(img.width * scale)
         canvas.height = Math.round(img.height * scale)
           const ctx = canvas.getContext('2d', { alpha: true })
-          // clear to ensure transparent background
+          // clear para asegurar un fondo transparente
           ctx.clearRect(0, 0, canvas.width, canvas.height)
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-          // Always export PNG to preserve transparency (logo backgrounds)
+          // Exporta siempre en PNG para preservar la transparencia (fondos de logotipos)
           const mime = 'image/png'
           const dataUrl = canvas.toDataURL(mime)
         resolve(dataUrl)
