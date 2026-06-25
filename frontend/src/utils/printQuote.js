@@ -41,7 +41,7 @@ export function printQuote(quote, client, company = {}) {
     ? `<tr><td>IGV (${igvPct}%)</td><td class="tr">S/ ${igvAmt.toFixed(2)}</td></tr>`
     : `<tr class="muted"><td>IGV (0%)</td><td class="tr">S/ 0.00</td></tr>`
 
-  // Construir el logo HTML directamente aquí — mismo proceso, mismo hilo, sin restricciones
+  // Construir el logo HTML directamente aquí - mismo proceso, mismo hilo, sin restricciones
   let logoHtml = `<span class="logo-text">${esc(company.name || 'SolarSur')}</span>`
   if (company.logo) {
     if (company.logo.startsWith('data:image/svg')) {
@@ -57,7 +57,7 @@ export function printQuote(quote, client, company = {}) {
           tmp.innerHTML = svgMatch[0]
           const svgEl = tmp.querySelector('svg')
           if (svgEl) {
-            // Forzar dimensiones explícitas — sin esto el SVG inline tiene tamaño 0
+            // Forzar dimensiones explícitas - sin esto el SVG inline tiene tamaño 0
             svgEl.setAttribute('width', '220')
             svgEl.setAttribute('height', '84')
             svgEl.setAttribute('style', 'display:block;')
@@ -182,7 +182,7 @@ export function printQuote(quote, client, company = {}) {
     <div class="page-footer"></div>
   </body></html>`
 
-  // Crear iframe oculto en el mismo documento — mismo origen, sin restricciones
+  // Crear iframe oculto en el mismo documento - mismo origen, sin restricciones
   const oldFrame = document.getElementById('__print_frame__')
   if (oldFrame) oldFrame.remove()
 
