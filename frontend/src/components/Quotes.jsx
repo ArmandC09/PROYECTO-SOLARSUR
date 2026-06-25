@@ -50,6 +50,7 @@ export default function Quotes() {
   const [edItems,     setEdItems]     = useState([])
   const [edClientId,  setEdClientId]  = useState('')
   const [edNote,      setEdNote]      = useState('')
+  const [edTitle,     setEdTitle]     = useState('')
   const [edIgv,       setEdIgv]       = useState(0)
 
   useEffect(() => {
@@ -177,6 +178,7 @@ export default function Quotes() {
     })))
     setEdQuote({ id: `COT-${String(qt.id).padStart(5,'0')}`, date: qt.date||new Date().toISOString() })
     setEdNote('Esta cotización es válida por 15 días a partir de la fecha de emisión.')
+    setEdTitle(qt._title || '')
     setEdIgv(0)
     setEdOpen(true)
   }
@@ -212,7 +214,7 @@ export default function Quotes() {
     console.log('Quotes exportPdf company.logo:', company?.logo)
     console.log('Quotes exportPdf company object:', company)
     printQuote(
-      { id: edQuote?.id, date: edQuote?.date, total: edTotal, igv: edIgv, igvAmt: edIgvAmt, note: edNote,
+      { id: edQuote?.id, date: edQuote?.date, total: edTotal, igv: edIgv, igvAmt: edIgvAmt, note: edNote, title: edTitle,
         items: edItems.map(it => ({ description: it.description, qty: it.qty, price: it.price })) },
       edClient, company
     )
@@ -616,6 +618,17 @@ export default function Quotes() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Título de la cotización */}
+              <div className="ss-field">
+                <label>Título de la cotización (opcional)</label>
+                <input
+                  value={edTitle}
+                  onChange={e=>setEdTitle(e.target.value)}
+                  placeholder="Ej: Terma solar 120 litros"
+                  maxLength={100}
+                />
               </div>
 
               {/* Nota */}
