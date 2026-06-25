@@ -138,6 +138,7 @@ export function printQuote(quote, client, company = {}) {
       </div>
     </div>
     <div class="header-accent"></div>
+    ${quote.title ? `<div style="padding: 10px 26px 0; font-size: 15px; font-weight: 800; color: #0b4ea6; text-transform: uppercase; letter-spacing: 0.5px;">${esc(quote.title)}</div>` : ''}
     <div class="body-wrap">
       <div class="meta">
         <div class="mbox">
